@@ -1,0 +1,37 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+<link rel="stylesheet" href="~/css/auth/login/main.css" asp-append-version="true" />
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+<div class="login-container">
+    <form method="post" class="login-form">
+        <h2>Inicia Sesión en ProConnect</h2>
+        <div class="form-group">
+            <label for="Email">Correo Electrónico *</label>
+            <input type="email" id="Email" name="Email" required />
+        </div>
+        <div class="form-group">
+            <label for="Password">Contraseña *</label>
+            <input type="password" id="Password" name="Password" required />
+        </div>
+        <div class="form-group form-remember">
+            <label><input type="checkbox" name="RememberMe" /> Recordarme</label>
+        </div>
+        <div class="form-links">
+            <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+        <button type="submit" class="btn-login">Iniciar Sesión</button>
+        <div class="form-footer">
+            ¿No tienes una cuenta? <a href="/auth/Register">Regístrate aquí.</a>
+        </div>
+    </form>
+</div> 
