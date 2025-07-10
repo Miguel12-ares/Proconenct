@@ -1,0 +1,54 @@
+@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Registro";
+}
+<link rel="stylesheet" href="~/css/auth/register/main.css" asp-append-version="true" />
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+<div class="register-container">
+    <form method="post" class="register-form">
+        <h2>Regístrate en ProConnect</h2>
+        <div class="form-group">
+            <label for="FirstName">Nombre *</label>
+            <input type="text" id="FirstName" name="FirstName" required />
+        </div>
+        <div class="form-group">
+            <label for="LastName">Apellido *</label>
+            <input type="text" id="LastName" name="LastName" required />
+        </div>
+        <div class="form-group">
+            <label for="Email">Correo Electrónico *</label>
+            <input type="email" id="Email" name="Email" required />
+        </div>
+        <div class="form-group">
+            <label for="PhoneNumber">Teléfono *</label>
+            <input type="tel" id="PhoneNumber" name="PhoneNumber" required />
+        </div>
+        <div class="form-group">
+            <label>Tipo de Usuario *</label>
+            <div class="user-type-options">
+                <label><input type="radio" name="UserType" value="1" required /> Cliente</label>
+                <label><input type="radio" name="UserType" value="2" required /> Profesional</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Password">Contraseña *</label>
+            <input type="password" id="Password" name="Password" minlength="8" required />
+        </div>
+        <div class="form-group">
+            <label for="ConfirmPassword">Confirmar Contraseña *</label>
+            <input type="password" id="ConfirmPassword" name="ConfirmPassword" minlength="8" required />
+        </div>
+        <button type="submit" class="btn-register">Registrarse</button>
+        <div class="form-footer">
+            ¿Ya tienes una cuenta? <a href="/auth/Login">Inicia sesión aquí.</a>
+        </div>
+    </form>
+</div> 

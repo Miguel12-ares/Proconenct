@@ -1,0 +1,48 @@
+.proconnect-footer {
+    background: #fff;
+    border-top: 1px solid #eee;
+    margin-top: 2rem;
+}
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 2rem 0;
+    gap: 2rem;
+}
+.footer-brand {
+    min-width: 180px;
+}
+.footer-title {
+    font-weight: bold;
+    color: #2a3cff;
+    font-size: 1.1rem;
+}
+.footer-desc {
+    font-size: 0.95rem;
+    color: #666;
+}
+.footer-col {
+    min-width: 120px;
+}
+.footer-heading {
+    font-weight: bold;
+}
+.footer-icon {
+    margin-right: 8px;
+    font-size: 1.2rem;
+}
+.footer-copy {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #888;
+    padding-bottom: 1rem;
+}
+@media (max-width: 900px) {
+    .footer-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+} 
