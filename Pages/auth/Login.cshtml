@@ -4,6 +4,16 @@
     ViewData["Title"] = "Iniciar Sesión";
 }
 <link rel="stylesheet" href="~/css/auth/login/main.css" asp-append-version="true" />
+@if (!string.IsNullOrEmpty(Model.ErrorMessage) && Model.ErrorMessage.Contains("verificar tu correo"))
+{
+    <div class="alert alert-warning">
+        @Model.ErrorMessage <br />
+        <form method="post" asp-page-handler="ResendVerification" class="mt-2">
+            <input type="hidden" name="Email" value="@Model.Email" />
+            <button type="submit" class="btn btn-link">Reenviar correo de verificación</button>
+        </form>
+    </div>
+}
 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
 {
     <div class="alert alert-danger">@Model.ErrorMessage</div>

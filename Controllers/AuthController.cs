@@ -165,5 +165,28 @@ namespace Proconenct.Controllers
         {
             return Ok(new { message = "Acceso permitido solo para administradores." });
         }
+
+        /// <summary>
+        /// Envía o reenvía el email de verificación
+        /// </summary>
+        [HttpPost("send-verification")]
+        public async Task<IActionResult> SendVerification([FromBody] string email)
+        {
+            var result = await _authService.SendEmailVerificationAsync(email);
+            if (result)
+                return Ok(new { message = "Correo de verificación enviado" });
+            return BadRequest(new { message = "No se pudo enviar el correo de verificación" });
+        }
+
+        /// <summary>
+        /// Verifica el email usando el token
+        /// </summary>
+        [HttpGet("verify-email/{token}")]
+        public async Task<IActionResult> VerifyEmail(string token)
+        {
+            var result = await _authService.VerifyEmailAsync(token);
+            // Siempre redirigir al login, sin mostrar detalles de error
+            return Redirect("/auth/Login?verified=" + (result ? "1" : "0"));
+        }
     }
 }

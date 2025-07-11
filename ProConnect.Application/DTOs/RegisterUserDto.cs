@@ -11,5 +11,7 @@ namespace ProConnect.Application.DTOs
         public string LastName { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
         public UserType UserType { get; set; } = UserType.Client;
+        public string? EmailVerificationToken { get; set; }
+        public DateTime? EmailVerificationTokenExpiresAt { get; set; }
     }
 }

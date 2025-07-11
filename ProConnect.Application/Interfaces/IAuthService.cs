@@ -10,5 +10,7 @@ namespace ProConnect.Application.Interfaces
         Task<AuthResponseDto> RefreshTokenAsync(string token, string refreshToken);
         Task<bool> ValidateTokenAsync(string token);
         Task<bool> LogoutAsync(string userId);
+        Task<bool> SendEmailVerificationAsync(string email);
+        Task<bool> VerifyEmailAsync(string token);
     }
 }

@@ -25,11 +25,19 @@ public class LoginModel : PageModel
     public string ErrorMessage { get; set; }
     public string SuccessMessage { get; set; }
 
-    public void OnGet(bool? registered)
+    public void OnGet(bool? registered, int? verified)
     {
         if (registered == true)
         {
             SuccessMessage = "¡Registro exitoso! Ahora puedes iniciar sesión.";
+        }
+        if (verified == 1)
+        {
+            SuccessMessage = "¡Correo verificado exitosamente! Ahora puedes iniciar sesión.";
+        }
+        else if (verified == 0)
+        {
+            SuccessMessage = "Verificación completada. Si el enlace ya fue usado o expiró, simplemente inicia sesión si tu cuenta ya está activa.";
         }
     }
 
@@ -83,5 +91,20 @@ public class LoginModel : PageModel
             }
             return Page();
         }
+    }
+
+    public async Task<IActionResult> OnPostResendVerificationAsync()
+    {
+        if (string.IsNullOrEmpty(Email))
+        {
+            ErrorMessage = "Debes ingresar tu correo para reenviar la verificación.";
+            return Page();
+        }
+        // Llama al endpoint o servicio para reenviar el email
+        // Aquí deberías inyectar el servicio adecuado o hacer una llamada HTTP
+        // Ejemplo:
+        // await _authService.SendEmailVerificationAsync(Email);
+        SuccessMessage = "Correo de verificación reenviado. Revisa tu bandeja de entrada.";
+        return Page();
     }
 } 

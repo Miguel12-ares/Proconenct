@@ -89,6 +89,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Registro de dependencias - Servicios
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Registro de validadores
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserValidator>();
