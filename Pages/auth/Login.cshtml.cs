@@ -1,110 +1,123 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http;
-using System.Text;
+using ProConnect.Application.DTOs;
+using ProConnect.Application.Interfaces;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 
-public class LoginModel : PageModel
+namespace Proconenct.Pages.auth
 {
-    [BindProperty]
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
-
-    [BindProperty]
-    [Required]
-    public string Password { get; set; }
-
-    [BindProperty]
-    public bool RememberMe { get; set; }
-
-    public string ErrorMessage { get; set; }
-    public string SuccessMessage { get; set; }
-
-    public void OnGet(bool? registered, int? verified)
+    public class LoginModel : PageModel
     {
-        if (registered == true)
-        {
-            SuccessMessage = "¡Registro exitoso! Ahora puedes iniciar sesión.";
-        }
-        if (verified == 1)
-        {
-            SuccessMessage = "¡Correo verificado exitosamente! Ahora puedes iniciar sesión.";
-        }
-        else if (verified == 0)
-        {
-            SuccessMessage = "Verificación completada. Si el enlace ya fue usado o expiró, simplemente inicia sesión si tu cuenta ya está activa.";
-        }
-    }
+        private readonly IAuthService _authService;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-    public async Task<IActionResult> OnPostAsync()
-    {
-        if (!ModelState.IsValid)
+        [BindProperty]
+        public string Email { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string Password { get; set; } = string.Empty;
+
+        [BindProperty]
+        public bool RememberMe { get; set; }
+
+        public string ErrorMessage { get; set; } = string.Empty;
+        public string SuccessMessage { get; set; } = string.Empty;
+
+        public LoginModel(IAuthService authService, IHttpClientFactory httpClientFactory)
         {
-            ErrorMessage = "Por favor, completa todos los campos correctamente.";
-            return Page();
+            _authService = authService;
+            _httpClientFactory = httpClientFactory;
         }
 
-        var loginDto = new
+        public void OnGet(bool? registered, int? verified)
         {
-            email = Email,
-            password = Password,
-            rememberMe = RememberMe
-        };
+            if (registered == true)
+            {
+                SuccessMessage = "¡Registro exitoso! Por favor, verifica tu correo electrónico antes de iniciar sesión.";
+            }
 
-        using var client = new HttpClient();
-        var json = JsonSerializer.Serialize(loginDto);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await client.PostAsync("http://localhost:5089/api/auth/login", content);
-        var responseString = await response.Content.ReadAsStringAsync();
-
-        if (response.IsSuccessStatusCode)
-        {
-            SuccessMessage = "¡Inicio de sesión exitoso!";
-            return RedirectToPage("/Index");
+            if (verified == 1)
+            {
+                SuccessMessage = "¡Email verificado exitosamente! Ya puedes iniciar sesión.";
+            }
+            else if (verified == 0)
+            {
+                ErrorMessage = "Error al verificar el email. El enlace puede haber expirado o ser inválido.";
+            }
         }
-        else
+
+        public async Task<IActionResult> OnPostAsync()
         {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
             try
             {
-                var jsonDoc = JsonNode.Parse(responseString);
-                var errors = jsonDoc?["errors"]?.ToString();
-                if (!string.IsNullOrEmpty(errors))
+                var loginDto = new LoginUserDto
                 {
-                    // Decodificar unicode y limpiar el mensaje
-                    ErrorMessage = Regex.Unescape(errors.Replace("[", "").Replace("]", "").Replace("\"", "")).Trim();
-                    if (ErrorMessage.Contains("Credenciales inválidas"))
-                        ErrorMessage = "Correo o contraseña incorrectos.";
+                    Email = Email,
+                    Password = Password
+                };
+
+                var result = await _authService.LoginAsync(loginDto);
+
+                if (result.Success)
+                {
+                    // Guardar token en cookie
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = false, // Cambiar a true en producción con HTTPS
+                        SameSite = SameSiteMode.Strict,
+                        MaxAge = TimeSpan.FromHours(1)
+                    };
+
+                    Response.Cookies.Append("jwtToken", result.Token!, cookieOptions);
+
+                    // Redirigir a la landing page protegida
+                    return RedirectToPage("/Home");
                 }
                 else
                 {
-                    ErrorMessage = "Error en el inicio de sesión. Intenta nuevamente.";
+                    ErrorMessage = result.Errors?.FirstOrDefault() ?? "Error al iniciar sesión";
+                    return Page();
+                }
+            }
+            catch (Exception)
+            {
+                ErrorMessage = "Error interno del servidor. Inténtalo de nuevo.";
+                return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostResendVerificationAsync()
+        {
+            if (string.IsNullOrWhiteSpace(Email))
+            {
+                ErrorMessage = "Por favor, ingresa tu correo electrónico.";
+                return Page();
+            }
+
+            try
+            {
+                var result = await _authService.SendEmailVerificationAsync(Email);
+                if (result)
+                {
+                    SuccessMessage = "Se ha enviado un nuevo enlace de verificación a tu correo electrónico.";
+                }
+                else
+                {
+                    ErrorMessage = "No se pudo enviar el enlace de verificación. Verifica tu correo electrónico.";
                 }
             }
             catch
             {
-                ErrorMessage = "Error en el inicio de sesión. Intenta nuevamente.";
+                ErrorMessage = "Error interno del servidor. Inténtalo de nuevo.";
             }
-            return Page();
-        }
-    }
 
-    public async Task<IActionResult> OnPostResendVerificationAsync()
-    {
-        if (string.IsNullOrEmpty(Email))
-        {
-            ErrorMessage = "Debes ingresar tu correo para reenviar la verificación.";
             return Page();
         }
-        // Llama al endpoint o servicio para reenviar el email
-        // Aquí deberías inyectar el servicio adecuado o hacer una llamada HTTP
-        // Ejemplo:
-        // await _authService.SendEmailVerificationAsync(Email);
-        SuccessMessage = "Correo de verificación reenviado. Revisa tu bandeja de entrada.";
-        return Page();
     }
 } 

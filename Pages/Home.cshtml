@@ -1,0 +1,128 @@
+@page
+@model HomeModel
+@{
+    ViewData["Title"] = "ProConnect - Encuentra al profesional perfecto";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<section class="landing-hero">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">Encuentra al profesional perfecto para tu proyecto</h1>
+        <p class="lead">Conecta con expertos verificados en diversas especialidades, de forma rapida y segura.</p>
+        <form class="landing-search-form d-flex justify-content-center align-items-center mt-4" role="search">
+            <input type="text" class="form-control landing-search-input" placeholder="¿Que profesional necesitas?" aria-label="Buscar profesional">
+            <button class="btn btn-primary ms-2 landing-search-btn" type="submit">Buscar</button>
+        </form>
+        <div class="landing-hero-img mt-4 mb-4">
+            <img src="/img/landing/image.png" alt="Profesionales ProConnect" class="img-fluid rounded shadow" style="max-width: 400px;">
+        </div>
+    </div>
+</section>
+
+<div class="alert alert-warning text-center" style="margin-top: 2rem;">ADVERTENCIA: La autenticacion esta deshabilitada temporalmente para pruebas. No olvides volver a activarla.</div>
+
+<section class="landing-how-it-works py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">Como funciona ProConnect</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 text-center p-3">
+                    <div class="landing-icon mb-2">🔍</div>
+                    <h5 class="fw-bold">1. Busca</h5>
+                    <p>Encuentra profesionales por especialidad, ubicacion o rating.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 text-center p-3">
+                    <div class="landing-icon mb-2">🔗</div>
+                    <h5 class="fw-bold">2. Conecta</h5>
+                    <p>Contacta directamente con el profesional que elijas.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 text-center p-3">
+                    <div class="landing-icon mb-2">✅</div>
+                    <h5 class="fw-bold">3. Realiza</h5>
+                    <p>Contrata y completa tu proyecto con confianza.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="landing-categories py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Explora nuestras categorias</h2>
+        <div class="row justify-content-center g-3">
+            <div class="col-6 col-md-2">
+                <div class="category-card text-center p-3 h-100">
+                    <div class="category-icon mb-2">&lt;/&gt;</div>
+                    <div>Desarrollo Web</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="category-card text-center p-3 h-100">
+                    <div class="category-icon mb-2">🎨</div>
+                    <div>Diseño Grafico</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="category-card text-center p-3 h-100">
+                    <div class="category-icon mb-2">📈</div>
+                    <div>Marketing Digital</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="category-card text-center p-3 h-100">
+                    <div class="category-icon mb-2">📝</div>
+                    <div>Redaccion y Traduccion</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="category-card text-center p-3 h-100">
+                    <div class="category-icon mb-2">💼</div>
+                    <div>Consultoria</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="category-card text-center p-3 h-100">
+                    <div class="category-icon mb-2">📷</div>
+                    <div>Fotografia y Video</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="landing-testimonials py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">Lo que dicen nuestros clientes</h2>
+        <div class="row justify-content-center g-3">
+            <div class="col-md-4">
+                <div class="testimonial-card p-4 h-100">
+                    <div class="testimonial-stars mb-2">★★★★★</div>
+                    <p class="testimonial-text">"ProConnect me ayudo a encontrar un disenador grafico increible en tiempo record. ¡Totalmente recomendado!"</p>
+                    <div class="testimonial-author">Ana G.</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card p-4 h-100">
+                    <div class="testimonial-stars mb-2">★★★★☆</div>
+                    <p class="testimonial-text">"La plataforma es muy intuitiva y el proceso de contratacion fue muy sencillo. ¡Volvere a usarla!"</p>
+                    <div class="testimonial-author">Carlos M.</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card p-4 h-100">
+                    <div class="testimonial-stars mb-2">★★★★★</div>
+                    <p class="testimonial-text">"Excelente servicio al cliente y una gran variedad de profesionales. Mi proyecto fue un exito."</p>
+                    <div class="testimonial-author">Sofia L.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/landing/main.css" />
+} 

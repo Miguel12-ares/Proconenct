@@ -189,4 +189,36 @@ namespace Proconenct.Controllers
             return Redirect("/auth/Login?verified=" + (result ? "1" : "0"));
         }
     }
+
+    [Authorize]
+    [ApiController]
+    [Route("api/users")]
+    public class UsersController : ControllerBase
+    {
+        private readonly IAuthService _authService;
+        public UsersController(IAuthService authService)
+        {
+            _authService = authService;
+        }
+
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var profile = await _authService.GetProfileAsync(userId);
+            if (profile == null) return NotFound();
+            return Ok(profile);
+        }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileDto dto)
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var result = await _authService.UpdateProfileAsync(userId, dto);
+            if (!result) return BadRequest("Datos invalidos o error al actualizar perfil");
+            return NoContent();
+        }
+    }
 }

@@ -24,6 +24,9 @@ namespace ProConnect.Core.Entities
         [BsonElement("phoneNumber")]
         public string? PhoneNumber { get; set; }
 
+        [BsonElement("bio")]
+        public string? Bio { get; set; }
+
         [BsonElement("userType")]
         public UserType UserType { get; set; } = UserType.Client;
 

@@ -26,6 +26,30 @@
 .register-form input:focus {
     border: 1.5px solid #2a3cff;
     outline: none;
+    box-shadow: 0 0 0 2px rgba(42, 60, 255, 0.1);
+}
+
+.password-hint {
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+    display: block;
+}
+
+.field-error {
+    color: #c0392b;
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+    display: block;
+}
+
+.register-form input.error {
+    border-color: #e57373;
+}
+
+.register-form button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 .user-type-options {

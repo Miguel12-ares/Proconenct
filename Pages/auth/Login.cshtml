@@ -1,9 +1,14 @@
 @page
 @model LoginModel
 @{
-    ViewData["Title"] = "Iniciar Sesión";
+    ViewData["Title"] = "Iniciar Sesion";
+    if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        Response.Redirect("/Home");
+    }
 }
 <link rel="stylesheet" href="~/css/auth/login/main.css" asp-append-version="true" />
+<script src="~/js/auth/validation.js" asp-append-version="true"></script>
 @if (!string.IsNullOrEmpty(Model.ErrorMessage) && Model.ErrorMessage.Contains("verificar tu correo"))
 {
     <div class="alert alert-warning">

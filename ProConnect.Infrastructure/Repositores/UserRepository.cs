@@ -62,5 +62,21 @@ namespace ProConnect.Infrastructure.Repositories
         {
             return await _users.Find(x => x.UserType == userType).ToListAsync();
         }
+
+        public async Task<bool> UpdateProfileFieldsAsync(string userId, string firstName, string lastName, string phone, string bio)
+        {
+            var update = Builders<User>.Update
+                .Set(u => u.FirstName, firstName)
+                .Set(u => u.LastName, lastName)
+                .Set(u => u.PhoneNumber, phone)
+                .Set(u => u.UpdatedAt, DateTime.UtcNow)
+                .Set(u => u.Bio, bio);
+
+            var result = await _users.UpdateOneAsync(
+                x => x.Id == userId,
+                update
+            );
+            return result.ModifiedCount > 0;
+        }
     }
 }

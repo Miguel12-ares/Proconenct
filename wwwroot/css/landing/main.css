@@ -1,0 +1,103 @@
+/* Estilos principales para la landing page de ProConnect */
+
+.landing-hero {
+    padding: 3rem 0 2rem 0;
+    background: #fff;
+}
+.landing-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+.landing-hero p.lead {
+    color: #555;
+    font-size: 1.2rem;
+}
+.landing-search-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+.landing-search-input {
+    min-width: 0;
+    flex: 1 1 auto;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem 1rem;
+}
+.landing-search-btn {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+}
+.landing-hero-img img {
+    max-width: 120%;
+    height: auto;
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.landing-how-it-works .card {
+    border: none;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    border-radius: 1rem;
+    transition: box-shadow 0.2s;
+}
+.landing-how-it-works .card:hover {
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+.landing-icon {
+    font-size: 2.2rem;
+    color: #0d6efd;
+}
+
+.landing-categories .category-card {
+    background: #f5f7fa;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+.landing-categories .category-card:hover {
+    background: #e9f2ff;
+    box-shadow: 0 4px 16px rgba(13,110,253,0.08);
+}
+.category-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #0d6efd;
+}
+
+.landing-testimonials .testimonial-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    min-height: 220px;
+}
+.testimonial-stars {
+    color: #ffc107;
+    font-size: 1.3rem;
+    letter-spacing: 0.1rem;
+}
+.testimonial-text {
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 1rem;
+}
+.testimonial-author {
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+@media (max-width: 768px) {
+    .landing-hero h1 {
+        font-size: 2rem;
+    }
+    .landing-how-it-works .card {
+        margin-bottom: 1rem;
+    }
+    .landing-categories .category-card {
+        margin-bottom: 1rem;
+    }
+} 

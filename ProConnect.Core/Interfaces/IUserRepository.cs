@@ -12,5 +12,6 @@ namespace ProConnect.Core.Interfaces
         Task<bool> EmailExistsAsync(string email);
         Task<List<User>> GetAllAsync();
         Task<List<User>> GetByUserTypeAsync(UserType userType);
+        Task<bool> UpdateProfileFieldsAsync(string userId, string firstName, string lastName, string phone, string bio);
     }
 }
