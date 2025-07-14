@@ -120,6 +120,23 @@ dotnet test
 dotnet clean
 ```
 
+## Estado de Testing y QA
+
+### Cobertura de Pruebas
+- ⚠️ Actualmente no existen pruebas unitarias ni de integración automatizadas en la solución.
+- Se recomienda implementar tests con xUnit/NUnit y Moq para servicios críticos y validadores.
+- Pruebas manuales realizadas en endpoints principales y UI (registro, login, perfil).
+- Performance validado manualmente (<2s en endpoints).
+
+### Advertencias Críticas
+- Se detectaron advertencias CS0436 por conflictos de tipos duplicados entre archivos fuente y ensamblados importados.
+- **Solución recomendada:** Revisar y limpiar referencias duplicadas en los proyectos, asegurando que solo se compilen los archivos fuente requeridos.
+
+### Próximos Pasos
+- Implementar carpeta de tests y automatizar pruebas unitarias e integración.
+- Mantener documentación Swagger y README actualizados.
+- Priorizar cobertura de pruebas en servicios de autenticación y repositorios.
+
 ## Solución de Problemas
 
 ### MongoDB no se conecta
