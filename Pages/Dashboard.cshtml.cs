@@ -48,6 +48,7 @@ namespace Proconenct.Pages
             // Cambiar a claim 'user_type' (así se genera en el JWT)
             var userType = jwt.Claims.FirstOrDefault(c => c.Type == "user_type")?.Value;
             FirstName = jwt.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.GivenName)?.Value ?? "Usuario";
+            ViewData["UserName"] = FirstName;
 
             if (userType == "Client")
             {

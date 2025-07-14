@@ -158,6 +158,17 @@ app.UseStaticFiles();
 
 app.UseCors("AllowSpecificOrigins");
 
+// Middleware personalizado para propagar el JWT de la cookie al header Authorization
+app.Use(async (context, next) =>
+{
+    var token = context.Request.Cookies["jwtToken"];
+    if (!string.IsNullOrEmpty(token) && !context.Request.Headers.ContainsKey("Authorization"))
+    {
+        context.Request.Headers.Add("Authorization", $"Bearer {token}");
+    }
+    await next();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 

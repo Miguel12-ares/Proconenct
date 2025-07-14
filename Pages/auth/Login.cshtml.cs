@@ -87,7 +87,7 @@ namespace Proconenct.Pages.auth
                     Response.Cookies.Append("jwtToken", result.Token!, cookieOptions);
 
                     // Redirigir a la landing page protegida
-                    return RedirectToPage("/Home");
+                    return RedirectToPage("/Dashboard");
                 }
                 else
                 {

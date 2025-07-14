@@ -1,6 +1,6 @@
 @* Navegación del dashboard, reutilizable para cliente y profesional *@
 @{
-    var userName = Context.User?.Identity?.Name ?? "Usuario";
+    var userName = ViewData["UserName"] as string ?? Context.User?.Identity?.Name ?? "Usuario";
 }
 <nav class="dashboard-nav">
     <div class="dashboard-nav-header">

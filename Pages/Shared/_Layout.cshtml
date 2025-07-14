@@ -40,8 +40,15 @@
                         <div class="d-flex align-items-center gap-2">
                             @if (User.Identity != null && User.Identity.IsAuthenticated)
                             {
-                                <a class="btn btn-light border rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" asp-area="" asp-page="/auth/Profile" title="Mi perfil">
-                                    <i class="fas fa-user"></i>
+                                var userName = "Usuario";
+                                var givenNameClaim = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.GivenName);
+                                if (givenNameClaim != null && !string.IsNullOrWhiteSpace(givenNameClaim.Value))
+                                {
+                                    userName = givenNameClaim.Value;
+                                }
+                                <a class="btn btn-light border rounded-pill d-flex align-items-center justify-content-center px-3" asp-area="" asp-page="/auth/Profile" title="Mi perfil">
+                                    <i class="fas fa-user me-2"></i>
+                                    <span class="fw-semibold">@userName</span>
                                 </a>
                             }
                             else
