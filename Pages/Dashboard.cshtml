@@ -1,0 +1,118 @@
+@page
+@model DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["UserName"] = Model.FirstName;
+}
+<link rel="stylesheet" href="~/css/dashboard/main.css" asp-append-version="true" />
+<div class="dashboard-container row g-0">
+    <div class="col-12 col-md-3 col-lg-2">
+        <partial name="_DashboardNav" />
+    </div>
+    <div class="dashboard-content col-12 col-md-9 col-lg-10">
+        @if (Model.IsLoading)
+        {
+            <div class="loading-state d-flex flex-column align-items-center justify-content-center" style="min-height: 300px;">
+                <i class="fas fa-spinner fa-spin fa-2x mb-3 text-primary"></i>
+                <span>Cargando...</span>
+            </div>
+        }
+        else if (!Model.IsAuthenticated)
+        {
+            <div class="alert alert-warning mt-4">Debes iniciar sesion para ver el dashboard.</div>
+        }
+        else if (Model.IsClient)
+        {
+            <h2 class="mb-4"><i class="fas fa-user-circle me-2 text-primary"></i>Bienvenido, @Model.FirstName!</h2>
+            <div class="dashboard-section mb-4">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                <i class="fas fa-search fa-2x mb-2 text-primary"></i>
+                                <a href="/search" class="btn btn-primary w-100">Buscar profesionales</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-history me-2"></i>Historial de busquedas recientes</h5>
+                                <div class="placeholder text-muted">(Proximamente)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="card h-100 shadow-sm mt-3">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-heart me-2"></i>Favoritos</h5>
+                                <div class="placeholder text-muted">(Proximamente)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="card h-100 shadow-sm mt-3">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                <i class="fas fa-user-edit fa-2x mb-2 text-secondary"></i>
+                                <a href="/auth/Profile" class="btn btn-outline-secondary w-100">Ver mi perfil</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (Model.IsProfessional)
+        {
+            <h2 class="mb-4"><i class="fas fa-user-tie me-2 text-primary"></i>Panel Profesional - @Model.FirstName</h2>
+            <div class="dashboard-section mb-4">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-id-badge me-2"></i>Resumen de perfil</h5>
+                                <div>@Model.ProfileSummary</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-check-circle me-2"></i>Estado de verificacion</h5>
+                                <div>@Html.Raw(Model.IsVerified ? "<span class='text-success'>Verificado</span>" : "<span class='text-danger'>No verificado</span>")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="card h-100 shadow-sm mt-3">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                <i class="fas fa-edit fa-2x mb-2 text-secondary"></i>
+                                <a href="/services/edit" class="btn btn-primary w-100">Editar servicios</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="card h-100 shadow-sm mt-3">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-calendar-alt me-2"></i>Calendario de disponibilidad</h5>
+                                <div class="placeholder text-muted">(Proximamente)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="card h-100 shadow-sm mt-3">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Estadisticas basicas</h5>
+                                <div class="placeholder text-muted">(Proximamente)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger mt-4">No se pudo determinar el tipo de usuario.</div>
+        }
+    </div>
+</div> 

@@ -2,15 +2,20 @@
 @model RegisterModel
 @{
     ViewData["Title"] = "Registro";
+    if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        Response.Redirect("/Home");
+    }
 }
 <link rel="stylesheet" href="~/css/auth/register/main.css" asp-append-version="true" />
+<script src="~/js/auth/validation.js" asp-append-version="true"></script>
 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
 {
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 @if (!string.IsNullOrEmpty(Model.SuccessMessage))
 {
-    <div class="alert alert-success">@Model.SuccessMessage</div>
+    <div class="alert alert-success">@Model.SuccessMessage <br />Por favor revisa tu correo y haz clic en el enlace de verificación para activar tu cuenta antes de iniciar sesión.</div>
 }
 <div class="register-container">
     <form method="post" class="register-form">
@@ -41,6 +46,7 @@
         <div class="form-group">
             <label for="Password">Contraseña *</label>
             <input type="password" id="Password" name="Password" minlength="8" required />
+            <small class="password-hint">Minimo 8 caracteres</small>
         </div>
         <div class="form-group">
             <label for="ConfirmPassword">Confirmar Contraseña *</label>

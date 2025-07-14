@@ -1,86 +1,132 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http;
-using System.Text;
+using ProConnect.Application.DTOs;
+using ProConnect.Application.Interfaces;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 
-public class LoginModel : PageModel
+namespace Proconenct.Pages.auth
 {
-    [BindProperty]
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
-
-    [BindProperty]
-    [Required]
-    public string Password { get; set; }
-
-    [BindProperty]
-    public bool RememberMe { get; set; }
-
-    public string ErrorMessage { get; set; }
-    public string SuccessMessage { get; set; }
-
-    public void OnGet(bool? registered)
+    public class LoginModel : PageModel
     {
-        if (registered == true)
+        private readonly IAuthService _authService;
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        [BindProperty]
+        public string Email { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string Password { get; set; } = string.Empty;
+
+        [BindProperty]
+        public bool RememberMe { get; set; }
+
+        public string ErrorMessage { get; set; } = string.Empty;
+        public string SuccessMessage { get; set; } = string.Empty;
+
+        public bool AlreadyLoggedIn { get; set; } = false;
+
+        public LoginModel(IAuthService authService, IHttpClientFactory httpClientFactory)
         {
-            SuccessMessage = "¡Registro exitoso! Ahora puedes iniciar sesión.";
+            _authService = authService;
+            _httpClientFactory = httpClientFactory;
         }
-    }
 
-    public async Task<IActionResult> OnPostAsync()
-    {
-        if (!ModelState.IsValid)
+        public void OnGet(bool? registered, int? verified)
         {
-            ErrorMessage = "Por favor, completa todos los campos correctamente.";
-            return Page();
+            // Detectar si el usuario ya tiene una sesión activa (token en cookie)
+            var token = Request.Cookies["jwtToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                AlreadyLoggedIn = true;
+                return;
+            }
+
+            if (registered == true)
+            {
+                SuccessMessage = "¡Registro exitoso! Por favor, verifica tu correo electrónico antes de iniciar sesión.";
+            }
+
+            if (verified == 1)
+            {
+                SuccessMessage = "¡Email verificado exitosamente! Ya puedes iniciar sesión.";
+            }
+            else if (verified == 0)
+            {
+                ErrorMessage = "Error al verificar el email. El enlace puede haber expirado o ser inválido.";
+            }
         }
 
-        var loginDto = new
+        public async Task<IActionResult> OnPostAsync()
         {
-            email = Email,
-            password = Password,
-            rememberMe = RememberMe
-        };
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
 
-        using var client = new HttpClient();
-        var json = JsonSerializer.Serialize(loginDto);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await client.PostAsync("http://localhost:5089/api/auth/login", content);
-        var responseString = await response.Content.ReadAsStringAsync();
-
-        if (response.IsSuccessStatusCode)
-        {
-            SuccessMessage = "¡Inicio de sesión exitoso!";
-            return RedirectToPage("/Index");
-        }
-        else
-        {
             try
             {
-                var jsonDoc = JsonNode.Parse(responseString);
-                var errors = jsonDoc?["errors"]?.ToString();
-                if (!string.IsNullOrEmpty(errors))
+                var loginDto = new LoginUserDto
                 {
-                    // Decodificar unicode y limpiar el mensaje
-                    ErrorMessage = Regex.Unescape(errors.Replace("[", "").Replace("]", "").Replace("\"", "")).Trim();
-                    if (ErrorMessage.Contains("Credenciales inválidas"))
-                        ErrorMessage = "Correo o contraseña incorrectos.";
+                    Email = Email,
+                    Password = Password
+                };
+
+                var result = await _authService.LoginAsync(loginDto);
+
+                if (result.Success)
+                {
+                    // Guardar token en cookie
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = false, // Cambiar a true en producción con HTTPS
+                        SameSite = SameSiteMode.Strict,
+                        MaxAge = TimeSpan.FromHours(1)
+                    };
+
+                    Response.Cookies.Append("jwtToken", result.Token!, cookieOptions);
+
+                    // Redirigir a la landing page protegida
+                    return RedirectToPage("/Dashboard");
                 }
                 else
                 {
-                    ErrorMessage = "Error en el inicio de sesión. Intenta nuevamente.";
+                    ErrorMessage = result.Errors?.FirstOrDefault() ?? "Error al iniciar sesión";
+                    return Page();
+                }
+            }
+            catch (Exception)
+            {
+                ErrorMessage = "Error interno del servidor. Inténtalo de nuevo.";
+                return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostResendVerificationAsync()
+        {
+            if (string.IsNullOrWhiteSpace(Email))
+            {
+                ErrorMessage = "Por favor, ingresa tu correo electrónico.";
+                return Page();
+            }
+
+            try
+            {
+                var result = await _authService.SendEmailVerificationAsync(Email);
+                if (result)
+                {
+                    SuccessMessage = "Se ha enviado un nuevo enlace de verificación a tu correo electrónico.";
+                }
+                else
+                {
+                    ErrorMessage = "No se pudo enviar el enlace de verificación. Verifica tu correo electrónico.";
                 }
             }
             catch
             {
-                ErrorMessage = "Error en el inicio de sesión. Intenta nuevamente.";
+                ErrorMessage = "Error interno del servidor. Inténtalo de nuevo.";
             }
+
             return Page();
         }
     }

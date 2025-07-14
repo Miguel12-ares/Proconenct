@@ -1,0 +1,198 @@
+@page
+@model ProfileModel
+@{
+    ViewData["Title"] = "Editar Perfil";
+}
+<style>
+    /* Estilos de respaldo para asegurar que se apliquen */
+    .profile-edit-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        min-height: 100vh !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 40px 20px !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    }
+    
+    .profile-edit-card {
+        background: #ffffff !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+        padding: 40px 36px 32px 36px !important;
+        max-width: 480px !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    .profile-edit-title {
+        font-size: 1.75rem !important;
+        font-weight: 700 !important;
+        margin-bottom: 32px !important;
+        text-align: center !important;
+        color: #2d3748 !important;
+        position: relative !important;
+    }
+    
+    .profile-edit-form input,
+    .profile-edit-form textarea {
+        background: #f7fafc !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        font-size: 1rem !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
+        font-family: inherit !important;
+        color: #2d3748 !important;
+    }
+    
+    .profile-edit-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 14px 32px !important;
+        border-radius: 8px !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    .profile-success-message {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%) !important;
+        color: #ffffff !important;
+        padding: 16px 20px !important;
+        border-radius: 8px !important;
+        margin-bottom: 24px !important;
+        text-align: center !important;
+        font-weight: 600 !important;
+    }
+    
+    .profile-error-message {
+        background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%) !important;
+        color: #ffffff !important;
+        padding: 16px 20px !important;
+        border-radius: 8px !important;
+        margin-bottom: 24px !important;
+        text-align: center !important;
+        font-weight: 600 !important;
+    }
+</style>
+
+<div class="profile-edit-bg">
+    <div class="profile-edit-card">
+        <h2 class="profile-edit-title">Información Personal</h2>
+        
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="profile-success-message">@Model.SuccessMessage</div>
+        }
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="profile-error-message">@Model.ErrorMessage</div>
+        }
+        
+        <form method="post" class="profile-edit-form">
+            <div class="profile-edit-group">
+                <label for="email">Correo</label>
+                <input type="email" id="email" value="@Model.Email" readonly class="profile-edit-readonly" />
+            </div>
+            
+            <div class="profile-edit-group">
+                <label for="firstName">Nombre <span class="required">*</span></label>
+                <input type="text" id="firstName" name="FirstName" value="@Model.FirstName" required />
+                <span asp-validation-for="FirstName" class="profile-edit-error"></span>
+            </div>
+            
+            <div class="profile-edit-group">
+                <label for="lastName">Apellido <span class="required">*</span></label>
+                <input type="text" id="lastName" name="LastName" value="@Model.LastName" required />
+                <span asp-validation-for="LastName" class="profile-edit-error"></span>
+            </div>
+            
+            <div class="profile-edit-group">
+                <label for="phone">Teléfono <span class="required">*</span></label>
+                <input type="tel" id="phone" name="Phone" value="@Model.Phone" required />
+                <span asp-validation-for="Phone" class="profile-edit-error"></span>
+            </div>
+            
+            <div class="profile-edit-group">
+                <label for="bio">Biografía</label>
+                <textarea id="bio" name="Bio" rows="4" maxlength="500">@Model.Bio</textarea>
+                <span asp-validation-for="Bio" class="profile-edit-error"></span>
+            </div>
+            
+            <div class="profile-edit-actions">
+                <button type="submit" class="profile-edit-btn">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Validación client-side básica
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.profile-edit-form');
+            const submitBtn = document.querySelector('.profile-edit-btn');
+            
+            form.addEventListener('submit', function(e) {
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                
+                if (!firstName || !lastName || !phone) {
+                    e.preventDefault();
+                    alert('Por favor, completa todos los campos obligatorios.');
+                    return false;
+                }
+                
+                // Mostrar loading
+                submitBtn.textContent = 'Guardando...';
+                submitBtn.disabled = true;
+            });
+            
+            // Contador de caracteres para bio
+            const bioTextarea = document.getElementById('bio');
+            bioTextarea.addEventListener('input', function() {
+                const maxLength = 500;
+                const currentLength = this.value.length;
+                if (currentLength > maxLength) {
+                    this.value = this.value.substring(0, maxLength);
+                }
+            });
+            
+            // Auto-guardar en localStorage para evitar pérdida de datos
+            const inputs = form.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                const key = input.name || input.id;
+                const savedValue = localStorage.getItem(`profile_${key}`);
+                if (savedValue && !input.readOnly) {
+                    input.value = savedValue;
+                }
+                
+                input.addEventListener('input', function() {
+                    if (!this.readOnly) {
+                        localStorage.setItem(`profile_${key}`, this.value);
+                    }
+                });
+            });
+            
+            // Limpiar localStorage después de guardar exitosamente
+            form.addEventListener('submit', function() {
+                setTimeout(() => {
+                    inputs.forEach(input => {
+                        const key = input.name || input.id;
+                        localStorage.removeItem(`profile_${key}`);
+                    });
+                }, 1000);
+            });
+        });
+    </script>
+} 

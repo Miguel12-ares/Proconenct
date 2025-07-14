@@ -1,103 +1,92 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
+using ProConnect.Application.DTOs;
+using ProConnect.Application.Interfaces;
+using ProConnect.Core.Entities;
 
-public class RegisterModel : PageModel
+namespace Proconenct.Pages.auth
 {
-    [BindProperty]
-    [Required]
-    public string FirstName { get; set; }
-
-    [BindProperty]
-    [Required]
-    public string LastName { get; set; }
-
-    [BindProperty]
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
-
-    [BindProperty]
-    [Required]
-    public string PhoneNumber { get; set; }
-
-    [BindProperty]
-    [Required]
-    public int UserType { get; set; }
-
-    [BindProperty]
-    [Required]
-    [MinLength(8)]
-    public string Password { get; set; }
-
-    [BindProperty]
-    [Required]
-    [Compare("Password", ErrorMessage = "Las contraseñas no coinciden.")]
-    public string ConfirmPassword { get; set; }
-
-    public string ErrorMessage { get; set; }
-    public string SuccessMessage { get; set; }
-
-    public void OnGet() { }
-
-    public async Task<IActionResult> OnPostAsync()
+    public class RegisterModel : PageModel
     {
-        if (!ModelState.IsValid)
+        private readonly IAuthService _authService;
+
+        [BindProperty]
+        public string FirstName { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string LastName { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string Email { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string PhoneNumber { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string Password { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string ConfirmPassword { get; set; } = string.Empty;
+
+        [BindProperty]
+        public int UserType { get; set; }
+
+        public string ErrorMessage { get; set; } = string.Empty;
+        public string SuccessMessage { get; set; } = string.Empty;
+
+        public RegisterModel(IAuthService authService)
         {
-            ErrorMessage = "Por favor, completa todos los campos correctamente.";
-            return Page();
+            _authService = authService;
         }
 
-        var registerDto = new
+        public void OnGet()
         {
-            FirstName = FirstName,
-            LastName = LastName,
-            Email = Email,
-            PhoneNumber = PhoneNumber,
-            UserType = UserType,
-            Password = Password,
-            ConfirmPassword = ConfirmPassword
-        };
-
-        using var client = new HttpClient();
-        var json = JsonSerializer.Serialize(registerDto);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await client.PostAsync("http://localhost:5089/api/auth/register", content);
-        var responseString = await response.Content.ReadAsStringAsync();
-
-        if (response.IsSuccessStatusCode)
-        {
-            SuccessMessage = "¡Registro exitoso! Ahora puedes iniciar sesión.";
-            return RedirectToPage("/auth/Login", new { registered = true });
         }
-        else
+
+        public async Task<IActionResult> OnPostAsync()
         {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            if (Password != ConfirmPassword)
+            {
+                ErrorMessage = "Las contraseñas no coinciden.";
+                return Page();
+            }
+
             try
             {
-                var jsonDoc = JsonNode.Parse(responseString);
-                var errors = jsonDoc?["errors"]?.ToString();
-                if (!string.IsNullOrEmpty(errors))
+                var registerDto = new RegisterUserDto
                 {
-                    ErrorMessage = Regex.Unescape(errors.Replace("[", "").Replace("]", "").Replace("\"", "")).Trim();
-                    if (ErrorMessage.ToLower().Contains("email ya registrado") || ErrorMessage.ToLower().Contains("ya existe"))
-                        ErrorMessage = "El correo electrónico ya está registrado. Usa otro o inicia sesión.";
+                    FirstName = FirstName.Trim(),
+                    LastName = LastName.Trim(),
+                    Email = Email.ToLowerInvariant().Trim(),
+                    PhoneNumber = PhoneNumber.Trim(),
+                    Password = Password,
+                    ConfirmPassword = ConfirmPassword, // Aseguramos que se envía
+                    UserType = (ProConnect.Core.Entities.UserType)UserType
+                };
+
+                var result = await _authService.RegisterAsync(registerDto);
+
+                if (result.Success)
+                {
+                    // Redirigir al login con mensaje de éxito
+                    return RedirectToPage("/auth/Login", new { registered = true });
                 }
                 else
                 {
-                    ErrorMessage = "Error en el registro. Intenta nuevamente.";
+                    ErrorMessage = result.Errors?.FirstOrDefault() ?? "Error al registrar usuario";
+                    return Page();
                 }
             }
-            catch
+            catch (Exception)
             {
-                ErrorMessage = "Error en el registro. Intenta nuevamente.";
+                ErrorMessage = "Error interno del servidor. Inténtalo de nuevo.";
+                return Page();
             }
-            return Page();
         }
     }
 } 

@@ -25,7 +25,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProConnect API", Version = "v1" });
 
-    // Configuraci�n de autenticaci�n JWT para Swagger
+    // Configuración de autenticación JWT para Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
@@ -51,12 +51,20 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configuraci�n de MongoDB
+// Configuración de MongoDB
 builder.Services.AddSingleton<MongoDbContext>();
 
-// Configuraci�n de JWT Authentication
+// Configuración de HttpClient
+builder.Services.AddHttpClient();
+
+// Configuración de JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings.GetValue<string>("SecretKey");
+
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new InvalidOperationException("JWT SecretKey is not configured");
+}
 
 builder.Services.AddAuthentication(options =>
 {
@@ -76,7 +84,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings.GetValue<string>("Issuer"),
         ValidAudience = jwtSettings.GetValue<string>("Audience"),
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
         ClockSkew = TimeSpan.Zero
     };
 });
@@ -89,17 +97,18 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Registro de dependencias - Servicios
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Registro de validadores
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserValidator>();
 builder.Services.AddScoped<IValidator<LoginUserDto>, LoginUserValidator>();
 
-// Configuraci�n de CORS
+// Configuración de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://localhost:3000") // Agregar or�genes del frontend
+        policy.WithOrigins("http://localhost:3000", "https://localhost:3000") // Agregar orígenes del frontend
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -110,11 +119,26 @@ builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// Crearndices de MongoDB al inicio de la aplicaci�n
+// Crear índices de MongoDB al inicio de la aplicación
 using (var scope = app.Services.CreateScope())
 {
-    var mongoContext = scope.ServiceProvider.GetRequiredService<MongoDbContext>();
-    await mongoContext.CreateIndexesAsync();
+    try
+    {
+        var mongoContext = scope.ServiceProvider.GetRequiredService<MongoDbContext>();
+        await mongoContext.CreateIndexesAsync();
+        
+        // Verificar conexión
+        var isConnected = await mongoContext.IsConnectedAsync();
+        if (!isConnected)
+        {
+            Console.WriteLine("Warning: MongoDB is not available. Some features may not work properly.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Warning: Could not initialize MongoDB. Error: {ex.Message}");
+        Console.WriteLine("The application will continue but database features may not work.");
+    }
 }
 
 // Configure the HTTP request pipeline.
@@ -124,7 +148,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProConnect API v1");
-        c.RoutePrefix = string.Empty; // Para que Swagger est� en la ra�z
+        c.RoutePrefix = "swagger"; // Ahora Swagger estará en /swagger
     });
 }
 
@@ -133,6 +157,17 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseCors("AllowSpecificOrigins");
+
+// Middleware personalizado para propagar el JWT de la cookie al header Authorization
+app.Use(async (context, next) =>
+{
+    var token = context.Request.Cookies["jwtToken"];
+    if (!string.IsNullOrEmpty(token) && !context.Request.Headers.ContainsKey("Authorization"))
+    {
+        context.Request.Headers.Add("Authorization", $"Bearer {token}");
+    }
+    await next();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

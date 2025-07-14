@@ -17,11 +17,18 @@ namespace ProConnect.Application.Validators
                 .EmailAddress().WithMessage("El formato del email no es válido.")
                 .MustAsync(BeUniqueEmail).WithMessage("Este email ya está registrado.");
 
-            RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("La contraseña es requerida.")
-                .MinimumLength(8).WithMessage("La contraseña debe tener al menos 8 caracteres.")
-                .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]")
-                .WithMessage("La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial.");
+            // RuleFor(x => x.Password)
+            //     .NotEmpty().WithMessage("La contrasena es requerida.")
+            //     .MinimumLength(8).WithMessage("La contrasena debe tener minimo 8 caracteres.")
+            //     .Must((user, password) => {
+            //         var regex = new System.Text.RegularExpressions.Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&._-])[A-Za-z\\d@$!%*?&._-]{8,}$");
+            //         var result = regex.IsMatch((password ?? "").Trim());
+            //         if (!result)
+            //         {
+            //             Console.WriteLine($"[VALIDACION] Password no cumple regex: '{password}'");
+            //         }
+            //         return result;
+            //     }).WithMessage("Debe tener mayuscula, minuscula, numero y caracter especial");
 
             RuleFor(x => x.ConfirmPassword)
                 .NotEmpty().WithMessage("La confirmación de contraseña es requerida.")
@@ -29,14 +36,16 @@ namespace ProConnect.Application.Validators
 
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("El nombre es requerido.")
-                .MaximumLength(50).WithMessage("El nombre no puede exceder 50 caracteres.");
+                .MaximumLength(50).WithMessage("El nombre no puede exceder 50 caracteres.")
+                .Matches(@"^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$").WithMessage("El nombre solo puede contener letras y espacios.");
 
             RuleFor(x => x.LastName)
                 .NotEmpty().WithMessage("El apellido es requerido.")
-                .MaximumLength(50).WithMessage("El apellido no puede exceder 50 caracteres.");
+                .MaximumLength(50).WithMessage("El apellido no puede exceder 50 caracteres.")
+                .Matches(@"^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$").WithMessage("El apellido solo puede contener letras y espacios.");
 
             RuleFor(x => x.PhoneNumber)
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("El formato del teléfono no es válido.")
+                .Matches(@"^\+?[0-9]{7,15}$").WithMessage("El telefono solo puede contener numeros y debe tener minimo 7 digitos.")
                 .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber));
 
             RuleFor(x => x.UserType)

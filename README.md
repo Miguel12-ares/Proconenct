@@ -1,87 +1,173 @@
-﻿# README.md
+﻿# ProConnect - Sistema de Gestión de Usuarios
 
-## Instrucciones de instalación
+## Descripción
+ProConnect es una aplicación web ASP.NET Core que proporciona un sistema completo de autenticación y gestión de perfiles de usuario, construida con arquitectura limpia (Clean Architecture).
 
-1. Clonar el repositorio  
-   ```bash
-   git clone 
-   cd ProConnect
-   ```
-2. Restaurar paquetes NuGet  
-   ```bash
-   dotnet restore
-   ```
-3. Configurar variables de entorno  
-   - Copiar `appsettings.example.json` a `appsettings.json`  
-   - Rellenar cadena de conexión a MongoDB en `ConnectionStrings:DefaultConnection`  
-   - Agregar `Jwt:Key`, `Jwt:Issuer` y `Jwt:Audience`  
-4. Iniciar MongoDB (local o en Docker)  
-   ```bash
-   # Si usas Docker:
-   docker run --name mongo-proconnect -p 27017:27017 -d mongo:latest
-   ```
-5. Compilar proyecto  
-   ```bash
-   dotnet build
-   ```
+## Características
+- ✅ Autenticación JWT
+- ✅ Registro de usuarios con verificación de email
+- ✅ Gestión de perfiles de usuario
+- ✅ Interfaz web moderna y responsiva
+- ✅ Base de datos MongoDB
+- ✅ Validación de datos con FluentValidation
+- ✅ Arquitectura limpia con separación de capas
 
-## Comandos básicos de desarrollo
+## Requisitos Previos
+- .NET 9.0 SDK
+- MongoDB Community Server
+- PowerShell (para scripts de configuración)
 
-- Ejecutar el servidor Web API  
-  ```bash
-  dotnet run --project ProConnect.Web
-  ```
-- Ejecutar en modo Debug (Visual Studio Code)  
-  1. Abrir carpeta en VS Code  
-  2. Seleccionar “.NET Core Launch (web)” en el panel de Debug  
-  3. Presionar F5
-- Formatear código con dotnet-format  
-  ```bash
-  dotnet tool install --global dotnet-format
-  dotnet format
-  ```
-- Ejecutar pruebas unitarias  
-  ```bash
-  dotnet test ProConnect.UnitTests
-  ```
-- Crear nueva rama de característica  
-  ```bash
-  git checkout develop
-  git checkout -b feature/nombre-de-la-tarea
-  ```
+## Instalación y Configuración
 
-## Estructura del proyecto
+### 1. Clonar el repositorio
+```bash
+git clone <url-del-repositorio>
+cd Proconenct
+```
+
+### 2. Configurar MongoDB
+Ejecuta el script de configuración de MongoDB como administrador:
+```powershell
+# Ejecutar como administrador
+.\setup-mongodb.ps1
+```
+
+O instala MongoDB manualmente:
+1. Descarga MongoDB Community Server desde: https://www.mongodb.com/try/download/community
+2. Instala MongoDB como servicio
+3. Asegúrate de que MongoDB esté ejecutándose en `localhost:27017`
+
+### 3. Restaurar dependencias
+```bash
+dotnet restore
+```
+
+### 4. Compilar el proyecto
+```bash
+dotnet build
+```
+
+### 5. Ejecutar la aplicación
+```bash
+dotnet run
+```
+
+La aplicación estará disponible en:
+- **Aplicación web**: http://localhost:5089
+- **API Swagger**: http://localhost:5089 (raíz)
+
+## Estructura del Proyecto
 
 ```
-ProConnect/
-│
-├─ ProConnect.Core/               # Núcleo del dominio
-│  ├─ Entities/                   # Entidades del modelo
-│  ├─ Interfaces/                 # Contratos (repositorios, servicios)
-│  └─ Models/                     # DTOs de dominio
-│
-├─ ProConnect.Application/        # Lógica de aplicación
-│  ├─ UseCases/                   # Casos de uso
-│  ├─ Services/                   # Implementaciones de casos de uso
-│  └─ DTOs/                       # Objetos de transferencia
-│
-├─ ProConnect.Infrastructure/     # Implementación técnica
-│  ├─ Data/                       # Contexto y mapeos MongoDB
-│  ├─ Repositories/               # Patrón Repository
-│  ├─ Logging/                    # Configuración de Serilog
-│  └─ Services/                   # Integración con servicios externos
-│
-├─ ProConnect.Web/                # API Web ASP.NET Core
-│  ├─ Controllers/                # Endpoints REST
-│  ├─ Configuration/              # Extensiones de IServiceCollection
-│  ├─ Middleware/                 # Autenticación, autorización, errores
-│  └─ wwwroot/                    # Recursos estáticos (CSS, JS, imágenes)
-│
-├─ ProConnect.UnitTests/          # Pruebas unitarias
-├─ ProConnect.IntegrationTests/   # Pruebas de integración
-├─ ProConnect.E2ETests/           # Pruebas end-to-end
-│
-├─ .gitignore
-├─ README.md
-└─ ProConnect.sln
+Proconenct/
+├── Controllers/           # Controladores API
+├── Pages/                 # Páginas Razor (UI)
+├── ProConnect.Core/       # Entidades y interfaces
+├── ProConnect.Application/ # Casos de uso y servicios
+├── ProConnect.Infrastructure/ # Implementaciones de infraestructura
+└── wwwroot/              # Archivos estáticos
 ```
+
+## Funcionalidades
+
+### Autenticación
+- **Registro**: `/auth/Register` - Registro de nuevos usuarios
+- **Login**: `/auth/Login` - Inicio de sesión
+- **Perfil**: `/auth/Profile` - Gestión del perfil de usuario
+
+### API Endpoints
+- `POST /api/auth/register` - Registro de usuario
+- `POST /api/auth/login` - Inicio de sesión
+- `GET /api/users/profile` - Obtener perfil
+- `PUT /api/users/profile` - Actualizar perfil
+
+## Configuración
+
+### Variables de Entorno
+El proyecto usa `appsettings.json` y `appsettings.Development.json` para la configuración:
+
+```json
+{
+  "ConnectionStrings": {
+    "MongoConnection": "mongodb://localhost:27017",
+    "DatabaseName": "ProConnectDB"
+  },
+  "JwtSettings": {
+    "SecretKey": "tu-clave-secreta",
+    "Issuer": "ProConnect.API",
+    "Audience": "ProConnect.Client"
+  }
+}
+```
+
+### Configuración de Email
+Para el envío de emails de verificación, configura las credenciales SMTP en `appsettings.json`.
+
+## Desarrollo
+
+### Compilación
+```bash
+dotnet build
+```
+
+### Ejecutar tests (si existen)
+```bash
+dotnet test
+```
+
+### Limpiar
+```bash
+dotnet clean
+```
+
+## Estado de Testing y QA
+
+### Cobertura de Pruebas
+- ⚠️ Actualmente no existen pruebas unitarias ni de integración automatizadas en la solución.
+- Se recomienda implementar tests con xUnit/NUnit y Moq para servicios críticos y validadores.
+- Pruebas manuales realizadas en endpoints principales y UI (registro, login, perfil).
+- Performance validado manualmente (<2s en endpoints).
+
+### Advertencias Críticas
+- Se detectaron advertencias CS0436 por conflictos de tipos duplicados entre archivos fuente y ensamblados importados.
+- **Solución recomendada:** Revisar y limpiar referencias duplicadas en los proyectos, asegurando que solo se compilen los archivos fuente requeridos.
+
+### Próximos Pasos
+- Implementar carpeta de tests y automatizar pruebas unitarias e integración.
+- Mantener documentación Swagger y README actualizados.
+- Priorizar cobertura de pruebas en servicios de autenticación y repositorios.
+
+## Solución de Problemas
+
+### MongoDB no se conecta
+1. Verifica que MongoDB esté ejecutándose: `mongod --version`
+2. Verifica la conexión: `mongo --eval "db.runCommand('ping')"`
+3. Asegúrate de que el puerto 27017 esté disponible
+
+### Errores de compilación
+1. Limpia la solución: `dotnet clean`
+2. Restaura dependencias: `dotnet restore`
+3. Recompila: `dotnet build`
+
+### Problemas de autenticación
+1. Verifica que las claves JWT estén configuradas
+2. Asegúrate de que las cookies estén habilitadas en el navegador
+3. Verifica que el token JWT sea válido
+
+## Tecnologías Utilizadas
+- **Backend**: ASP.NET Core 9.0
+- **Base de Datos**: MongoDB
+- **Autenticación**: JWT Bearer Tokens
+- **Validación**: FluentValidation
+- **Frontend**: Razor Pages, Bootstrap, CSS3
+- **Hashing**: BCrypt.Net-Next
+
+## Licencia
+Este proyecto está bajo la licencia MIT.
+
+## Contribución
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request

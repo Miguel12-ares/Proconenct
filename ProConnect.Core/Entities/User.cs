@@ -24,6 +24,9 @@ namespace ProConnect.Core.Entities
         [BsonElement("phoneNumber")]
         public string? PhoneNumber { get; set; }
 
+        [BsonElement("bio")]
+        public string? Bio { get; set; }
+
         [BsonElement("userType")]
         public UserType UserType { get; set; } = UserType.Client;
 
@@ -32,6 +35,12 @@ namespace ProConnect.Core.Entities
 
         [BsonElement("emailVerified")]
         public bool EmailVerified { get; set; } = false;
+
+        [BsonElement("emailVerificationToken")]
+        public string? EmailVerificationToken { get; set; }
+
+        [BsonElement("emailVerificationTokenExpiresAt")]
+        public DateTime? EmailVerificationTokenExpiresAt { get; set; }
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
