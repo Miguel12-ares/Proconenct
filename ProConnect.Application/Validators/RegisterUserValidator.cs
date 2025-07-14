@@ -18,8 +18,9 @@ namespace ProConnect.Application.Validators
                 .MustAsync(BeUniqueEmail).WithMessage("Este email ya está registrado.");
 
             RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("La contraseña es requerida.")
-                .MinimumLength(6).WithMessage("La contraseña debe tener al menos 6 caracteres.");
+                .NotEmpty().WithMessage("La contrasena es requerida.")
+                .MinimumLength(8).WithMessage("La contrasena debe tener minimo 8 caracteres.")
+                .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&._-])[A-Za-z\\d@$!%*?&._-]{8,}$").WithMessage("Debe tener mayuscula, minuscula, numero y caracter especial");
 
             RuleFor(x => x.ConfirmPassword)
                 .NotEmpty().WithMessage("La confirmación de contraseña es requerida.")

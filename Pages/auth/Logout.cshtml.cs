@@ -7,9 +7,10 @@ namespace Proconenct.Pages.auth
 {
     public class LogoutModel : PageModel
     {
-        public async Task<IActionResult> OnPost()
+        public IActionResult OnPost()
         {
-            await HttpContext.SignOutAsync();
+            Response.Cookies.Delete("jwtToken");
+            HttpContext.User = new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity());
             return RedirectToPage("/auth/Login");
         }
     }

@@ -38,6 +38,7 @@ namespace ProConnect.Infrastructure.Services
                 new(ClaimTypes.Email, user.Email),
                 new(ClaimTypes.GivenName, user.FirstName),
                 new(ClaimTypes.Surname, user.LastName),
+                new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}".Trim()), // <-- AGREGADO
                 new(ClaimTypes.Role, user.UserType.ToString()),
                 new("user_type", user.UserType.ToString()),
                 new("id", user.Id), // Claim personalizado para el id

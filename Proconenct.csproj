@@ -21,6 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Pages/Dashboard.cshtml" />
+    <Content Include="Pages/Dashboard.cshtml.cs" />
+    <Content Include="Pages/Shared/_DashboardNav.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="ProConnect.Core\ProConnect.Core.csproj" />
     <ProjectReference Include="ProConnect.Application\ProConnect.Application.csproj" />
     <ProjectReference Include="ProConnect.Infrastructure\ProConnect.Infrastructure.csproj" />

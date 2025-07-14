@@ -7,14 +7,8 @@ namespace Proconenct.Pages
     {
         public IActionResult OnGet()
         {
-            if (User.Identity != null && User.Identity.IsAuthenticated)
-            {
-                return RedirectToPage("/Home");
-            }
-            else
-            {
-                return RedirectToPage("/auth/Login");
-            }
+            // Solo renderizar la página, sin redirección automática
+            return Page();
         }
     }
 }

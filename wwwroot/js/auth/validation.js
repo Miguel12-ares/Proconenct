@@ -103,12 +103,17 @@ class AuthValidation {
 
     validatePassword(input) {
         const password = input.value;
-        
-        if (password.length < 6) {
-            this.showError(input, 'La contraseña debe tener al menos 6 caracteres');
+        // Reglas: minimo 8 caracteres, al menos una mayuscula, una minuscula, un numero y un caracter especial
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._-])[A-Za-z\d@$!%*?&._-]{8,}$/;
+
+        if (password.length < 8) {
+            this.showError(input, 'Mínimo 8 caracteres 1 mayúscula, 1 minúscula, 1 número y 1 caracter especial');
             return false;
         }
-        
+        if (!passwordRegex.test(password)) {
+            this.showError(input, 'Debe tener mayuscula, minuscula, numero y caracter especial');
+            return false;
+        }
         this.clearError(input);
         return true;
     }

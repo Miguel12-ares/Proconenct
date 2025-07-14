@@ -1,0 +1,51 @@
+@page
+@model DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="~/css/dashboard/main.css" asp-append-version="true" />
+<div class="dashboard-container">
+    <partial name="_DashboardNav" />
+    <div class="dashboard-content">
+        @if (Model.IsLoading)
+        {
+            <div class="loading-state">Cargando...</div>
+        }
+        else if (!Model.IsAuthenticated)
+        {
+            <div class="alert alert-warning">Debes iniciar sesion para ver el dashboard.</div>
+        }
+        else if (Model.IsClient)
+        {
+            <h2>Bienvenido, @Model.FirstName!</h2>
+            <div class="dashboard-section">
+                <a href="/search" class="btn btn-primary mb-3">Buscar profesionales</a>
+                <h4>Historial de busquedas recientes</h4>
+                <div class="placeholder">(Proximamente)</div>
+                <h4>Favoritos</h4>
+                <div class="placeholder">(Proximamente)</div>
+                <a href="/auth/Profile" class="btn btn-outline-secondary mt-3">Ver mi perfil</a>
+            </div>
+        }
+        else if (Model.IsProfessional)
+        {
+            <h2>Panel Profesional - @Model.FirstName</h2>
+            <div class="dashboard-section">
+                <h4>Resumen de perfil</h4>
+                <div>@Model.ProfileSummary</div>
+                <h4>Estado de verificacion</h4>
+                <div>@(Model.IsVerified ? "Verificado" : "No verificado")</div>
+                <a href="/services/edit" class="btn btn-primary mb-3">Editar servicios</a>
+                <h4>Calendario de disponibilidad</h4>
+                <div class="placeholder">(Proximamente)</div>
+                <h4>Estadisticas basicas</h4>
+                <div class="placeholder">(Proximamente)</div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger">No se pudo determinar el tipo de usuario.</div>
+        }
+    </div>
+</div> 

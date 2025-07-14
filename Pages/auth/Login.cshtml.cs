@@ -23,6 +23,8 @@ namespace Proconenct.Pages.auth
         public string ErrorMessage { get; set; } = string.Empty;
         public string SuccessMessage { get; set; } = string.Empty;
 
+        public bool AlreadyLoggedIn { get; set; } = false;
+
         public LoginModel(IAuthService authService, IHttpClientFactory httpClientFactory)
         {
             _authService = authService;
@@ -31,6 +33,14 @@ namespace Proconenct.Pages.auth
 
         public void OnGet(bool? registered, int? verified)
         {
+            // Detectar si el usuario ya tiene una sesión activa (token en cookie)
+            var token = Request.Cookies["jwtToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                AlreadyLoggedIn = true;
+                return;
+            }
+
             if (registered == true)
             {
                 SuccessMessage = "¡Registro exitoso! Por favor, verifica tu correo electrónico antes de iniciar sesión.";

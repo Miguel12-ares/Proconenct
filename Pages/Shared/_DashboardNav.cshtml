@@ -1,0 +1,19 @@
+@* Navegación del dashboard, reutilizable para cliente y profesional *@
+@{
+    var userName = Context.User?.Identity?.Name ?? "Usuario";
+}
+<nav class="dashboard-nav">
+    <div class="dashboard-nav-header">
+        <span class="dashboard-user-icon"><i class="fas fa-user-circle"></i></span>
+        <span class="dashboard-user-name">@userName</span>
+    </div>
+    <ul class="dashboard-nav-list">
+        <li><a href="/auth/Profile"><i class="fas fa-user"></i> Mi Perfil</a></li>
+        <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+        <li>
+            <form method="post" action="/auth/Logout" style="display:inline;">
+                <button type="submit" class="dashboard-logout-btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</button>
+            </form>
+        </li>
+    </ul>
+</nav> 
