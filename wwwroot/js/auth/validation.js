@@ -60,8 +60,12 @@ class AuthValidation {
 
         // Validación antes de enviar
         form.addEventListener('submit', (e) => {
+            console.log('Intentando enviar formulario de registro');
             if (!this.validateRegisterForm(form)) {
+                console.log('Formulario no valido, se previene el envio');
                 e.preventDefault();
+            } else {
+                console.log('Formulario valido, se envia');
             }
         });
     }
@@ -103,17 +107,21 @@ class AuthValidation {
 
     validatePassword(input) {
         const password = input.value;
+        console.log('Validando contraseña:', password);
         // Reglas: minimo 8 caracteres, al menos una mayuscula, una minuscula, un numero y un caracter especial
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._-])[A-Za-z\d@$!%*?&._-]{8,}$/;
 
         if (password.length < 8) {
-            this.showError(input, 'Mínimo 8 caracteres 1 mayúscula, 1 minúscula, 1 número y 1 caracter especial');
+            console.log('Error: longitud menor a 8');
+            this.showError(input, 'Minimo 8 caracteres 1 mayuscula, 1 minuscula, 1 numero y 1 caracter especial');
             return false;
         }
         if (!passwordRegex.test(password)) {
+            console.log('Error: no cumple regex');
             this.showError(input, 'Debe tener mayuscula, minuscula, numero y caracter especial');
             return false;
         }
+        console.log('Contraseña valida');
         this.clearError(input);
         return true;
     }
@@ -195,7 +203,7 @@ class AuthValidation {
             this.validateRequired(phoneInput),
             this.validateUserType(userTypeInputs)
         ];
-
+        console.log('Resultados de validaciones:', validations);
         return validations.every(validation => validation);
     }
 

@@ -65,6 +65,7 @@ namespace Proconenct.Pages.auth
                     Email = Email.ToLowerInvariant().Trim(),
                     PhoneNumber = PhoneNumber.Trim(),
                     Password = Password,
+                    ConfirmPassword = ConfirmPassword, // Aseguramos que se envía
                     UserType = (ProConnect.Core.Entities.UserType)UserType
                 };
 
