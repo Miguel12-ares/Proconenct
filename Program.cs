@@ -105,6 +105,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IProfessionalProfileService, ProfessionalProfileService>();
 builder.Services.AddScoped<IPortfolioService, PortfolioService>();
 builder.Services.AddScoped<IProfessionalSearchService, ProfessionalSearchService>();
+builder.Services.AddScoped<ProConnect.Application.Interfaces.IRecommendationService, RecommendationService>();
 
 // Registro de validadores
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserValidator>();
