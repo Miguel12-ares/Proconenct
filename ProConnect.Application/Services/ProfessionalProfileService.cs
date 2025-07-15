@@ -178,6 +178,144 @@ namespace ProConnect.Application.Services
         }
 
         /// <summary>
+        /// Actualiza el horario de disponibilidad del profesional.
+        /// </summary>
+        public async Task<bool> UpdateAvailabilityScheduleAsync(string userId, AvailabilityScheduleDto scheduleDto)
+        {
+            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            if (profile == null)
+                throw new InvalidOperationException("Perfil profesional no encontrado");
+
+            profile.AvailabilitySchedule = MapAvailabilitySchedule(scheduleDto);
+            profile.UpdateModificationDate();
+            return await _profileRepository.UpdateAsync(profile);
+        }
+
+        /// <summary>
+        /// Agrega un bloqueo de disponibilidad para el profesional.
+        /// </summary>
+        public async Task<AvailabilityBlockDto> AddAvailabilityBlockAsync(string userId, CreateAvailabilityBlockDto blockDto)
+        {
+            if (blockDto.StartDate > blockDto.EndDate)
+                throw new InvalidOperationException("La fecha de inicio debe ser anterior o igual a la de fin");
+
+            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            if (profile == null)
+                throw new InvalidOperationException("Perfil profesional no encontrado");
+
+            // Validar overlapping
+            if (profile.AvailabilityBlocks.Any(b =>
+                (blockDto.StartDate <= b.EndDate && blockDto.EndDate >= b.StartDate)))
+            {
+                throw new InvalidOperationException("El rango de fechas se solapa con un bloqueo existente");
+            }
+
+            var block = new AvailabilityBlock
+            {
+                StartDate = blockDto.StartDate.Date,
+                EndDate = blockDto.EndDate.Date,
+                Reason = blockDto.Reason
+            };
+            profile.AvailabilityBlocks.Add(block);
+            profile.UpdateModificationDate();
+            await _profileRepository.UpdateAsync(profile);
+
+            return new AvailabilityBlockDto
+            {
+                Id = block.Id,
+                StartDate = block.StartDate,
+                EndDate = block.EndDate,
+                Reason = block.Reason
+            };
+        }
+
+        /// <summary>
+        /// Obtiene todos los bloqueos de disponibilidad del profesional.
+        /// </summary>
+        public async Task<List<AvailabilityBlockDto>> GetAvailabilityBlocksAsync(string userId)
+        {
+            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            if (profile == null)
+                throw new InvalidOperationException("Perfil profesional no encontrado");
+
+            return profile.AvailabilityBlocks.Select(b => new AvailabilityBlockDto
+            {
+                Id = b.Id,
+                StartDate = b.StartDate,
+                EndDate = b.EndDate,
+                Reason = b.Reason
+            }).ToList();
+        }
+
+        /// <summary>
+        /// Elimina un bloqueo de disponibilidad por id.
+        /// </summary>
+        public async Task<bool> DeleteAvailabilityBlockAsync(string userId, string blockId)
+        {
+            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            if (profile == null)
+                throw new InvalidOperationException("Perfil profesional no encontrado");
+
+            var block = profile.AvailabilityBlocks.FirstOrDefault(b => b.Id == blockId);
+            if (block == null)
+                throw new InvalidOperationException("Bloqueo no encontrado");
+
+            profile.AvailabilityBlocks.Remove(block);
+            profile.UpdateModificationDate();
+            return await _profileRepository.UpdateAsync(profile);
+        }
+
+        /// <summary>
+        /// Consulta los slots disponibles para una fecha específica.
+        /// </summary>
+        public async Task<AvailabilityCheckResponseDto> CheckAvailabilityAsync(string userId, DateTime date)
+        {
+            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            if (profile == null)
+                throw new InvalidOperationException("Perfil profesional no encontrado");
+
+            // Verificar si la fecha está bloqueada
+            if (profile.AvailabilityBlocks.Any(b => date.Date >= b.StartDate.Date && date.Date <= b.EndDate.Date))
+            {
+                return new AvailabilityCheckResponseDto
+                {
+                    Date = date.ToString("yyyy-MM-dd"),
+                    AvailableSlots = new List<AvailableSlotDto>()
+                };
+            }
+
+            // Obtener el día de la semana
+            var dayOfWeek = date.DayOfWeek;
+            DaySchedule? daySchedule = dayOfWeek switch
+            {
+                DayOfWeek.Monday => profile.AvailabilitySchedule.Monday,
+                DayOfWeek.Tuesday => profile.AvailabilitySchedule.Tuesday,
+                DayOfWeek.Wednesday => profile.AvailabilitySchedule.Wednesday,
+                DayOfWeek.Thursday => profile.AvailabilitySchedule.Thursday,
+                DayOfWeek.Friday => profile.AvailabilitySchedule.Friday,
+                DayOfWeek.Saturday => profile.AvailabilitySchedule.Saturday,
+                DayOfWeek.Sunday => profile.AvailabilitySchedule.Sunday,
+                _ => null
+            };
+
+            var slots = new List<AvailableSlotDto>();
+            if (daySchedule != null && daySchedule.IsAvailable)
+            {
+                slots.Add(new AvailableSlotDto
+                {
+                    StartTime = daySchedule.StartTime,
+                    EndTime = daySchedule.EndTime
+                });
+            }
+
+            return new AvailabilityCheckResponseDto
+            {
+                Date = date.ToString("yyyy-MM-dd"),
+                AvailableSlots = slots
+            };
+        }
+
+        /// <summary>
         /// Mapea el DTO de disponibilidad a la entidad.
         /// </summary>
         private AvailabilitySchedule MapAvailabilitySchedule(AvailabilityScheduleDto dto)

@@ -96,6 +96,12 @@ namespace ProConnect.Core.Entities
         public AvailabilitySchedule AvailabilitySchedule { get; set; } = new();
 
         /// <summary>
+        /// Lista de bloqueos de disponibilidad (fechas específicas no disponibles).
+        /// </summary>
+        [BsonElement("availability_blocks")]
+        public List<AvailabilityBlock> AvailabilityBlocks { get; set; } = new();
+
+        /// <summary>
         /// Estado del perfil profesional.
         /// </summary>
         [BsonElement("status")]
@@ -210,6 +216,25 @@ namespace ProConnect.Core.Entities
 
         [BsonElement("break_end")]
         public string? BreakEnd { get; set; }
+    }
+
+    /// <summary>
+    /// Representa un bloqueo de disponibilidad para fechas específicas.
+    /// </summary>
+    public class AvailabilityBlock
+    {
+        [BsonElement("id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
+
+        [BsonElement("start_date")]
+        public DateTime StartDate { get; set; }
+
+        [BsonElement("end_date")]
+        public DateTime EndDate { get; set; }
+
+        [BsonElement("reason")]
+        public string? Reason { get; set; }
     }
 
     /// <summary>
