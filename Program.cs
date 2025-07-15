@@ -54,7 +54,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // Configuración de MongoDB
 builder.Services.AddSingleton<MongoDbContext>();
-builder.Services.AddScoped<IMongoDatabase>(sp => sp.GetRequiredService<MongoDbContext>().GetType().GetProperty("Database", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(sp.GetRequiredService<MongoDbContext>()) as IMongoDatabase);
+builder.Services.AddScoped<IMongoDatabase>(sp => sp.GetRequiredService<MongoDbContext>().Database);
 
 // Configuración de HttpClient
 builder.Services.AddHttpClient();

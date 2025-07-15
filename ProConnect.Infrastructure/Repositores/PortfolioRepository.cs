@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using MongoDB.Bson;
 using ProConnect.Core.Entities;
 using ProConnect.Core.Interfaces;
 
@@ -22,23 +23,26 @@ namespace ProConnect.Infrastructure.Repositores
 
         public async Task<List<PortfolioFile>> GetFilesByUserAsync(string userId)
         {
-            return await _collection.Find(f => f.UserId == userId).ToListAsync();
+            return await _collection.Find(x => x.UserId == userId).ToListAsync();
         }
 
         public async Task<PortfolioFile?> GetFileByIdAsync(string userId, string fileId)
         {
-            return await _collection.Find(f => f.UserId == userId && f.Id == fileId).FirstOrDefaultAsync();
+            var objectId = ObjectId.Parse(fileId);
+            return await _collection.Find(x => x.UserId == userId && x.Id == objectId).FirstOrDefaultAsync();
         }
 
         public async Task DeleteFileAsync(string userId, string fileId)
         {
-            await _collection.DeleteOneAsync(f => f.UserId == userId && f.Id == fileId);
+            var objectId = ObjectId.Parse(fileId);
+            await _collection.DeleteOneAsync(x => x.UserId == userId && x.Id == objectId);
         }
 
         public async Task<bool> UpdateFileDescriptionAsync(string userId, string fileId, string description)
         {
-            var update = Builders<PortfolioFile>.Update.Set(f => f.Description, description);
-            var result = await _collection.UpdateOneAsync(f => f.UserId == userId && f.Id == fileId, update);
+            var objectId = ObjectId.Parse(fileId);
+            var update = Builders<PortfolioFile>.Update.Set(x => x.Description, description);
+            var result = await _collection.UpdateOneAsync(x => x.UserId == userId && x.Id == objectId, update);
             return result.ModifiedCount > 0;
         }
     }

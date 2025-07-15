@@ -8,7 +8,7 @@ namespace ProConnect.Core.Entities
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = string.Empty;
+        public ObjectId Id { get; set; }
 
         [BsonElement("fileName")]
         public string FileName { get; set; } = string.Empty;
@@ -29,7 +29,6 @@ namespace ProConnect.Core.Entities
         public DateTime UploadedAt { get; set; }
 
         [BsonElement("userId")]
-        [BsonRepresentation(BsonType.ObjectId)]
         public string UserId { get; set; } = string.Empty;
     }
 } 

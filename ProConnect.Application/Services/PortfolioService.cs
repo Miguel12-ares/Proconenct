@@ -8,6 +8,7 @@ using ProConnect.Application.DTOs;
 using ProConnect.Application.Interfaces;
 using ProConnect.Core.Entities;
 using ProConnect.Core.Interfaces;
+using MongoDB.Bson;
 
 namespace ProConnect.Application.Services
 {
@@ -56,11 +57,11 @@ namespace ProConnect.Application.Services
             var url = $"/portfolio/{userId}/{uniqueName}";
             var entity = new PortfolioFile
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = ObjectId.GenerateNewId(),
                 FileName = file.FileName,
                 ContentType = file.ContentType,
                 Size = file.Length,
-                Url = url,
+                Url = $"/portfolio/{userId}/{uniqueName}",
                 Description = description,
                 UploadedAt = DateTime.UtcNow,
                 UserId = userId
@@ -68,9 +69,10 @@ namespace ProConnect.Application.Services
 
             await _portfolioRepository.AddFileAsync(entity);
 
+            // Mapear a DTO para la respuesta
             return new PortfolioFileDto
             {
-                Id = entity.Id,
+                Id = entity.Id.ToString(),
                 FileName = entity.FileName,
                 ContentType = entity.ContentType,
                 Size = entity.Size,
@@ -84,9 +86,9 @@ namespace ProConnect.Application.Services
         public async Task<List<PortfolioFileDto>> GetPortfolioFilesAsync(string userId)
         {
             var files = await _portfolioRepository.GetFilesByUserAsync(userId);
-            return files.ConvertAll(entity => new PortfolioFileDto
+            return files.Select(entity => new PortfolioFileDto
             {
-                Id = entity.Id,
+                Id = entity.Id.ToString(),
                 FileName = entity.FileName,
                 ContentType = entity.ContentType,
                 Size = entity.Size,
@@ -94,15 +96,11 @@ namespace ProConnect.Application.Services
                 Description = entity.Description,
                 UploadedAt = entity.UploadedAt,
                 UserId = entity.UserId
-            });
+            }).ToList();
         }
 
         public async Task<bool> DeletePortfolioFileAsync(string userId, string fileId)
         {
-            var file = await _portfolioRepository.GetFileByIdAsync(userId, fileId);
-            if (file == null) return false;
-            var filePath = Path.Combine(_portfolioRoot, userId, Path.GetFileName(file.Url));
-            if (File.Exists(filePath)) File.Delete(filePath);
             await _portfolioRepository.DeleteFileAsync(userId, fileId);
             return true;
         }

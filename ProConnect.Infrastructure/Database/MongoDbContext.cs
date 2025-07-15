@@ -32,6 +32,8 @@ namespace ProConnect.Infrastructure.Database
 
         public IMongoCollection<ProfessionalProfile> ProfessionalProfiles => _database.GetCollection<ProfessionalProfile>("professionalProfiles");
 
+        public IMongoDatabase Database => _database;
+
         // Método para crear índices
         public async Task CreateIndexesAsync()
         {
