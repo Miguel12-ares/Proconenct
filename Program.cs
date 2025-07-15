@@ -11,6 +11,7 @@ using ProConnect.Infrastructure.Database;
 using ProConnect.Infrastructure.Repositores;
 using ProConnect.Infrastructure.Services;
 using System.Text;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // Configuración de MongoDB
 builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddScoped<IMongoDatabase>(sp => sp.GetRequiredService<MongoDbContext>().GetType().GetProperty("Database", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(sp.GetRequiredService<MongoDbContext>()) as IMongoDatabase);
 
 // Configuración de HttpClient
 builder.Services.AddHttpClient();
@@ -94,12 +96,14 @@ builder.Services.AddAuthorization();
 // Registro de dependencias - Repositorios
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
+builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 
 // Registro de dependencias - Servicios
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IProfessionalProfileService, ProfessionalProfileService>();
+builder.Services.AddScoped<IPortfolioService, PortfolioService>();
 
 // Registro de validadores
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserValidator>();
