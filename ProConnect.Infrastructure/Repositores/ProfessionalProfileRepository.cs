@@ -223,5 +223,104 @@ namespace ProConnect.Infrastructure.Repositores
             var profile = await _profiles.Find(x => x.UserId == userId).FirstOrDefaultAsync();
             return profile?.Services ?? new List<Service>();
         }
+
+        public async Task<PagedResult<ProfessionalProfile>> SearchAdvancedAsync(ProfessionalSearchFilters filters)
+        {
+            var builder = Builders<ProfessionalProfile>.Filter;
+            var filterList = new List<FilterDefinition<ProfessionalProfile>>
+            {
+                builder.Eq(x => x.Status, ProfileStatus.Active)
+            };
+
+            // Filtros dinámicos
+            if (!string.IsNullOrWhiteSpace(filters.Query))
+            {
+                var regex = new MongoDB.Bson.BsonRegularExpression(filters.Query, "i");
+                filterList.Add(builder.Or(
+                    new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(
+                        new MongoDB.Bson.BsonDocument("bio", new MongoDB.Bson.BsonDocument("$regex", filters.Query).Add("$options", "i"))),
+                    new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(
+                        new MongoDB.Bson.BsonDocument("specialties", filters.Query)),
+                    new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(
+                        new MongoDB.Bson.BsonDocument("location", new MongoDB.Bson.BsonDocument("$regex", filters.Query).Add("$options", "i")))
+                ));
+            }
+            if (filters.Specialties != null && filters.Specialties.Count > 0)
+            {
+                filterList.Add(new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(
+                    new MongoDB.Bson.BsonDocument("specialties", new MongoDB.Bson.BsonArray(filters.Specialties))));
+            }
+            if (!string.IsNullOrWhiteSpace(filters.Location))
+            {
+                filterList.Add(builder.Regex(x => x.Location, new MongoDB.Bson.BsonRegularExpression(filters.Location, "i")));
+            }
+            if (filters.MinHourlyRate.HasValue)
+            {
+                filterList.Add(builder.Gte(x => x.HourlyRate, filters.MinHourlyRate.Value));
+            }
+            if (filters.MaxHourlyRate.HasValue)
+            {
+                filterList.Add(builder.Lte(x => x.HourlyRate, filters.MaxHourlyRate.Value));
+            }
+            if (filters.MinRating.HasValue)
+            {
+                filterList.Add(builder.Gte(x => x.RatingAverage, filters.MinRating.Value));
+            }
+            if (filters.MinExperienceYears.HasValue)
+            {
+                filterList.Add(builder.Gte(x => x.ExperienceYears, filters.MinExperienceYears.Value));
+            }
+            if (filters.VirtualConsultation.HasValue && filters.VirtualConsultation.Value)
+            {
+                // Filtro BSON puro para servicios virtuales
+                var virtualServiceFilter = new MongoDB.Bson.BsonDocument("services",
+                    new MongoDB.Bson.BsonDocument("$elemMatch",
+                        new MongoDB.Bson.BsonDocument("name",
+                            new MongoDB.Bson.BsonDocument("$regex", "virtual").Add("$options", "i"))));
+                filterList.Add(new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(virtualServiceFilter));
+            }
+
+            var filter = builder.And(filterList);
+
+            // Ordenamiento
+            var sort = Builders<ProfessionalProfile>.Sort.Descending(x => x.RatingAverage); // default
+            switch (filters.OrderBy?.ToLower())
+            {
+                case "price_asc":
+                    sort = Builders<ProfessionalProfile>.Sort.Ascending(x => x.HourlyRate);
+                    break;
+                case "price_desc":
+                    sort = Builders<ProfessionalProfile>.Sort.Descending(x => x.HourlyRate);
+                    break;
+                case "rating":
+                    sort = Builders<ProfessionalProfile>.Sort.Descending(x => x.RatingAverage);
+                    break;
+                case "experience":
+                    sort = Builders<ProfessionalProfile>.Sort.Descending(x => x.ExperienceYears);
+                    break;
+                case "relevance":
+                    // Para MongoDB, relevance requiere un índice de texto y $text score, aquí se omite por simplicidad
+                    break;
+            }
+
+            // Paginación
+            int skip = (filters.Page - 1) * filters.PageSize;
+            int limit = filters.PageSize;
+
+            var totalCount = await _profiles.CountDocumentsAsync(filter);
+            var items = await _profiles.Find(filter)
+                .Sort(sort)
+                .Skip(skip)
+                .Limit(limit)
+                .ToListAsync();
+
+            return new PagedResult<ProfessionalProfile>
+            {
+                Items = items,
+                TotalCount = (int)totalCount,
+                Page = filters.Page,
+                PageSize = filters.PageSize
+            };
+        }
     }
 } 

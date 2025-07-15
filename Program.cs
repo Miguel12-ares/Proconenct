@@ -104,6 +104,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IProfessionalProfileService, ProfessionalProfileService>();
 builder.Services.AddScoped<IPortfolioService, PortfolioService>();
+builder.Services.AddScoped<IProfessionalSearchService, ProfessionalSearchService>();
 
 // Registro de validadores
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserValidator>();

@@ -73,5 +73,10 @@ namespace ProConnect.Core.Interfaces
         /// Obtiene todos los servicios del perfil profesional del usuario.
         /// </summary>
         Task<List<Service>> GetServicesAsync(string userId);
+
+        /// <summary>
+        /// Búsqueda avanzada de perfiles profesionales con filtros, ordenamiento y paginación.
+        /// </summary>
+        Task<PagedResult<ProfessionalProfile>> SearchAdvancedAsync(ProfessionalSearchFilters filters);
     }
 } 
