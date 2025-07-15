@@ -61,7 +61,7 @@ namespace ProConnect.Application.Services
 
             var profileId = await _profileRepository.CreateAsync(profile);
 
-            return await MapToResponseDto(profile, user);
+            return await MapToResponseDto(profile, user, isPublicView: false);
         }
 
         /// <summary>
@@ -100,23 +100,7 @@ namespace ProConnect.Application.Services
             if (!success)
                 throw new InvalidOperationException("Error al actualizar el perfil");
 
-            return await MapToResponseDto(profile, user);
-        }
-
-        /// <summary>
-        /// Obtiene el perfil profesional del usuario autenticado.
-        /// </summary>
-        public async Task<ProfessionalProfileResponseDto?> GetMyProfileAsync(string userId)
-        {
-            var profile = await _profileRepository.GetByUserIdAsync(userId);
-            if (profile == null)
-                return null;
-
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null)
-                throw new InvalidOperationException("Usuario no encontrado");
-
-            return await MapToResponseDto(profile, user);
+            return await MapToResponseDto(profile, user, isPublicView: false);
         }
 
         /// <summary>
@@ -132,7 +116,23 @@ namespace ProConnect.Application.Services
             if (user == null)
                 throw new InvalidOperationException("Usuario no encontrado");
 
-            return await MapToResponseDto(profile, user);
+            return await MapToResponseDto(profile, user, isPublicView: true);
+        }
+
+        /// <summary>
+        /// Obtiene el perfil profesional del usuario autenticado.
+        /// </summary>
+        public async Task<ProfessionalProfileResponseDto?> GetMyProfileAsync(string userId)
+        {
+            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            if (profile == null)
+                return null;
+
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new InvalidOperationException("Usuario no encontrado");
+
+            return await MapToResponseDto(profile, user, isPublicView: false);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace ProConnect.Application.Services
                 var user = await _userRepository.GetByIdAsync(profile.UserId);
                 if (user != null)
                 {
-                    result.Add(await MapToResponseDto(profile, user));
+                    result.Add(await MapToResponseDto(profile, user, isPublicView: true));
                 }
             }
 
@@ -170,7 +170,7 @@ namespace ProConnect.Application.Services
                 var user = await _userRepository.GetByIdAsync(profile.UserId);
                 if (user != null)
                 {
-                    result.Add(await MapToResponseDto(profile, user));
+                    result.Add(await MapToResponseDto(profile, user, isPublicView: true));
                 }
             }
 
@@ -213,9 +213,9 @@ namespace ProConnect.Application.Services
         /// <summary>
         /// Mapea la entidad a DTO de respuesta.
         /// </summary>
-        private async Task<ProfessionalProfileResponseDto> MapToResponseDto(ProfessionalProfile profile, User user)
+        private async Task<ProfessionalProfileResponseDto> MapToResponseDto(ProfessionalProfile profile, User user, bool isPublicView = false)
         {
-            return new ProfessionalProfileResponseDto
+            var responseDto = new ProfessionalProfileResponseDto
             {
                 Id = profile.Id,
                 UserId = profile.UserId,
@@ -233,10 +233,29 @@ namespace ProConnect.Application.Services
                 CreatedAt = profile.CreatedAt,
                 UpdatedAt = profile.UpdatedAt,
                 IsCompleteForPublicView = profile.IsCompleteForPublicView(),
-                UserFirstName = user.FirstName,
-                UserLastName = user.LastName,
-                UserEmail = user.Email
+                IsPublicView = isPublicView
             };
+
+            // En vista pública, filtrar información sensible
+            if (isPublicView)
+            {
+                // No incluir información personal del usuario
+                responseDto.UserFirstName = null;
+                responseDto.UserLastName = null;
+                responseDto.UserEmail = null;
+                
+                // Solo mostrar nombre completo como string
+                responseDto.UserFirstName = $"{user.FirstName} {user.LastName}";
+            }
+            else
+            {
+                // En vista privada, incluir toda la información
+                responseDto.UserFirstName = user.FirstName;
+                responseDto.UserLastName = user.LastName;
+                responseDto.UserEmail = user.Email;
+            }
+
+            return responseDto;
         }
 
         /// <summary>

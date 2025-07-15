@@ -12,7 +12,7 @@ namespace ProConnect.Controllers
     /// Controlador para la gestión de perfiles profesionales.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/professionals")]
     public class ProfessionalProfileController : ControllerBase
     {
         private readonly IProfessionalProfileService _profileService;
@@ -32,7 +32,9 @@ namespace ProConnect.Controllers
         /// <summary>
         /// Crea un nuevo perfil profesional.
         /// </summary>
-        [HttpPost]
+        /// <param name="createDto">Datos del perfil a crear</param>
+        /// <returns>Perfil creado con ID</returns>
+        [HttpPost("profile")]
         [Authorize(Roles = "Professional")]
         public async Task<IActionResult> CreateProfile([FromBody] CreateProfessionalProfileDto createDto)
         {
@@ -57,7 +59,7 @@ namespace ProConnect.Controllers
                 }
 
                 var profile = await _profileService.CreateProfileAsync(createDto, userId);
-                return CreatedAtAction(nameof(GetMyProfile), new { id = profile.Id }, profile);
+                return CreatedAtAction(nameof(GetMyProfile), new { }, profile);
             }
             catch (InvalidOperationException ex)
             {
@@ -72,7 +74,8 @@ namespace ProConnect.Controllers
         /// <summary>
         /// Obtiene el perfil profesional del usuario autenticado.
         /// </summary>
-        [HttpGet("my-profile")]
+        /// <returns>Perfil completo del usuario autenticado</returns>
+        [HttpGet("profile")]
         [Authorize(Roles = "Professional")]
         public async Task<IActionResult> GetMyProfile()
         {
@@ -101,7 +104,9 @@ namespace ProConnect.Controllers
         /// <summary>
         /// Actualiza el perfil profesional del usuario autenticado.
         /// </summary>
-        [HttpPut("my-profile")]
+        /// <param name="updateDto">Datos actualizados del perfil</param>
+        /// <returns>Perfil actualizado</returns>
+        [HttpPut("profile")]
         [Authorize(Roles = "Professional")]
         public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateProfessionalProfileDto updateDto)
         {
@@ -147,12 +152,19 @@ namespace ProConnect.Controllers
         /// <summary>
         /// Obtiene un perfil profesional público por ID.
         /// </summary>
-        [HttpGet("{id}")]
+        /// <param name="id">ID del perfil profesional</param>
+        /// <returns>Perfil público (sin datos sensibles)</returns>
+        [HttpGet("profile/{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetPublicProfile(string id)
         {
             try
             {
+                if (string.IsNullOrEmpty(id))
+                {
+                    return BadRequest(new { Message = "ID del perfil es requerido" });
+                }
+
                 var profile = await _profileService.GetPublicProfileAsync(id);
                 if (profile == null)
                 {
@@ -170,6 +182,7 @@ namespace ProConnect.Controllers
         /// <summary>
         /// Obtiene todos los perfiles profesionales activos.
         /// </summary>
+        /// <returns>Lista de perfiles activos</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAllActiveProfiles()
@@ -188,6 +201,8 @@ namespace ProConnect.Controllers
         /// <summary>
         /// Busca perfiles por especialidad.
         /// </summary>
+        /// <param name="specialty">Especialidad a buscar</param>
+        /// <returns>Lista de perfiles con la especialidad</returns>
         [HttpGet("specialty/{specialty}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetProfilesBySpecialty(string specialty)
@@ -211,6 +226,7 @@ namespace ProConnect.Controllers
         /// <summary>
         /// Obtiene estadísticas de perfiles profesionales.
         /// </summary>
+        /// <returns>Estadísticas de perfiles</returns>
         [HttpGet("statistics")]
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> GetProfileStatistics()

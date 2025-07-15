@@ -4,7 +4,7 @@ using ProConnect.Application.DTOs.Shared;
 namespace ProConnect.Application.DTOs
 {
     /// <summary>
-    /// DTO de respuesta para el perfil profesional.
+    /// DTO de respuesta para perfiles profesionales.
     /// </summary>
     public class ProfessionalProfileResponseDto
     {
@@ -25,14 +25,17 @@ namespace ProConnect.Application.DTOs
         public DateTime UpdatedAt { get; set; }
         public bool IsCompleteForPublicView { get; set; }
 
-        // Información del usuario asociado
-        public string UserFirstName { get; set; } = string.Empty;
-        public string UserLastName { get; set; } = string.Empty;
-        public string UserEmail { get; set; } = string.Empty;
+        // Información del usuario (solo en vista privada)
+        public string? UserFirstName { get; set; }
+        public string? UserLastName { get; set; }
+        public string? UserEmail { get; set; }
+
+        // Propiedad para indicar si es vista pública
+        public bool IsPublicView { get; set; } = false;
     }
 
     /// <summary>
-    /// DTO para un item del portafolio.
+    /// DTO para items del portafolio.
     /// </summary>
     public class PortfolioItemDto
     {
