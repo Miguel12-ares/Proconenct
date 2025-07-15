@@ -40,12 +40,58 @@ namespace ProConnect.Infrastructure.Database
                 // Verificar conexión primero
                 await _client.ListDatabaseNamesAsync();
                 
+                // Índices para Users
                 var emailIndexKeys = Builders<User>.IndexKeys.Ascending(x => x.Email);
                 var emailIndexOptions = new CreateIndexOptions { Unique = true };
                 await Users.Indexes.CreateOneAsync(new CreateIndexModel<User>(emailIndexKeys, emailIndexOptions));
 
                 var userTypeIndexKeys = Builders<User>.IndexKeys.Ascending(x => x.UserType);
                 await Users.Indexes.CreateOneAsync(new CreateIndexModel<User>(userTypeIndexKeys));
+
+                // Índices para ProfessionalProfiles
+                var userIdIndexKeys = Builders<ProfessionalProfile>.IndexKeys.Ascending(x => x.UserId);
+                var userIdIndexOptions = new CreateIndexOptions { Unique = true };
+                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(userIdIndexKeys, userIdIndexOptions));
+
+                var statusIndexKeys = Builders<ProfessionalProfile>.IndexKeys.Ascending(x => x.Status);
+                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(statusIndexKeys));
+
+                var specialtiesIndexKeys = Builders<ProfessionalProfile>.IndexKeys.Ascending(x => x.Specialties);
+                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(specialtiesIndexKeys));
+
+                var locationIndexKeys = Builders<ProfessionalProfile>.IndexKeys.Ascending(x => x.Location);
+                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(locationIndexKeys));
+
+                var hourlyRateIndexKeys = Builders<ProfessionalProfile>.IndexKeys.Ascending(x => x.HourlyRate);
+                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(hourlyRateIndexKeys));
+
+                var ratingIndexKeys = Builders<ProfessionalProfile>.IndexKeys.Ascending(x => x.RatingAverage);
+                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(ratingIndexKeys));
+
+                var experienceIndexKeys = Builders<ProfessionalProfile>.IndexKeys.Ascending(x => x.ExperienceYears);
+                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(experienceIndexKeys));
+
+                // Índice compuesto para búsquedas avanzadas
+                var compoundIndexKeys = Builders<ProfessionalProfile>.IndexKeys
+                    .Ascending(x => x.Status)
+                    .Ascending(x => x.Specialties)
+                    .Ascending(x => x.Location);
+                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(compoundIndexKeys));
+
+                // Índice de texto para búsqueda general
+                var textIndexKeys = Builders<ProfessionalProfile>.IndexKeys
+                    .Text(x => x.Bio)
+                    .Text(x => x.Location);
+                var textIndexOptions = new CreateIndexOptions
+                {
+                    Name = "text_search_index",
+                    Weights = new MongoDB.Bson.BsonDocument
+                    {
+                        { "bio", 3 },
+                        { "location", 2 }
+                    }
+                };
+                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(textIndexKeys, textIndexOptions));
                 
                 Console.WriteLine("MongoDB indexes created successfully");
             }

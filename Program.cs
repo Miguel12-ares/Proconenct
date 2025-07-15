@@ -8,7 +8,7 @@ using ProConnect.Application.Services;
 using ProConnect.Application.Validators;
 using ProConnect.Core.Interfaces;
 using ProConnect.Infrastructure.Database;
-using ProConnect.Infrastructure.Repositories;
+using ProConnect.Infrastructure.Repositores;
 using ProConnect.Infrastructure.Services;
 using System.Text;
 
@@ -93,15 +93,19 @@ builder.Services.AddAuthorization();
 
 // Registro de dependencias - Repositorios
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
 
 // Registro de dependencias - Servicios
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IProfessionalProfileService, ProfessionalProfileService>();
 
 // Registro de validadores
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserValidator>();
 builder.Services.AddScoped<IValidator<LoginUserDto>, LoginUserValidator>();
+builder.Services.AddScoped<IValidator<CreateProfessionalProfileDto>, CreateProfessionalProfileValidator>();
+builder.Services.AddScoped<IValidator<UpdateProfessionalProfileDto>, UpdateProfessionalProfileValidator>();
 
 // Configuración de CORS
 builder.Services.AddCors(options =>

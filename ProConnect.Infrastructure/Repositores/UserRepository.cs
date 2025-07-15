@@ -3,7 +3,7 @@ using ProConnect.Core.Entities;
 using ProConnect.Core.Interfaces;
 using ProConnect.Infrastructure.Database;
 
-namespace ProConnect.Infrastructure.Repositories
+namespace ProConnect.Infrastructure.Repositores
 {
     public class UserRepository : IUserRepository
     {
