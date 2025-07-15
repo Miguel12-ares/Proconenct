@@ -102,6 +102,12 @@ namespace ProConnect.Core.Entities
         public List<AvailabilityBlock> AvailabilityBlocks { get; set; } = new();
 
         /// <summary>
+        /// Lista de servicios ofrecidos por el profesional.
+        /// </summary>
+        [BsonElement("services")]
+        public List<Service> Services { get; set; } = new();
+
+        /// <summary>
         /// Estado del perfil profesional.
         /// </summary>
         [BsonElement("status")]
@@ -235,6 +241,50 @@ namespace ProConnect.Core.Entities
 
         [BsonElement("reason")]
         public string? Reason { get; set; }
+    }
+
+    /// <summary>
+    /// Representa un servicio ofrecido por el profesional.
+    /// </summary>
+    public class Service
+    {
+        [BsonElement("id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
+
+        [BsonElement("name")]
+        [Required]
+        [MaxLength(100, ErrorMessage = "El nombre del servicio no puede exceder 100 caracteres")]
+        public string Name { get; set; } = string.Empty;
+
+        [BsonElement("description")]
+        [MaxLength(500, ErrorMessage = "La descripcion no puede exceder 500 caracteres")]
+        public string? Description { get; set; }
+
+        [BsonElement("type")]
+        [Required]
+        public ServiceType Type { get; set; }
+
+        [BsonElement("price")]
+        [Range(1, 100000, ErrorMessage = "El precio debe ser mayor a 0")]
+        public decimal Price { get; set; }
+
+        [BsonElement("estimated_duration_minutes")]
+        [Range(1, 1440, ErrorMessage = "La duracion estimada debe ser mayor a 0 y menor a 24 horas")]
+        public int EstimatedDurationMinutes { get; set; }
+
+        [BsonElement("is_active")]
+        public bool IsActive { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Tipos de tarifa para los servicios.
+    /// </summary>
+    public enum ServiceType
+    {
+        Hourly = 0,      // Por hora
+        PerSession = 1,  // Por sesion
+        Fixed = 2        // Precio fijo
     }
 
     /// <summary>

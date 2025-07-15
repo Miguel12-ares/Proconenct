@@ -84,4 +84,54 @@ namespace ProConnect.Application.DTOs.Shared
     {
         public string Id { get; set; } = string.Empty;
     }
+
+    /// <summary>
+    /// DTO para un servicio ofrecido por el profesional.
+    /// </summary>
+    public class ServiceDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public ServiceTypeDto Type { get; set; }
+        public decimal Price { get; set; }
+        public int EstimatedDurationMinutes { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    /// <summary>
+    /// DTO para crear un servicio.
+    /// </summary>
+    public class CreateServiceDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public ServiceTypeDto Type { get; set; }
+        public decimal Price { get; set; }
+        public int EstimatedDurationMinutes { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para actualizar un servicio.
+    /// </summary>
+    public class UpdateServiceDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public ServiceTypeDto Type { get; set; }
+        public decimal Price { get; set; }
+        public int EstimatedDurationMinutes { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Enum para tipos de tarifa de servicio.
+    /// </summary>
+    public enum ServiceTypeDto
+    {
+        Hourly = 0,
+        PerSession = 1,
+        Fixed = 2
+    }
 } 

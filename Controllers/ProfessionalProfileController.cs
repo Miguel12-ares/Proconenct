@@ -380,5 +380,103 @@ namespace ProConnect.Controllers
                 return StatusCode(500, new { Message = "Error interno del servidor" });
             }
         }
+
+        /// <summary>
+        /// Crea un nuevo servicio para el perfil profesional del usuario autenticado.
+        /// </summary>
+        [HttpPost("services")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> AddService([FromBody] CreateServiceDto dto)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+                var result = await _profileService.AddServiceAsync(userId, dto);
+                return result ? Ok(new { Success = true }) : BadRequest(new { Message = "No se pudo agregar el servicio" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Lista todos los servicios del perfil profesional del usuario autenticado.
+        /// </summary>
+        [HttpGet("services")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> GetServices()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+                var services = await _profileService.GetServicesAsync(userId);
+                return Ok(services);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Actualiza un servicio existente del perfil profesional del usuario autenticado.
+        /// </summary>
+        [HttpPut("services/{id}")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> UpdateService(string id, [FromBody] UpdateServiceDto dto)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+                if (id != dto.Id)
+                    return BadRequest(new { Message = "El id de la ruta no coincide con el del cuerpo" });
+                var result = await _profileService.UpdateServiceAsync(userId, dto);
+                return result ? Ok(new { Success = true }) : BadRequest(new { Message = "No se pudo actualizar el servicio" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Elimina un servicio del perfil profesional del usuario autenticado.
+        /// </summary>
+        [HttpDelete("services/{id}")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> DeleteService(string id)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+                var result = await _profileService.DeleteServiceAsync(userId, id);
+                return result ? Ok(new { Success = true }) : BadRequest(new { Message = "No se pudo eliminar el servicio" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
     }
 } 

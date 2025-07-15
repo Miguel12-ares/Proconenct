@@ -315,6 +315,80 @@ namespace ProConnect.Application.Services
             };
         }
 
+        public async Task<bool> AddServiceAsync(string userId, CreateServiceDto dto)
+        {
+            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            if (profile == null)
+                throw new InvalidOperationException("Perfil profesional no encontrado");
+            if (profile.Services.Count >= 10)
+                throw new InvalidOperationException("No se pueden agregar mas de 10 servicios");
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new InvalidOperationException("El nombre del servicio es obligatorio");
+            if (dto.Price <= 0)
+                throw new InvalidOperationException("El precio debe ser mayor a 0");
+            if (dto.EstimatedDurationMinutes <= 0 || dto.EstimatedDurationMinutes > 1440)
+                throw new InvalidOperationException("La duracion estimada debe ser mayor a 0 y menor a 24 horas");
+            var service = new Service
+            {
+                Name = dto.Name,
+                Description = dto.Description,
+                Type = (ServiceType)dto.Type,
+                Price = dto.Price,
+                EstimatedDurationMinutes = dto.EstimatedDurationMinutes,
+                IsActive = true
+            };
+            return await _profileRepository.AddServiceAsync(userId, service);
+        }
+
+        public async Task<bool> UpdateServiceAsync(string userId, UpdateServiceDto dto)
+        {
+            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            if (profile == null)
+                throw new InvalidOperationException("Perfil profesional no encontrado");
+            var service = profile.Services.FirstOrDefault(s => s.Id == dto.Id);
+            if (service == null)
+                throw new InvalidOperationException("Servicio no encontrado");
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new InvalidOperationException("El nombre del servicio es obligatorio");
+            if (dto.Price <= 0)
+                throw new InvalidOperationException("El precio debe ser mayor a 0");
+            if (dto.EstimatedDurationMinutes <= 0 || dto.EstimatedDurationMinutes > 1440)
+                throw new InvalidOperationException("La duracion estimada debe ser mayor a 0 y menor a 24 horas");
+            service.Name = dto.Name;
+            service.Description = dto.Description;
+            service.Type = (ServiceType)dto.Type;
+            service.Price = dto.Price;
+            service.EstimatedDurationMinutes = dto.EstimatedDurationMinutes;
+            service.IsActive = dto.IsActive;
+            return await _profileRepository.UpdateServiceAsync(userId, service);
+        }
+
+        public async Task<bool> DeleteServiceAsync(string userId, string serviceId)
+        {
+            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            if (profile == null)
+                throw new InvalidOperationException("Perfil profesional no encontrado");
+            var service = profile.Services.FirstOrDefault(s => s.Id == serviceId);
+            if (service == null)
+                throw new InvalidOperationException("Servicio no encontrado");
+            return await _profileRepository.DeleteServiceAsync(userId, serviceId);
+        }
+
+        public async Task<List<ServiceDto>> GetServicesAsync(string userId)
+        {
+            var services = await _profileRepository.GetServicesAsync(userId);
+            return services.Select(s => new ServiceDto
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Description = s.Description,
+                Type = (ServiceTypeDto)s.Type,
+                Price = s.Price,
+                EstimatedDurationMinutes = s.EstimatedDurationMinutes,
+                IsActive = s.IsActive
+            }).ToList();
+        }
+
         /// <summary>
         /// Mapea el DTO de disponibilidad a la entidad.
         /// </summary>

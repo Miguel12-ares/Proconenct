@@ -65,5 +65,25 @@ namespace ProConnect.Application.Interfaces
         /// Consulta los slots disponibles para una fecha específica.
         /// </summary>
         Task<AvailabilityCheckResponseDto> CheckAvailabilityAsync(string userId, DateTime date);
+
+        /// <summary>
+        /// Agrega un servicio al perfil profesional del usuario.
+        /// </summary>
+        Task<bool> AddServiceAsync(string userId, CreateServiceDto dto);
+
+        /// <summary>
+        /// Actualiza un servicio existente del perfil profesional del usuario.
+        /// </summary>
+        Task<bool> UpdateServiceAsync(string userId, UpdateServiceDto dto);
+
+        /// <summary>
+        /// Elimina un servicio del perfil profesional del usuario.
+        /// </summary>
+        Task<bool> DeleteServiceAsync(string userId, string serviceId);
+
+        /// <summary>
+        /// Obtiene todos los servicios del perfil profesional del usuario.
+        /// </summary>
+        Task<List<ServiceDto>> GetServicesAsync(string userId);
     }
 } 

@@ -53,5 +53,25 @@ namespace ProConnect.Core.Interfaces
         /// Obtiene estadísticas de perfiles profesionales.
         /// </summary>
         Task<ProfileStatistics> GetProfileStatisticsAsync();
+
+        /// <summary>
+        /// Agrega un servicio al perfil profesional del usuario.
+        /// </summary>
+        Task<bool> AddServiceAsync(string userId, Service service);
+
+        /// <summary>
+        /// Actualiza un servicio existente del perfil profesional del usuario.
+        /// </summary>
+        Task<bool> UpdateServiceAsync(string userId, Service service);
+
+        /// <summary>
+        /// Elimina un servicio del perfil profesional del usuario.
+        /// </summary>
+        Task<bool> DeleteServiceAsync(string userId, string serviceId);
+
+        /// <summary>
+        /// Obtiene todos los servicios del perfil profesional del usuario.
+        /// </summary>
+        Task<List<Service>> GetServicesAsync(string userId);
     }
 } 

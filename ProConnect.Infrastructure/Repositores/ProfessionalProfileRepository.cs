@@ -186,5 +186,42 @@ namespace ProConnect.Infrastructure.Repositores
                 AverageHourlyRate = avgHourlyRate?.AverageRate ?? 0
             };
         }
+
+        public async Task<bool> AddServiceAsync(string userId, Service service)
+        {
+            var update = Builders<ProfessionalProfile>.Update.Push(x => x.Services, service);
+            var result = await _profiles.UpdateOneAsync(x => x.UserId == userId, update);
+            return result.ModifiedCount > 0;
+        }
+
+        public async Task<bool> UpdateServiceAsync(string userId, Service service)
+        {
+            var filter = Builders<ProfessionalProfile>.Filter.And(
+                Builders<ProfessionalProfile>.Filter.Eq(x => x.UserId, userId),
+                Builders<ProfessionalProfile>.Filter.ElemMatch(x => x.Services, s => s.Id == service.Id)
+            );
+            var update = Builders<ProfessionalProfile>.Update
+                .Set(x => x.Services[-1].Name, service.Name)
+                .Set(x => x.Services[-1].Description, service.Description)
+                .Set(x => x.Services[-1].Type, service.Type)
+                .Set(x => x.Services[-1].Price, service.Price)
+                .Set(x => x.Services[-1].EstimatedDurationMinutes, service.EstimatedDurationMinutes)
+                .Set(x => x.Services[-1].IsActive, service.IsActive);
+            var result = await _profiles.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
+
+        public async Task<bool> DeleteServiceAsync(string userId, string serviceId)
+        {
+            var update = Builders<ProfessionalProfile>.Update.PullFilter(x => x.Services, s => s.Id == serviceId);
+            var result = await _profiles.UpdateOneAsync(x => x.UserId == userId, update);
+            return result.ModifiedCount > 0;
+        }
+
+        public async Task<List<Service>> GetServicesAsync(string userId)
+        {
+            var profile = await _profiles.Find(x => x.UserId == userId).FirstOrDefaultAsync();
+            return profile?.Services ?? new List<Service>();
+        }
     }
 } 
