@@ -1,0 +1,189 @@
+@page
+@model Proconenct.Pages.search.IndexModel
+@{
+    ViewData["Title"] = "Buscar Profesionales";
+    Layout = "_SearchLayout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/search/main.css" />
+<link rel="stylesheet" href="/css/search/filters.css" />
+<link rel="stylesheet" href="/css/search/results.css" />
+
+<div class="search-container">
+    <!-- Barra de búsqueda principal -->
+    <div class="search-header">
+        <div class="search-bar-wrapper">
+            <form class="search-form" id="search-bar-form" autocomplete="off">
+                <div class="input-group input-group-lg">
+                    <input type="text" 
+                           class="form-control" 
+                           id="search-query" 
+                           placeholder="Buscar profesionales por nombre o habilidad..." 
+                           aria-label="Buscar profesionales" />
+                    <button class="btn btn-primary" id="search-btn" type="submit">
+                        <i class="fas fa-search me-2"></i>
+                        Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contenido principal con filtros y resultados -->
+    <div class="search-content">
+        <!-- Panel de filtros -->
+        <aside class="filters-sidebar" id="filters-sidebar">
+            <div class="filters-header">
+                <h5 class="mb-3 fw-bold">Filtros</h5>
+                <button class="btn btn-sm btn-outline-secondary" id="clear-filters">
+                    <i class="fas fa-times me-1"></i>Limpiar
+                </button>
+            </div>
+            
+            <form id="filters-form">
+                <!-- Categorías populares -->
+                <div class="filter-section">
+                    <h6 class="fw-bold mb-2">Categorías Populares</h6>
+                    <div class="categories-list" id="categories-list">
+                        <div class="category-item active" data-category="diseño-gráfico">
+                            <span>Diseño Gráfico</span>
+                            <span class="count">120</span>
+                        </div>
+                        <div class="category-item" data-category="marketing-digital">
+                            <span>Marketing Digital</span>
+                            <span class="count">95</span>
+                        </div>
+                        <div class="category-item" data-category="desarrollo-web">
+                            <span>Desarrollo Web</span>
+                            <span class="count">150</span>
+                        </div>
+                        <div class="category-item" data-category="consultoría">
+                            <span>Consultoría</span>
+                            <span class="count">80</span>
+                        </div>
+                        <div class="category-item" data-category="fotografía">
+                            <span>Fotografía</span>
+                            <span class="count">60</span>
+                        </div>
+                        <div class="category-item" data-category="traducción">
+                            <span>Traducción</span>
+                            <span class="count">70</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros avanzados -->
+                <div class="filter-section">
+                    <h6 class="fw-bold mb-2">Filtros Avanzados</h6>
+                    
+                    <!-- Especialidad -->
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-semibold">Especialidad</label>
+                        <select id="specialties" class="form-select" multiple>
+                            <option value="abogado">Abogado</option>
+                            <option value="contador">Contador</option>
+                            <option value="consultor">Consultor</option>
+                            <option value="diseñador">Diseñador</option>
+                            <option value="desarrollador">Desarrollador</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="fotógrafo">Fotógrafo</option>
+                            <option value="traductor">Traductor</option>
+                        </select>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-semibold">Ubicación</label>
+                        <input type="text" id="location" class="form-control" placeholder="Ciudad o País" />
+                    </div>
+
+                    <!-- Calificación -->
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-semibold">Calificación mínima</label>
+                        <div class="rating-slider">
+                            <input type="range" class="form-range" min="1" max="5" step="1" id="minRating" value="1">
+                            <div class="rating-display">
+                                <span id="minRatingValue">1</span>
+                                <span class="stars">★</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarifa por hora -->
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-semibold">Tarifa por hora</label>
+                        <div class="price-range">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" id="minPrice" class="form-control" placeholder="Min" min="0" />
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" id="maxPrice" class="form-control" placeholder="Max" min="0" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Años de experiencia -->
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-semibold">Años de experiencia</label>
+                        <div class="experience-slider">
+                            <input type="range" class="form-range" min="0" max="30" step="1" id="minExperience" value="0">
+                            <div class="experience-display">
+                                <span id="minExperienceValue">0</span> años
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Consulta virtual -->
+                    <div class="form-group mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="virtualConsultation">
+                            <label class="form-check-label" for="virtualConsultation">
+                                Ofrece consulta virtual
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <!-- Estado de búsqueda -->
+            <div id="search-status" class="search-status"></div>
+            
+            <!-- Resultados -->
+            <div id="results-list" class="results-grid"></div>
+            
+            <!-- Paginación -->
+            <nav id="pagination-nav" class="pagination-wrapper"></nav>
+            
+            <!-- Call to action -->
+            <div class="cta-section">
+                <div class="alert alert-info">
+                    <h5 class="mb-2 text-primary">¿No encuentras lo que buscas?</h5>
+                    <p class="mb-3">Publica tu proyecto y recibe propuestas de profesionales calificados.</p>
+                    <button class="btn btn-warning">Publicar Proyecto</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal de filtros para móvil -->
+<div class="modal fade" id="filtersModal" tabindex="-1" aria-labelledby="filtersModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Filtros</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Contenido del modal será clonado desde filters-sidebar -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/search/search.js"></script> 

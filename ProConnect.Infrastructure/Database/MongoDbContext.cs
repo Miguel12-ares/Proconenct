@@ -104,7 +104,7 @@ namespace ProConnect.Infrastructure.Database
             }
         }
 
-        // Método para verificar si MongoDB está disponible
+        // Método para verificar conexión
         public async Task<bool> IsConnectedAsync()
         {
             try

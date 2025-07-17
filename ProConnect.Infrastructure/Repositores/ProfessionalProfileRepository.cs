@@ -5,6 +5,7 @@ using ProConnect.Core.Models;
 using ProConnect.Infrastructure.Database;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ProConnect.Infrastructure.Repositores
 {
@@ -232,52 +233,92 @@ namespace ProConnect.Infrastructure.Repositores
                 builder.Eq(x => x.Status, ProfileStatus.Active)
             };
 
-            // Filtros dinámicos
-            if (!string.IsNullOrWhiteSpace(filters.Query))
+            // Filtro de consulta de texto y especialidad
+            bool hasQuery = !string.IsNullOrWhiteSpace(filters.Query);
+            bool hasSpecialties = filters.Specialties != null && filters.Specialties.Count > 0;
+
+            if (hasQuery && hasSpecialties)
             {
-                var regex = new MongoDB.Bson.BsonRegularExpression(filters.Query, "i");
+                // Si la especialidad seleccionada es igual al texto de búsqueda, solo buscar por texto
+                var query = filters.Query.Trim();
+                var specialtiesLower = filters.Specialties.Select(s => s.Trim().ToLower()).ToList();
+                if (specialtiesLower.Contains(query.ToLower()))
+                {
+                    var regex = new MongoDB.Bson.BsonRegularExpression(query, "i");
+                    filterList.Add(builder.Or(
+                        builder.Regex(x => x.Bio, regex),
+                        builder.Regex(x => x.Location, regex),
+                        builder.AnyIn(x => x.Specialties, new[] { query })
+                    ));
+                }
+                else
+                {
+                    // Buscar por texto Y filtrar por especialidad
+                    var regex = new MongoDB.Bson.BsonRegularExpression(query, "i");
+                    filterList.Add(builder.Or(
+                        builder.Regex(x => x.Bio, regex),
+                        builder.Regex(x => x.Location, regex),
+                        builder.AnyIn(x => x.Specialties, new[] { query })
+                    ));
+                    filterList.Add(builder.AnyIn(x => x.Specialties, filters.Specialties));
+                }
+            }
+            else if (hasQuery)
+            {
+                var query = filters.Query.Trim();
+                var regex = new MongoDB.Bson.BsonRegularExpression(query, "i");
                 filterList.Add(builder.Or(
-                    new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(
-                        new MongoDB.Bson.BsonDocument("bio", new MongoDB.Bson.BsonDocument("$regex", filters.Query).Add("$options", "i"))),
-                    new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(
-                        new MongoDB.Bson.BsonDocument("specialties", filters.Query)),
-                    new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(
-                        new MongoDB.Bson.BsonDocument("location", new MongoDB.Bson.BsonDocument("$regex", filters.Query).Add("$options", "i")))
+                    builder.Regex(x => x.Bio, regex),
+                    builder.Regex(x => x.Location, regex),
+                    builder.AnyIn(x => x.Specialties, new[] { query })
                 ));
             }
-            if (filters.Specialties != null && filters.Specialties.Count > 0)
+            else if (hasSpecialties)
             {
-                filterList.Add(new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(
-                    new MongoDB.Bson.BsonDocument("specialties", new MongoDB.Bson.BsonArray(filters.Specialties))));
+                filterList.Add(builder.AnyIn(x => x.Specialties, filters.Specialties));
             }
+
+            // Filtro de ubicación
             if (!string.IsNullOrWhiteSpace(filters.Location))
             {
-                filterList.Add(builder.Regex(x => x.Location, new MongoDB.Bson.BsonRegularExpression(filters.Location, "i")));
+                var locationRegex = new MongoDB.Bson.BsonRegularExpression(filters.Location.Trim(), "i");
+                filterList.Add(builder.Regex(x => x.Location, locationRegex));
             }
+
+            // Filtro de tarifa mínima
             if (filters.MinHourlyRate.HasValue)
             {
                 filterList.Add(builder.Gte(x => x.HourlyRate, filters.MinHourlyRate.Value));
             }
+
+            // Filtro de tarifa máxima
             if (filters.MaxHourlyRate.HasValue)
             {
                 filterList.Add(builder.Lte(x => x.HourlyRate, filters.MaxHourlyRate.Value));
             }
+
+            // Filtro de calificación mínima
             if (filters.MinRating.HasValue)
             {
                 filterList.Add(builder.Gte(x => x.RatingAverage, filters.MinRating.Value));
             }
+
+            // Filtro de años de experiencia mínimos
             if (filters.MinExperienceYears.HasValue)
             {
                 filterList.Add(builder.Gte(x => x.ExperienceYears, filters.MinExperienceYears.Value));
             }
+
+            // Filtro de consulta virtual
             if (filters.VirtualConsultation.HasValue && filters.VirtualConsultation.Value)
             {
-                // Filtro BSON puro para servicios virtuales
-                var virtualServiceFilter = new MongoDB.Bson.BsonDocument("services",
-                    new MongoDB.Bson.BsonDocument("$elemMatch",
-                        new MongoDB.Bson.BsonDocument("name",
-                            new MongoDB.Bson.BsonDocument("$regex", "virtual").Add("$options", "i"))));
-                filterList.Add(new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(virtualServiceFilter));
+                // Buscar servicios que contengan "virtual" en el nombre usando BSON puro
+                var virtualServiceFilter = new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(
+                    new MongoDB.Bson.BsonDocument("services", 
+                        new MongoDB.Bson.BsonDocument("$elemMatch",
+                            new MongoDB.Bson.BsonDocument("name", 
+                                new MongoDB.Bson.BsonDocument("$regex", "virtual").Add("$options", "i")))));
+                filterList.Add(virtualServiceFilter);
             }
 
             var filter = builder.And(filterList);

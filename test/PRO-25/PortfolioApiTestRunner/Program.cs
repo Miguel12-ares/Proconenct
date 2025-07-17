@@ -1,13 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿// using System.Threading.Tasks;
 
-namespace PortfolioApiTestRunner
-{
-    class Program
-    {
-        static async Task Main(string[] args)
-        {
-            var test = new PortfolioApiBasicTest();
-            await test.RunAllAsync();
-        }
-    }
-}
+// namespace PortfolioApiTestRunner
+// {
+//     class Program
+//     {
+//         static async Task Main(string[] args)
+//         {
+//             var test = new PortfolioApiBasicTest();
+//             await test.RunAllAsync();
+//         }
+//     }
+// }

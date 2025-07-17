@@ -1,14 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Proconenct</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - ProConnect</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Proconenct.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/shared/footer.css" />
     
     @RenderSection("Styles", required: false)
@@ -62,11 +60,12 @@
                 </div>
             </nav>
         </header>
-        <div class="container flex-grow-1">
-            <main role="main" class="pb-3">
-                @RenderBody()
-            </main>
-        </div>
+        
+        <!-- Contenido sin container para aprovechar todo el ancho -->
+        <main role="main" class="flex-grow-1">
+            @RenderBody()
+        </main>
+        
         @await Html.PartialAsync("_Footer")
     </div>
 
@@ -76,4 +75,4 @@
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
-</html>
+</html> 

@@ -1,0 +1,404 @@
+/* filters.css - Estilos específicos para filtros */
+
+/* Contenedor de filtros */
+.filters-sidebar {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* Header de filtros */
+.filters-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.filters-header h5 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+/* Botón limpiar filtros */
+#clear-filters {
+    background: #6c757d;
+    border: none;
+    color: white;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+#clear-filters:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+/* Secciones de filtros */
+.filter-section {
+    padding: 1.5rem;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.filter-section:last-child {
+    border-bottom: none;
+}
+
+.filter-section h6 {
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-section h6::before {
+    content: '';
+    width: 4px;
+    height: 16px;
+    background: #1976d2;
+    border-radius: 2px;
+}
+
+/* Lista de categorías */
+.categories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.category-item:hover {
+    background: #e3f2fd;
+    border-color: #1976d2;
+    transform: translateX(4px);
+}
+
+.category-item.active {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+}
+
+.category-item .count {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    min-width: 30px;
+    text-align: center;
+}
+
+.category-item.active .count {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Formularios de filtros */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-label {
+    font-size: 0.85rem;
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Controles de formulario */
+.form-control, .form-select {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.15);
+    background: white;
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #adb5bd;
+    font-size: 0.85rem;
+}
+
+/* Select múltiple */
+.form-select[multiple] {
+    height: auto;
+    min-height: 120px;
+}
+
+.form-select[multiple] option {
+    padding: 0.5rem;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.form-select[multiple] option:checked {
+    background: #1976d2;
+    color: white;
+}
+
+/* Rango de precios */
+.price-range {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.price-range .form-control {
+    background: white;
+    border: 1px solid #dee2e6;
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+}
+
+.price-range .form-control:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.15);
+}
+
+/* Sliders personalizados */
+.rating-slider, .experience-slider {
+    position: relative;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.form-range {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #dee2e6;
+    outline: none;
+    -webkit-appearance: none;
+    margin: 0.5rem 0;
+}
+
+.form-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1976d2;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.form-range::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.form-range::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1976d2;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.form-range::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Display de valores de sliders */
+.rating-display, .experience-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    font-weight: 700;
+    color: #1976d2;
+    font-size: 1.1rem;
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #e3f2fd;
+}
+
+.stars {
+    color: #ffc107;
+    font-size: 1.2rem;
+}
+
+/* Checkbox personalizado */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+}
+
+.form-check:hover {
+    background: #e3f2fd;
+    border-color: #1976d2;
+}
+
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.form-check-input:checked {
+    background-color: #1976d2;
+    border-color: #1976d2;
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+}
+
+.form-check-label {
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 0;
+}
+
+/* Responsive para filtros */
+@media (max-width: 992px) {
+    .filters-sidebar {
+        position: static;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-section {
+        padding: 1rem;
+    }
+    
+    .filters-header {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .filters-sidebar {
+        display: none;
+    }
+    
+    /* Modal de filtros para móvil */
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    .modal-body .filters-sidebar {
+        display: block;
+        box-shadow: none;
+        border-radius: 0;
+    }
+    
+    .modal-body .filter-section {
+        padding: 1rem 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .modal-body .filter-section:last-child {
+        border-bottom: none;
+    }
+}
+
+/* Animaciones para filtros */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.filter-section {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Estados de filtros activos */
+.filter-section.has-active-filters {
+    background: rgba(25, 118, 210, 0.05);
+    border-left: 4px solid #1976d2;
+}
+
+/* Indicador de filtros aplicados */
+.filters-applied-indicator {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+} 
