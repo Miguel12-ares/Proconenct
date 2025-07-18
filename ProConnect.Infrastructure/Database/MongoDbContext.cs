@@ -32,6 +32,8 @@ namespace ProConnect.Infrastructure.Database
 
         public IMongoCollection<ProfessionalProfile> ProfessionalProfiles => _database.GetCollection<ProfessionalProfile>("professionalProfiles");
 
+        public IMongoDatabase Database => _database;
+
         // Método para crear índices
         public async Task CreateIndexesAsync()
         {
@@ -102,7 +104,7 @@ namespace ProConnect.Infrastructure.Database
             }
         }
 
-        // Método para verificar si MongoDB está disponible
+        // Método para verificar conexión
         public async Task<bool> IsConnectedAsync()
         {
             try

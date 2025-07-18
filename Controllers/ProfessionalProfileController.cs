@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProConnect.Application.DTOs;
+using ProConnect.Application.DTOs.Shared;
 using ProConnect.Application.Interfaces;
 using ProConnect.Application.Validators;
 using FluentValidation;
@@ -150,6 +151,139 @@ namespace ProConnect.Controllers
         }
 
         /// <summary>
+        /// Actualiza el horario de disponibilidad del profesional.
+        /// </summary>
+        [HttpPut("availability/schedule")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> UpdateAvailabilitySchedule([FromBody] AvailabilityScheduleDto scheduleDto)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+
+                var result = await _profileService.UpdateAvailabilityScheduleAsync(userId, scheduleDto);
+                return Ok(new { Success = result });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Agrega un bloqueo de disponibilidad para el profesional.
+        /// </summary>
+        [HttpPost("availability/block")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> AddAvailabilityBlock([FromBody] CreateAvailabilityBlockDto blockDto)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+
+                var block = await _profileService.AddAvailabilityBlockAsync(userId, blockDto);
+                return Ok(block);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene todos los bloqueos de disponibilidad del profesional.
+        /// </summary>
+        [HttpGet("availability/blocks")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> GetAvailabilityBlocks()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+
+                var blocks = await _profileService.GetAvailabilityBlocksAsync(userId);
+                return Ok(blocks);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Elimina un bloqueo de disponibilidad por id.
+        /// </summary>
+        [HttpDelete("availability/block/{id}")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> DeleteAvailabilityBlock(string id)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+
+                var result = await _profileService.DeleteAvailabilityBlockAsync(userId, id);
+                return Ok(new { Success = result });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Consulta los slots disponibles para una fecha específica.
+        /// </summary>
+        [HttpGet("availability/check")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> CheckAvailability([FromQuery] string date)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+
+                if (!DateTime.TryParse(date, out var parsedDate))
+                    return BadRequest(new { Message = "Formato de fecha inválido. Use YYYY-MM-DD" });
+
+                var response = await _profileService.CheckAvailabilityAsync(userId, parsedDate);
+                return Ok(response);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
         /// Obtiene un perfil profesional público por ID.
         /// </summary>
         /// <param name="id">ID del perfil profesional</param>
@@ -242,6 +376,104 @@ namespace ProConnect.Controllers
                 });
             }
             catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Crea un nuevo servicio para el perfil profesional del usuario autenticado.
+        /// </summary>
+        [HttpPost("services")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> AddService([FromBody] CreateServiceDto dto)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+                var result = await _profileService.AddServiceAsync(userId, dto);
+                return result ? Ok(new { Success = true }) : BadRequest(new { Message = "No se pudo agregar el servicio" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Lista todos los servicios del perfil profesional del usuario autenticado.
+        /// </summary>
+        [HttpGet("services")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> GetServices()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+                var services = await _profileService.GetServicesAsync(userId);
+                return Ok(services);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Actualiza un servicio existente del perfil profesional del usuario autenticado.
+        /// </summary>
+        [HttpPut("services/{id}")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> UpdateService(string id, [FromBody] UpdateServiceDto dto)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+                if (id != dto.Id)
+                    return BadRequest(new { Message = "El id de la ruta no coincide con el del cuerpo" });
+                var result = await _profileService.UpdateServiceAsync(userId, dto);
+                return result ? Ok(new { Success = true }) : BadRequest(new { Message = "No se pudo actualizar el servicio" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Elimina un servicio del perfil profesional del usuario autenticado.
+        /// </summary>
+        [HttpDelete("services/{id}")]
+        [Authorize(Roles = "Professional")]
+        public async Task<IActionResult> DeleteService(string id)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { Message = "Usuario no autenticado" });
+                var result = await _profileService.DeleteServiceAsync(userId, id);
+                return result ? Ok(new { Success = true }) : BadRequest(new { Message = "No se pudo eliminar el servicio" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
             {
                 return StatusCode(500, new { Message = "Error interno del servidor" });
             }

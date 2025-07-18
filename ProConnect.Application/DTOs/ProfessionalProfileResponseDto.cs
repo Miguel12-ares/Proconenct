@@ -24,6 +24,8 @@ namespace ProConnect.Application.DTOs
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsCompleteForPublicView { get; set; }
+        public int PortfolioFilesCount { get; set; }
+        public List<string> Services { get; set; } = new();
 
         // Información del usuario (solo en vista privada)
         public string? UserFirstName { get; set; }

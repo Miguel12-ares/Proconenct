@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ProConnect</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/shared/footer.css" />
+    @RenderSection("Styles", required: false)
+</head>
+<body class="layout-flex">
+    <div class="layout-wrapper">
+        <header class="main-header">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow">
+                <div class="container-fluid px-4">
+                    <a class="navbar-brand d-flex align-items-center" asp-area="" asp-page="/Index">
+                        <div class="brand-icon">
+                            <i class="fas fa-briefcase fa-lg text-primary"></i>
+                        </div>
+                        <span class="brand-text fw-bold text-primary ms-2">ProConnect</span>
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1 align-items-center justify-content-center">
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-animated" href="#como-funciona">
+                                    <i class="fas fa-play-circle me-1"></i>
+                                    Cómo funciona
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-animated" href="#categorias">
+                                    <i class="fas fa-th-large me-1"></i>
+                                    Categorías
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-animated" href="#testimonios">
+                                    <i class="fas fa-star me-1"></i>
+                                    Testimonios
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-animated" href="/search">
+                                    <i class="fas fa-search me-1"></i>
+                                    Buscar
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="d-flex align-items-center gap-3">
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                var userName = "Usuario";
+                                var givenNameClaim = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.GivenName);
+                                if (givenNameClaim != null && !string.IsNullOrWhiteSpace(givenNameClaim.Value))
+                                {
+                                    userName = givenNameClaim.Value;
+                                }
+                                <a class="btn btn-light border rounded-pill d-flex align-items-center justify-content-center px-3 user-profile-btn" asp-area="" asp-page="/auth/Profile" title="Mi perfil">
+                                    <i class="fas fa-user me-2"></i>
+                                    <span class="fw-semibold">@userName</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-outline-primary me-2 btn-animated" asp-area="" asp-page="/auth/Login">
+                                    <i class="fas fa-sign-in-alt me-1"></i>
+                                    Login
+                                </a>
+                                <a class="btn btn-primary btn-animated" asp-area="" asp-page="/auth/Register">
+                                    <i class="fas fa-user-plus me-1"></i>
+                                    Registrarse
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <main role="main" class="flex-grow-1">
+            @RenderBody()
+        </main>
+        @await Html.PartialAsync("_Footer")
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html> 

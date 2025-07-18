@@ -1,5 +1,357 @@
 @page
 @model IndexModel
 @{
-    // No se renderiza contenido aquí, la lógica de redirección está en el code-behind
+    ViewData["Title"] = "ProConnect - Conecta con profesionales expertos";
+    Layout = "/Pages/Shared/_Layout.cshtml";
 }
+
+<link rel="stylesheet" href="/css/landing/main.css" />
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-background">
+        <div class="hero-overlay"></div>
+        <div class="hero-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6 animate-slide-in-left">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        Conecta con <span class="text-gradient">profesionales expertos</span> en Colombia
+                    </h1>
+                    <p class="hero-subtitle">
+                        Encuentra y contrata a los mejores profesionales en derecho, tecnología, diseño, marketing y más. 
+                        Soluciones confiables y de calidad para tus necesidades.
+                    </p>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">500+</div>
+                            <div class="stat-label">Profesionales</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">1000+</div>
+                            <div class="stat-label">Proyectos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">4.8★</div>
+                            <div class="stat-label">Calificación</div>
+                        </div>
+                    </div>
+                    <div class="hero-actions">
+                        <a href="/search" class="btn btn-primary btn-lg btn-animated">
+                            <i class="fas fa-search me-2"></i>
+                            Buscar profesionales
+                        </a>
+                        <a href="/auth/Register" class="btn btn-outline-primary btn-lg btn-animated">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Registrarse
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 animate-slide-in-right">
+                <div class="hero-image">
+                    <div class="floating-card card-1">
+                        <div class="card-avatar">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="card-content">
+                            <h5>Abogado Experto</h5>
+                            <p>Derecho Laboral</p>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.9</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-card card-2">
+                        <div class="card-avatar">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="card-content">
+                            <h5>Desarrollador</h5>
+                            <p>Full Stack</p>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.8</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-card card-3">
+                        <div class="card-avatar">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="card-content">
+                            <h5>Diseñador UX/UI</h5>
+                            <p>Experiencia Digital</p>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.7</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cómo funciona Section -->
+<section id="como-funciona" class="how-it-works-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="section-title">¿Cómo funciona ProConnect?</h2>
+                <p class="section-subtitle">Encuentra al profesional perfecto en solo 3 pasos</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="step-card animate-fade-in-up">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h4>Busca</h4>
+                    <p>Encuentra profesionales por categoría, ubicación o especialidad. Filtra por calificación, precio y disponibilidad.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="step-card animate-fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h4>Evalúa</h4>
+                    <p>Revisa perfiles detallados, portafolios, reseñas y certificaciones. Conoce la experiencia y especialidades.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="step-card animate-fade-in-up" style="animation-delay: 0.4s;">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h4>Conecta</h4>
+                    <p>Contacta directamente con el profesional. Agenda consultas, negocia términos y comienza tu proyecto.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categorías Section -->
+<section id="categorias" class="categories-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="section-title">Categorías principales</h2>
+                <p class="section-subtitle">Encuentra expertos en las áreas que necesitas</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="category-card animate-fade-in-up">
+                    <div class="category-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h4>Derecho</h4>
+                    <p>Abogados especializados en derecho laboral, civil, comercial y más.</p>
+                    <div class="category-stats">
+                        <span>150+ profesionales</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="category-card animate-fade-in-up" style="animation-delay: 0.1s;">
+                    <div class="category-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h4>Tecnología</h4>
+                    <p>Desarrolladores, ingenieros y expertos en sistemas y software.</p>
+                    <div class="category-stats">
+                        <span>200+ profesionales</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="category-card animate-fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="category-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h4>Diseño</h4>
+                    <p>Diseñadores gráficos, UX/UI, ilustradores y creativos digitales.</p>
+                    <div class="category-stats">
+                        <span>120+ profesionales</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="category-card animate-fade-in-up" style="animation-delay: 0.3s;">
+                    <div class="category-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4>Marketing</h4>
+                    <p>Especialistas en marketing digital, SEO, publicidad y estrategias.</p>
+                    <div class="category-stats">
+                        <span>80+ profesionales</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonios Section -->
+<section id="testimonios" class="testimonials-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="section-title">Lo que dicen nuestros usuarios</h2>
+                <p class="section-subtitle">Experiencias reales de clientes satisfechos</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="testimonial-card animate-fade-in-up">
+                    <div class="testimonial-content">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"Encontré un excelente abogado laboral que me ayudó a resolver mi caso de manera profesional y eficiente."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h5>María González</h5>
+                            <span>Empresaria</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="testimonial-card animate-fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="testimonial-content">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"El desarrollador que contraté a través de ProConnect superó mis expectativas. Proyecto entregado a tiempo y con calidad."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h5>Carlos Rodríguez</h5>
+                            <span>Emprendedor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="testimonial-card animate-fade-in-up" style="animation-delay: 0.4s;">
+                    <div class="testimonial-content">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"La diseñadora que encontré creó una identidad visual increíble para mi marca. Muy profesional y creativa."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h5>Ana Martínez</h5>
+                            <span>Fundadora de Startup</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="cta-title">¿Listo para encontrar al profesional perfecto?</h2>
+                <p class="cta-subtitle">Únete a miles de usuarios que ya confían en ProConnect</p>
+                <div class="cta-actions">
+                    <a href="/search" class="btn btn-primary btn-lg btn-animated">
+                        <i class="fas fa-search me-2"></i>
+                        Comenzar búsqueda
+                    </a>
+                    <a href="/auth/Register" class="btn btn-outline-light btn-lg btn-animated">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Crear cuenta gratis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="/js/site.js"></script>
+<script>
+    // Animaciones adicionales para la página de inicio
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animación de las tarjetas flotantes
+        const floatingCards = document.querySelectorAll('.floating-card');
+        floatingCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.2}s`;
+        });
+
+        // Animación de scroll para elementos
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observar elementos para animación
+        document.querySelectorAll('.step-card, .category-card, .testimonial-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+
+        // Efecto parallax en el hero
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.hero-background');
+            if (parallax) {
+                parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+    });
+</script>

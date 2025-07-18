@@ -1,270 +1,126 @@
 @page
-@model ProConnect.Pages.ProfessionalProfileModel
+@model Proconenct.Pages.ProfessionalProfileModel
 @{
     ViewData["Title"] = "Mi Perfil Profesional";
+    Layout = "/Pages/Shared/_Layout.cshtml";
 }
-
-@section Styles {
-    <link rel="stylesheet" href="~/css/professional-profile/main.css" />
-}
-
-<div class="professional-profile-container">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-10">
-                <div class="professional-profile-card">
-                    <div class="professional-profile-header">
-                        <h1 class="professional-profile-title">
-                            <i class="fas fa-user-tie"></i>
-                            Mi Perfil Profesional
-                        </h1>
-                        <p class="professional-profile-subtitle">
-                            Gestiona tu información profesional para conectar con clientes
-                        </p>
+<link rel="stylesheet" href="/css/profiles/main.css" />
+<link rel="stylesheet" href="/css/profiles/profile-edit.css" />
+<div class="main-content py-4 profile-edit-modern fade-in">
+    <div class="row justify-content-center gx-5">
+        <!-- Columna izquierda: Formulario -->
+        <div class="col-12 col-lg-7 mb-4">
+            <div class="bg-white p-4 shadow-sm rounded-4 animate-card">
+                <div class="d-flex align-items-center mb-4 gap-2">
+                    <i class="fas fa-user-edit fa-lg text-primary"></i>
+                    <h2 class="fw-bold mb-0">Mi Perfil Profesional</h2>
+                    @if (Model.SuccessMessage != null)
+                    {
+                        <span class="badge bg-success ms-2 animate-badge">@Model.SuccessMessage</span>
+                    }
+                </div>
+                <h5 class="mb-3 text-secondary"><i class="fas fa-info-circle me-2"></i>Información Básica</h5>
+                <form method="post" autocomplete="off">
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Especialidades *</label>
+                            @Html.TextBoxFor(m => m.SpecialtiesString, new { @class = "form-control animate-input", placeholder = "Ej: Derecho Laboral, Derecho Civil" })
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Ubicación *</label>
+                            @Html.TextBoxFor(m => m.UpdateDto.Location, new { @class = "form-control animate-input", placeholder = "Ciudad, País" })
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Biografía Profesional *</label>
+                        @Html.TextAreaFor(m => m.UpdateDto.Bio, 4, 1, new { @class = "form-control animate-input", placeholder = "Describe tu experiencia y especialidades..." })
+                        <small class="text-muted">Mínimo 100 caracteres. Describe tu experiencia y especialidades.</small>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6 col-md-4">
+                            <label class="form-label">Años de Experiencia</label>
+                            @Html.TextBoxFor(m => m.UpdateDto.ExperienceYears, new { @class = "form-control animate-input", type = "number", min = "0" })
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label">Tarifa por Hora (COP) *</label>
+                            @Html.TextBoxFor(m => m.UpdateDto.HourlyRate, new { @class = "form-control animate-input", type = "number", min = "0" })
+                        </div>
+                        @* Eliminar cualquier input o sección de edición para Model.UpdateDto.Services, ya que no existe en el modelo *@
+                        @* Mostrar servicios solo en modo lectura si existen en Model.Profile.Services *@
+                        @if (Model.Profile != null && Model.Profile.Services != null && Model.Profile.Services.Count > 0)
+                        {
+                            <div class="col-12 col-md-4">
+                                <label class="form-label fw-bold">Servicios ofrecidos</label>
+                                <ul class="list-group">
+                                    @foreach (var service in Model.Profile.Services)
+                                    {
+                                        <li class="list-group-item">@service</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Certificaciones</label>
+                        @Html.TextBoxFor(m => m.CredentialsString, new { @class = "form-control animate-input", placeholder = "Ej: Abogada Colegiada, Maestria..." })
                     </div>
                     
-                    <div class="professional-profile-body">
-                        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-                        {
-                            <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-circle"></i>
-                                @Model.ErrorMessage
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
-                        {
-                            <div class="alert alert-success">
-                                <i class="fas fa-check-circle"></i>
-                                @Model.SuccessMessage
-                            </div>
-                        }
-                        
-                        @if (Model.Profile != null)
-                        {
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i>
-                                Ya tienes un perfil profesional. Puedes editarlo a continuación.
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                Aún no tienes un perfil profesional. Completa la información a continuación para crear tu perfil.
-                            </div>
-                        }
-
-                        <form id="profileForm" method="post">
-                            <div class="form-section">
-                                <h5 class="form-section-title">
-                                    <i class="fas fa-graduation-cap"></i>
-                                    Información Básica
-                                </h5>
-                                
-                                <div class="row">
-                                    <!-- Especialidades -->
-                                    <div class="col-md-6 mb-3">
-                                        <label for="specialties" class="form-label">Especialidades *</label>
-                                        <select id="specialties" name="Specialties" class="form-select specialties-select" multiple required>
-                                            @{
-                                                var specialtiesList = new List<string> {
-                                                    "Derecho Laboral", "Derecho Civil", "Derecho Comercial", "Derecho Penal", "Derecho Administrativo",
-                                                    "Contabilidad", "Auditoría", "Consultoría Empresarial", "Diseño Gráfico", "Desarrollo Web",
-                                                    "Marketing Digital", "Psicología", "Medicina", "Ingeniería", "Arquitectura"
-                                                };
-                                                var selectedSpecialties = Model.Profile?.Specialties ?? new List<string>();
-                                            }
-                                            @foreach (var specialty in specialtiesList)
-                                            {
-                                                var isSelected = selectedSpecialties.Contains(specialty);
-                                                if (isSelected)
-                                                {
-                                                    <option value="@specialty" selected>@specialty</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@specialty">@specialty</option>
-                                                }
-                                            }
-                                        </select>
-                                        <div class="form-text">Selecciona al menos una especialidad. Mantén presionado Ctrl para seleccionar múltiples.</div>
-                                    </div>
-
-                                    <!-- Ubicación -->
-                                    <div class="col-md-6 mb-3">
-                                        <label for="location" class="form-label">Ubicación *</label>
-                                        <input type="text" id="location" name="Location" class="form-control" 
-                                               value="@Model.Profile?.Location" required 
-                                               placeholder="Ej: Medellín, Colombia">
-                                    </div>
-                                </div>
-
-                                <!-- Biografía -->
-                                <div class="mb-3">
-                                    <label for="bio" class="form-label">Biografía Profesional *</label>
-                                    <textarea id="bio" name="Bio" class="form-control" rows="6" required
-                                              placeholder="Describe tu experiencia, formación y enfoque profesional...">@Model.Profile?.Bio</textarea>
-                                    <div class="form-text">Mínimo 100 caracteres. Describe tu experiencia y especialidades.</div>
-                                    <div id="bioCounter" class="bio-counter"></div>
-                                </div>
-
-                                <div class="row">
-                                    <!-- Años de Experiencia -->
-                                    <div class="col-md-6 mb-3">
-                                        <label for="experienceYears" class="form-label">Años de Experiencia</label>
-                                        <input type="number" id="experienceYears" name="ExperienceYears" class="form-control" 
-                                               value="@Model.Profile?.ExperienceYears" min="0" max="50">
-                                    </div>
-
-                                    <!-- Tarifa por Hora -->
-                                    <div class="col-md-6 mb-3">
-                                        <label for="hourlyRate" class="form-label">Tarifa por Hora (USD) *</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">$</span>
-                                            <input type="number" id="hourlyRate" name="HourlyRate" class="form-control" 
-                                                   value="@Model.Profile?.HourlyRate" min="1" max="10000" step="0.01" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-section">
-                                <h5 class="form-section-title">
-                                    <i class="fas fa-certificate"></i>
-                                    Credenciales y Estado
-                                </h5>
-
-                                <!-- Credenciales -->
-                                <div class="mb-3">
-                                    <label for="credentials" class="form-label">Credenciales</label>
-                                    <textarea id="credentials" name="Credentials" class="form-control credentials-textarea" rows="3"
-                                              placeholder="Ingresa tus títulos, certificaciones y credenciales (una por línea)">@(Model.Profile?.Credentials != null ? string.Join("\n", Model.Profile.Credentials) : "")</textarea>
-                                    <div class="form-text">Ingresa una credencial por línea.</div>
-                                </div>
-
-                                <!-- Estado del Perfil -->
-                                <div class="mb-3">
-                                    <label for="status" class="form-label">Estado del Perfil</label>
-                                    <select id="status" name="Status" class="form-select status-select">
-                                        @{
-                                            var status0Selected = Model.Profile?.Status == ProConnect.Application.DTOs.Shared.ProfileStatusDto.Draft;
-                                            var status1Selected = Model.Profile?.Status == ProConnect.Application.DTOs.Shared.ProfileStatusDto.Active;
-                                            var status2Selected = Model.Profile?.Status == ProConnect.Application.DTOs.Shared.ProfileStatusDto.Inactive;
-                                        }
-                                        @if (status0Selected)
-                                        {
-                                            <option value="0" selected>Borrador (No visible)</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="0">Borrador (No visible)</option>
-                                        }
-                                        @if (status1Selected)
-                                        {
-                                            <option value="1" selected>Activo (Visible publicamente)</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="1">Activo (Visible publicamente)</option>
-                                        }
-                                        @if (status2Selected)
-                                        {
-                                            <option value="2" selected>Inactivo</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="2">Inactivo</option>
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary" onclick="history.back()">
-                                    <i class="fas fa-arrow-left"></i> Volver
-                                </button>
-                                <button type="submit" class="btn btn-primary" id="submitBtn">
-                                    <i class="fas fa-save"></i> 
-                                    <span id="submitText">@(Model.Profile != null ? "Actualizar Perfil" : "Crear Perfil")</span>
-                                </button>
-                            </div>
-                        </form>
+                    <!-- Control de estado del perfil -->
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            @Html.CheckBoxFor(m => m.IsProfileActive, new { @class = "form-check-input", id = "profileStatus" })
+                            <label class="form-check-label fw-bold" for="profileStatus">
+                                <i class="fas fa-toggle-on text-success me-2"></i>Perfil Activo
+                            </label>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Cuando está activo, tu perfil es visible en las búsquedas de clientes. 
+                            Cuando está inactivo, solo tú puedes verlo.
+                        </small>
                     </div>
+                    
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg animate-btn">Guardar Cambios</button>
+                        <button type="reset" class="btn btn-outline-secondary btn-lg animate-btn">Restaurar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Columna derecha: Resumen visual y foto -->
+        <div class="col-12 col-lg-5 mb-4">
+            <div class="bg-white p-4 shadow-sm rounded-4 d-flex flex-column align-items-center animate-card">
+                <div class="profile-img-lg mb-3">
+                    <img src="/img/landing/image.png" alt="Foto de perfil" class="rounded-circle border border-3 border-primary shadow" width="140" height="140" style="object-fit:cover;" />
                 </div>
+                @if (Model.Profile != null)
+                {
+                    <h4 class="fw-bold mb-1">@Model.Profile.UserFirstName @Model.Profile.UserLastName</h4>
+                    <div class="text-muted mb-2">@Model.Profile.Location</div>
+                    <div class="mb-3">
+                        @foreach (var spec in Model.Profile.Specialties)
+                        {
+                            <span class="badge bg-primary me-1">@spec</span>
+                        }
+                    </div>
+                    <div class="mb-3 text-center">
+                        <i class="fas fa-quote-left text-primary"></i>
+                        <span class="fst-italic">@Model.Profile.Bio</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
+                        <span class="badge bg-success">@Model.Profile.ExperienceYears años exp.</span>
+                        <span class="badge bg-info">$@Model.Profile.HourlyRate.ToString("N0") COP/h</span>
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-certificate text-warning me-1"></i>
+                        <span class="text-secondary">@string.Join(", ", Model.Profile.Credentials)</span>
+                    </div>
+                }
+                else
+                {
+                    <h4 class="fw-bold mb-1 text-muted">Sin perfil cargado</h4>
+                }
             </div>
         </div>
     </div>
-</div>
-
-@section Scripts {
-    <script>
-        // Contador de caracteres para la biografía
-        const bioTextarea = document.getElementById('bio');
-        const bioCounter = document.getElementById('bioCounter');
-        
-        function updateBioCounter() {
-            const length = bioTextarea.value.length;
-            const minLength = 100;
-            const remaining = minLength - length;
-            
-            if (length < minLength) {
-                bioCounter.textContent = `Faltan ${remaining} caracteres (mínimo ${minLength})`;
-                bioCounter.className = 'bio-counter danger';
-            } else {
-                bioCounter.textContent = `${length} caracteres (mínimo ${minLength})`;
-                bioCounter.className = 'bio-counter success';
-            }
-        }
-        
-        bioTextarea.addEventListener('input', updateBioCounter);
-        updateBioCounter();
-        
-        // Validación del formulario
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
-            const bio = bioTextarea.value.trim();
-            const specialties = document.getElementById('specialties').selectedOptions;
-            const location = document.getElementById('location').value.trim();
-            const hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
-            
-            let isValid = true;
-            let errorMessage = '';
-            
-            // Validar biografía
-            if (bio.length < 100) {
-                errorMessage += 'La biografía debe tener al menos 100 caracteres.\n';
-                isValid = false;
-            }
-            
-            // Validar especialidades
-            if (specialties.length === 0) {
-                errorMessage += 'Debe seleccionar al menos una especialidad.\n';
-                isValid = false;
-            }
-            
-            // Validar ubicación
-            if (location.length < 3) {
-                errorMessage += 'La ubicación debe tener al menos 3 caracteres.\n';
-                isValid = false;
-            }
-            
-            // Validar tarifa
-            if (hourlyRate <= 0 || hourlyRate > 10000) {
-                errorMessage += 'La tarifa por hora debe estar entre $1 y $10,000.\n';
-                isValid = false;
-            }
-            
-            if (!isValid) {
-                e.preventDefault();
-                alert('Por favor corrige los siguientes errores:\n\n' + errorMessage);
-            } else {
-                // Mostrar estado de carga
-                const submitBtn = document.getElementById('submitBtn');
-                const submitText = document.getElementById('submitText');
-                submitBtn.classList.add('loading');
-                submitText.textContent = 'Guardando...';
-                submitBtn.disabled = true;
-            }
-        });
-    </script>
-} 
+</div> 

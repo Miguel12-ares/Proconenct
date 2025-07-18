@@ -1,0 +1,113 @@
+/* Modern profile edit styles mejorados */
+.profile-edit-modern {
+    background: #f7f9fb;
+    min-height: 100vh;
+    animation: fadeIn 0.7s;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: none; }
+}
+.profile-edit-modern .container-xl {
+    max-width: 1200px;
+}
+.animate-card {
+    transition: box-shadow 0.3s, transform 0.2s;
+}
+.animate-card:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    transform: translateY(-2px) scale(1.01);
+}
+.animate-badge {
+    animation: popIn 0.5s;
+}
+@keyframes popIn {
+    0% { transform: scale(0.7); opacity: 0; }
+    80% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+.animate-input {
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.animate-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #2563eb22;
+}
+.animate-btn {
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.animate-btn:hover, .animate-btn:focus {
+    background: #2563eb;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(37,99,235,0.10);
+    transform: translateY(-1px) scale(1.03);
+}
+.profile-edit-modern .bg-white {
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.profile-edit-modern h2.fw-bold {
+    font-size: 2.1rem;
+    color: #222;
+}
+.profile-edit-modern .form-label {
+    font-weight: 600;
+    color: #333;
+}
+.profile-edit-modern .form-control, .profile-edit-modern .form-select {
+    border-radius: 8px;
+    border: 1px solid #e3e6ed;
+    background: #fff;
+    color: #222;
+    font-size: 1em;
+}
+.profile-edit-modern .form-control:focus, .profile-edit-modern .form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #2563eb22;
+}
+.profile-edit-modern .btn-primary {
+    background: #2563eb;
+    border: none;
+    font-weight: 600;
+}
+.profile-edit-modern .btn-outline-secondary {
+    border: 1.5px solid #bfc9d9;
+    color: #222;
+    background: #f7f9fb;
+}
+.profile-edit-modern .btn-outline-secondary:hover {
+    background: #e3e6ed;
+    color: #2563eb;
+}
+.profile-edit-modern .profile-img-lg img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #2563eb;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    background: #fff;
+}
+@media (max-width: 991px) {
+    .profile-edit-modern .container-xl {
+        max-width: 98vw;
+    }
+    .profile-edit-modern .row.gx-5 {
+        --bs-gutter-x: 1.5rem;
+    }
+}
+@media (max-width: 767px) {
+    .profile-edit-modern .container-xl {
+        padding: 0 0.5rem;
+    }
+    .profile-edit-modern .bg-white {
+        padding: 1.2rem !important;
+    }
+    .profile-edit-modern h2.fw-bold {
+        font-size: 1.3rem;
+    }
+    .profile-edit-modern .profile-img-lg img {
+        width: 90px;
+        height: 90px;
+    }
+} 
