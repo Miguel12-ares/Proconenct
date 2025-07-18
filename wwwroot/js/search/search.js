@@ -306,7 +306,7 @@ class ProfessionalSearch {
                 </div>
                 <div class="card-body">
                     <div class="price-info">
-                        <span class="price-amount">$${professional.hourlyRate || 0}</span>
+                        <span class="price-amount">$${(professional.hourlyRate || 0).toLocaleString('es-CO')} COP</span>
                         <span class="price-unit">/hora</span>
                     </div>
                     
@@ -338,7 +338,7 @@ class ProfessionalSearch {
                     ` : ''}
                     
                     <div class="card-actions">
-                        <a href="/profiles/${professional.id}" class="btn-view-profile">
+                        <a href="/profiles/Detail/${professional.id}" class="btn-view-profile">
                             <i class="fas fa-user me-1"></i>Ver Perfil
                         </a>
                         <button class="btn-contact" onclick="contactProfessional('${professional.id}')">

@@ -1,0 +1,291 @@
+@page
+@model Proconenct.Pages.profiles.IndexModel
+@{
+    ViewData["Title"] = "Resultados de Búsqueda";
+    Layout = "/Pages/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/profiles/main.css" />
+<link rel="stylesheet" href="/css/profiles/results.css" />
+
+<div class="profiles-page-container main-content">
+    <div class="row">
+        <!-- Filtros laterales -->
+        <aside class="col-lg-3 d-none d-lg-block filters-sidebar">
+            <div class="filters-box">
+                <h5>Filtros</h5>
+                <div class="filter-group mb-3">
+                    <label class="form-label">Categoría</label>
+                    <select class="form-select" disabled>
+                        <option>Diseño Gráfico</option>
+                    </select>
+                </div>
+                <div class="filter-group mb-3">
+                    <label class="form-label">Ubicación</label>
+                    <input class="form-control" placeholder="Ciudad o País" disabled />
+                </div>
+                <div class="filter-group mb-3">
+                    <label class="form-label">Calificación</label>
+                    <select class="form-select" disabled>
+                        <option>Cualquiera</option>
+                    </select>
+                </div>
+                <div class="filter-group mb-3">
+                    <label class="form-label">Tarifa por Hora (COP)</label>
+                    <input type="range" class="form-range" min="0" max="200" disabled />
+                </div>
+                <button class="btn btn-primary w-100" disabled>Aplicar Filtros</button>
+            </div>
+        </aside>
+            
+            <!-- Resultados principales -->
+            <main class="col-12 col-lg-9">
+                <!-- Header con controles -->
+                <div class="search-header d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 me-3">Profesionales encontrados</h2>
+                        @if (Model.SearchResults?.TotalCount > 0)
+                        {
+                            <span class="badge bg-primary fs-6">@Model.SearchResults.TotalCount</span>
+                        }
+                    </div>
+                    <div class="view-controls d-flex align-items-center gap-2">
+                        <div class="view-options btn-group" role="group">
+                            <button class="btn btn-outline-primary btn-sm active" id="grid-view" data-view="grid" title="Vista de cuadrícula">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" id="list-view" data-view="list" title="Vista de lista">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                        <div class="sort-options">
+                            <select class="form-select form-select-sm" id="sort-select">
+                                <option value="relevance">Más relevantes</option>
+                                <option value="rating">Mejor calificados</option>
+                                <option value="price-low">Precio: menor a mayor</option>
+                                <option value="price-high">Precio: mayor a menor</option>
+                                <option value="experience">Más experiencia</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados -->
+                <div class="results-section">
+                    @if (Model.SearchResults != null && Model.SearchResults.Items.Any())
+                    {
+                        <!-- Vista de Cuadrícula -->
+                        <div class="row g-4 professionals-grid" id="grid-view-container">
+                            @foreach (var prof in Model.SearchResults.Items)
+                            {
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="professional-card card h-100 shadow-sm">
+                                        <div class="card-header bg-gradient-primary text-white text-center p-3">
+                                            <div class="profile-img mb-2">
+                                                <img src="/img/landing/image.png" alt="Foto de @prof.FullName" 
+                                                     class="rounded-circle border border-3 border-white" 
+                                                     style="width:80px;height:80px;object-fit:cover;" />
+                                            </div>
+                                            <h5 class="card-title mb-1 text-white">@prof.FullName</h5>
+                                            <div class="card-specialty mb-1 text-white-50">@prof.Specialties?.FirstOrDefault()</div>
+                                        </div>
+                                        <div class="card-body d-flex flex-column">
+                                            <!-- Calificación -->
+                                            <div class="card-rating mb-2 text-center">
+                                                <div class="stars mb-1">
+                                                    @for (int i = 0; i < Math.Floor(prof.RatingAverage); i++) 
+                                                    { 
+                                                        <i class="fas fa-star text-warning"></i> 
+                                                    }
+                                                    @for (int i = 0; i < (5 - Math.Floor(prof.RatingAverage)); i++) 
+                                                    { 
+                                                        <i class="far fa-star text-warning"></i> 
+                                                    }
+                                                </div>
+                                                <span class="text-muted small">@prof.RatingAverage.ToString("0.0") (@prof.TotalReviews reseñas)</span>
+                                            </div>
+                                            
+                                            <!-- Información clave -->
+                                            <div class="card-info mb-3">
+                                                <div class="info-item mb-2">
+                                                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                                    <span class="text-muted">@prof.Location</span>
+                                                </div>
+                                                <div class="info-item mb-2">
+                                                    <i class="fas fa-briefcase text-primary me-2"></i>
+                                                    <span class="text-muted"><b>@prof.ExperienceYears</b> años de experiencia</span>
+                                                </div>
+                                                <div class="info-item mb-2">
+                                                    <i class="fas fa-dollar-sign text-primary me-2"></i>
+                                                    <span class="text-muted"><b>$@prof.HourlyRate.ToString("N0") COP</b> /hora</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Bio truncada -->
+                                            <div class="card-bio mb-3 flex-grow-1">
+                                                <p class="text-muted small">@(prof.Bio.Length > 120 ? prof.Bio.Substring(0, 120) + "..." : prof.Bio)</p>
+                                            </div>
+                                            
+                                            <!-- Servicios -->
+                                            @if (prof.Services?.Any() == true)
+                                            {
+                                                <div class="skills mb-3">
+                                                    @foreach (var skill in prof.Services.Take(3))
+                                                    {
+                                                        <span class="badge bg-light text-secondary border me-1 mb-1">@skill</span>
+                                                    }
+                                                    @if (prof.Services.Count > 3)
+                                                    {
+                                                        <span class="badge bg-light text-secondary border">+@(prof.Services.Count - 3)</span>
+                                                    }
+                                                </div>
+                                            }
+                                            
+                                            <!-- Botones de acción -->
+                                            <div class="card-actions mt-auto">
+                                                <div class="d-grid gap-2">
+                                                    <a href="/profiles/Detail/@prof.Id" class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-user me-1"></i>Ver perfil
+                                                    </a>
+                                                    <button class="btn btn-outline-primary btn-sm" onclick="contactProfessional('@prof.Id', '@prof.FullName')">
+                                                        <i class="fas fa-envelope me-1"></i>Contactar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Vista de Lista (oculta por defecto) -->
+                        <div class="professionals-list d-none" id="list-view-container">
+                            @foreach (var prof in Model.SearchResults.Items)
+                            {
+                                <div class="professional-list-item card mb-3">
+                                    <div class="row g-0">
+                                        <div class="col-md-2">
+                                            <img src="/img/landing/image.png" alt="Foto de @prof.FullName" 
+                                                 class="img-fluid rounded-start h-100" style="object-fit:cover;" />
+                                        </div>
+                                        <div class="col-md-10">
+                                            <div class="card-body">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-6">
+                                                        <h5 class="card-title mb-1">@prof.FullName</h5>
+                                                        <p class="text-primary mb-1">@prof.Specialties?.FirstOrDefault()</p>
+                                                        <div class="stars mb-1">
+                                                            @for (int i = 0; i < Math.Floor(prof.RatingAverage); i++) 
+                                                            { 
+                                                                <i class="fas fa-star text-warning"></i> 
+                                                            }
+                                                            <span class="text-muted ms-1">@prof.RatingAverage.ToString("0.0") (@prof.TotalReviews)</span>
+                                                        </div>
+                                                        <p class="text-muted small mb-0">
+                                                            <i class="fas fa-map-marker-alt me-1"></i>@prof.Location
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="text-center">
+                                                            <div class="price-highlight mb-1">
+                                                                <span class="fs-5 fw-bold text-primary">$@prof.HourlyRate.ToString("N0")</span>
+                                                                <span class="text-muted">COP/h</span>
+                                                            </div>
+                                                            <small class="text-muted">@prof.ExperienceYears años exp.</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="d-grid gap-2">
+                                                            <a href="/profiles/Detail/@prof.Id" class="btn btn-primary btn-sm">
+                                                                <i class="fas fa-user me-1"></i>Ver perfil
+                                                            </a>
+                                                            <button class="btn btn-outline-primary btn-sm" onclick="contactProfessional('@prof.Id', '@prof.FullName')">
+                                                                <i class="fas fa-envelope me-1"></i>Contactar
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Paginación -->
+                        @if (Model.SearchResults.TotalPages > 1)
+                        {
+                            <div class="pagination-section d-flex justify-content-center mt-4">
+                                <nav aria-label="Navegación de páginas">
+                                    <ul class="pagination">
+                                        @if (Model.SearchResults.Page > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=@(Model.SearchResults.Page - 1)&@Model.GetQueryString()">
+                                                    <i class="fas fa-chevron-left"></i> Anterior
+                                                </a>
+                                            </li>
+                                        }
+                                        
+                                        @for (int i = Math.Max(1, Model.SearchResults.Page - 2); i <= Math.Min(Model.SearchResults.TotalPages, Model.SearchResults.Page + 2); i++)
+                                        {
+                                            <li class="page-item @(i == Model.SearchResults.Page ? "active" : "")">
+                                                <a class="page-link" href="?page=@i&@Model.GetQueryString()">@i</a>
+                                            </li>
+                                        }
+                                        
+                                        @if (Model.SearchResults.Page < Model.SearchResults.TotalPages)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=@(Model.SearchResults.Page + 1)&@Model.GetQueryString()">
+                                                    Siguiente <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </nav>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="no-results-content text-center py-5">
+                            <div class="no-results-icon mb-3">
+                                <i class="fas fa-search fa-3x text-muted"></i>
+                            </div>
+                            <h3>No se encontraron profesionales</h3>
+                            <p class="text-muted mb-4">Intenta ajustar tus filtros de búsqueda o ampliar tu búsqueda</p>
+                            <a href="/search" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Nueva búsqueda
+                            </a>
+                        </div>
+                    }
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Contacto -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactModalLabel">Contactar Profesional</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Deseas contactar a <strong id="professionalName"></strong>?</p>
+                <p class="text-muted small">Se abrirá tu aplicación de correo predeterminada con un mensaje predefinido.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="sendEmailBtn">
+                    <i class="fas fa-envelope me-2"></i>Enviar Email
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/profiles/results.js"></script> 

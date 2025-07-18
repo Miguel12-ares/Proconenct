@@ -1,0 +1,391 @@
+@page "{id}"
+@model Proconenct.Pages.profiles.DetailModel
+@{
+    var fullName = $"{Model.Professional?.UserFirstName} {Model.Professional?.UserLastName}".Trim();
+    ViewData["Title"] = $"{fullName} - Perfil Profesional";
+    Layout = "/Pages/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/profiles/detail.css" />
+
+<div class="profile-detail-container main-content">
+    @if (Model.Professional != null)
+    {
+        <!-- Header del perfil -->
+        <div class="profile-header">
+            <div class="row align-items-center">
+                <div class="col-md-3 text-center">
+                    <div class="profile-avatar">
+                        <img src="/img/landing/image.png" alt="Foto de @fullName" 
+                             class="rounded-circle border border-4 border-white shadow" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="profile-info">
+                        <h1 class="profile-name">@fullName</h1>
+                        <p class="profile-specialty">@string.Join(", ", Model.Professional.Specialties ?? new List<string>())</p>
+                        <div class="profile-rating">
+                            <div class="stars">
+                                @for (int i = 0; i < Math.Floor(Model.Professional.RatingAverage); i++)
+                                {
+                                    <i class="fas fa-star text-warning"></i>
+                                }
+                                @for (int i = 0; i < (5 - Math.Floor(Model.Professional.RatingAverage)); i++)
+                                {
+                                    <i class="far fa-star text-warning"></i>
+                                }
+                            </div>
+                            <span class="rating-text">@Model.Professional.RatingAverage.ToString("0.0") (@Model.Professional.TotalReviews reseñas)</span>
+            </div>
+                        <div class="profile-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-map-marker-alt text-primary"></i>
+                                @Model.Professional.Location
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-briefcase text-primary"></i>
+                                @Model.Professional.ExperienceYears años de experiencia
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock text-primary"></i>
+                                Disponible para consultas
+                            </span>
+                </div>
+            </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="profile-actions">
+                        <div class="price-card">
+                            <div class="price-amount">$@Model.Professional.HourlyRate.ToString("N0")</div>
+                            <div class="price-unit">COP / hora</div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary btn-lg w-100 mb-2" onclick="openBookingModal()">
+                                <i class="fas fa-calendar-plus me-2"></i>Reservar consulta
+                            </button>
+                            <button class="btn btn-outline-primary w-100 mb-2" onclick="contactProfessional('@Model.Professional.Id', '@fullName')">
+                                <i class="fas fa-envelope me-2"></i>Contactar
+                            </button>
+                            <button class="btn btn-outline-secondary w-100" onclick="shareProfile()">
+                                <i class="fas fa-share-alt me-2"></i>Compartir
+                            </button>
+                </div>
+            </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="profile-content">
+            <div class="row">
+                <!-- Columna izquierda -->
+                <div class="col-lg-8">
+                    <!-- Biografía -->
+                    <div class="content-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-user me-2"></i>Sobre mí
+                        </h3>
+                        <div class="section-content">
+                            <p class="bio-text">@Model.Professional.Bio</p>
+                        </div>
+            </div>
+
+                    <!-- Servicios ofrecidos -->
+                    @if (Model.Professional.Services?.Any() == true)
+                    {
+                        <div class="content-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-tools me-2"></i>Servicios ofrecidos
+                            </h3>
+                            <div class="section-content">
+                                <div class="services-grid">
+                                    @foreach (var service in Model.Professional.Services)
+                                    {
+                                        <div class="service-item">
+                                            <div class="service-icon">
+                                                <i class="fas fa-check-circle text-success"></i>
+                                            </div>
+                                            <div class="service-info">
+                                                <h5 class="service-name">@service</h5>
+                                                <div class="service-price">$@Model.Professional.HourlyRate.ToString("N0") COP /hora</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Portafolio -->
+                    @if (Model.PortfolioFiles?.Any() == true)
+                    {
+                        <div class="content-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-images me-2"></i>Portafolio
+                            </h3>
+                            <div class="section-content">
+                                <div class="portfolio-gallery">
+                                    @foreach (var file in Model.PortfolioFiles)
+                                    {
+                                        <div class="portfolio-item" onclick="openPortfolioModal('@file.FileName', '@file.Url')">
+                                            <div class="portfolio-preview">
+                                                @if (file.FileName.ToLower().EndsWith(".pdf"))
+                                                {
+                                                    <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                                                }
+                                                else if (file.FileName.ToLower().EndsWith(".jpg") || file.FileName.ToLower().EndsWith(".png"))
+                                                {
+                                                    <img src="@file.Url" alt="@file.FileName" class="img-fluid" />
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-file fa-3x text-primary"></i>
+                                        }
+                                    </div>
+                                            <div class="portfolio-info">
+                                                <h6 class="portfolio-title">@file.FileName</h6>
+                                                <small class="text-muted">@file.UploadedAt.ToString("dd/MM/yyyy")</small>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Reseñas y calificaciones -->
+                    <div class="content-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-star me-2"></i>Reseñas de clientes
+                        </h3>
+                        <div class="section-content">
+                            @if (Model.Reviews?.Any() == true)
+                            {
+                                <div class="reviews-summary mb-4">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-3 text-center">
+                                            <div class="overall-rating">
+                                                <div class="rating-number">@Model.Professional.RatingAverage.ToString("0.0")</div>
+                                                <div class="rating-stars">
+                                                    @for (int i = 0; i < 5; i++)
+                                                    {
+                                                        <i class="fas fa-star text-warning"></i>
+                                                    }
+                                                </div>
+                                                <div class="rating-count">@Model.Professional.TotalReviews reseñas</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <div class="rating-bars">
+                                                @for (int i = 5; i >= 1; i--)
+                                                {
+                                                    var count = Model.Reviews.Count(r => Math.Floor(r.RatingAverage) == i);
+                                                    var percentage = Model.Reviews.Any() ? (count * 100.0 / Model.Reviews.Count) : 0;
+                                                    <div class="rating-bar-item">
+                                                        <span class="rating-label">@i <i class="fas fa-star text-warning"></i></span>
+                                                        <div class="rating-bar">
+                                                            <div class="rating-bar-fill" style="width: @percentage%"></div>
+                                                        </div>
+                                                        <span class="rating-count">@count</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                                    </div>
+                                </div>
+
+                                <div class="reviews-list">
+                                    @foreach (var review in Model.Reviews)
+                                    {
+                                        <div class="review-item">
+                                            <div class="review-header">
+                                                <div class="reviewer-info">
+                                                    <div class="reviewer-avatar">
+                                                        <i class="fas fa-user-circle fa-2x text-muted"></i>
+                                                    </div>
+                                                    <div class="reviewer-details">
+                                                        <h6 class="reviewer-name">@review.FullName</h6>
+                                                        <div class="review-rating">
+                                                            @for (int i = 0; i < (int)Math.Floor(review.RatingAverage); i++)
+                                                            {
+                                                                <i class="fas fa-star text-warning"></i>
+                                                            }
+                                                            @for (int i = (int)Math.Floor(review.RatingAverage); i < 5; i++)
+                                                            {
+                                                                <i class="far fa-star text-warning"></i>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="review-date">
+                                                    <!-- Placeholder para fecha de reseña -->
+                                                    <small class="text-muted">Reciente</small>
+                                                </div>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(review.Bio))
+                                            {
+                                                <div class="review-comment">
+                                                    <p>@review.Bio</p>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                </div>
+            }
+                            else
+                            {
+                                <div class="no-reviews">
+                                    <div class="no-reviews-icon">
+                                        <i class="fas fa-star fa-3x text-muted"></i>
+                                    </div>
+                                    <h5>Sin reseñas aún</h5>
+                                    <p class="text-muted">Este profesional aún no tiene reseñas de clientes.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha -->
+                <div class="col-lg-4">
+                    <!-- Información de contacto -->
+                    <div class="sidebar-section">
+                        <h4 class="sidebar-title">
+                            <i class="fas fa-address-card me-2"></i>Información de contacto
+                        </h4>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt text-primary"></i>
+                                <span>@Model.Professional.Location</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-clock text-primary"></i>
+                                <span>Disponible para consultas</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-language text-primary"></i>
+                                <span>Español, Inglés</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Especialidades -->
+                    @if (Model.Professional.Specialties?.Any() == true)
+                    {
+                        <div class="sidebar-section">
+                            <h4 class="sidebar-title">
+                                <i class="fas fa-tags me-2"></i>Especialidades
+                            </h4>
+                            <div class="specialties-list">
+                                @foreach (var specialty in Model.Professional.Specialties)
+                                {
+                                    <span class="specialty-badge">@specialty</span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Certificaciones -->
+                    @if (Model.Professional.Credentials?.Any() == true)
+                    {
+                        <div class="sidebar-section">
+                            <h4 class="sidebar-title">
+                                <i class="fas fa-certificate me-2"></i>Certificaciones
+                            </h4>
+                            <div class="credentials-list">
+                                @foreach (var credential in Model.Professional.Credentials)
+                                {
+                                    <div class="credential-item">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <span>@credential</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Estadísticas -->
+                    <div class="sidebar-section">
+                        <h4 class="sidebar-title">
+                            <i class="fas fa-chart-bar me-2"></i>Estadísticas
+                        </h4>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-number">@Model.Professional.ExperienceYears</div>
+                                <div class="stat-label">Años de experiencia</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">@Model.Professional.TotalReviews</div>
+                                <div class="stat-label">Reseñas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">@(Model.PortfolioFiles?.Count ?? 0)</div>
+                                <div class="stat-label">Proyectos</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="profile-not-found">
+            <div class="text-center py-5">
+                <i class="fas fa-user-slash fa-4x text-muted mb-3"></i>
+                <h3>Perfil no encontrado</h3>
+                <p class="text-muted">El perfil profesional que buscas no existe o ha sido removido.</p>
+                <a href="/profiles" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a resultados
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal de Portafolio -->
+<div class="modal fade" id="portfolioModal" tabindex="-1" aria-labelledby="portfolioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="portfolioModalLabel">Portafolio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="portfolioContent">
+                    <!-- Contenido dinámico -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <a href="#" id="downloadPortfolio" class="btn btn-primary" download>
+                    <i class="fas fa-download me-2"></i>Descargar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Reserva -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookingModalLabel">Reservar consulta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Esta funcionalidad estará disponible próximamente.</p>
+                <p class="text-muted small">Por favor, utiliza el botón "Contactar" para coordinar tu consulta directamente con el profesional.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="contactProfessional('@Model.Professional?.Id', '@fullName')">
+                    <i class="fas fa-envelope me-2"></i>Contactar
+                </button>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="/js/profiles/detail.js"></script> 

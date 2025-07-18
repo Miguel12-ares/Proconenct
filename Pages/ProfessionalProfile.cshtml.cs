@@ -5,7 +5,7 @@ using ProConnect.Application.DTOs.Shared;
 using ProConnect.Application.Interfaces;
 using System.Security.Claims;
 
-namespace ProConnect.Pages
+namespace Proconenct.Pages
 {
     public class ProfessionalProfileModel : PageModel
     {
@@ -21,6 +21,16 @@ namespace ProConnect.Pages
 
         [BindProperty]
         public UpdateProfessionalProfileDto UpdateDto { get; set; } = new();
+
+        // Propiedades auxiliares para edición de listas como string
+        [BindProperty]
+        public string SpecialtiesString { get; set; } = string.Empty;
+        [BindProperty]
+        public string CredentialsString { get; set; } = string.Empty;
+        
+        // Propiedad para controlar el estado del perfil
+        [BindProperty]
+        public bool IsProfileActive { get; set; } = true;
 
         public ProfessionalProfileResponseDto? Profile { get; set; }
         public string? ErrorMessage { get; set; }
@@ -40,7 +50,7 @@ namespace ProConnect.Pages
                 // Verificar que el usuario es profesional
                 if (!User.IsInRole("Professional"))
                 {
-                    ErrorMessage = "Solo los profesionales pueden acceder a esta página.";
+                    ErrorMessage = "Solo los profesionales pueden acceder a esta pagina.";
                     return Page();
                 }
 
@@ -49,7 +59,7 @@ namespace ProConnect.Pages
 
                 if (Profile != null)
                 {
-                    // Mapear el perfil existente al DTO de actualización
+                    // Mapear el perfil existente al DTO de actualizacion
                     UpdateDto = new UpdateProfessionalProfileDto
                     {
                         Specialties = Profile.Specialties,
@@ -61,6 +71,16 @@ namespace ProConnect.Pages
                         Status = Profile.Status,
                         AvailabilitySchedule = Profile.AvailabilitySchedule
                     };
+                    // Convertir listas a string para el formulario
+                    SpecialtiesString = string.Join(", ", Profile.Specialties);
+                    CredentialsString = string.Join(", ", Profile.Credentials);
+                    // Mapear el estado del perfil al checkbox
+                    IsProfileActive = Profile.Status == ProfileStatusDto.Active;
+                }
+                else
+                {
+                    SpecialtiesString = string.Empty;
+                    CredentialsString = string.Empty;
                 }
 
                 return Page();
@@ -88,6 +108,18 @@ namespace ProConnect.Pages
                     return Page();
                 }
 
+                // Convertir los strings a listas antes de guardar (robusto, sin espacios ni vacíos)
+                var specialtiesList = SpecialtiesString
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim())
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .ToList();
+                var credentialsList = CredentialsString
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim())
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .ToList();
+
                 // Verificar si ya existe un perfil
                 var existingProfile = await _profileService.GetMyProfileAsync(userId);
 
@@ -96,11 +128,11 @@ namespace ProConnect.Pages
                     // Crear nuevo perfil
                     var createDto = new CreateProfessionalProfileDto
                     {
-                        Specialties = CreateDto.Specialties,
+                        Specialties = specialtiesList,
                         Bio = CreateDto.Bio,
                         ExperienceYears = CreateDto.ExperienceYears,
                         HourlyRate = CreateDto.HourlyRate,
-                        Credentials = CreateDto.Credentials,
+                        Credentials = credentialsList,
                         Location = CreateDto.Location,
                         AvailabilitySchedule = CreateDto.AvailabilitySchedule
                     };
@@ -113,13 +145,13 @@ namespace ProConnect.Pages
                     // Actualizar perfil existente
                     var updateDto = new UpdateProfessionalProfileDto
                     {
-                        Specialties = UpdateDto.Specialties,
+                        Specialties = specialtiesList,
                         Bio = UpdateDto.Bio,
                         ExperienceYears = UpdateDto.ExperienceYears,
                         HourlyRate = UpdateDto.HourlyRate,
-                        Credentials = UpdateDto.Credentials,
+                        Credentials = credentialsList,
                         Location = UpdateDto.Location,
-                        Status = UpdateDto.Status,
+                        Status = IsProfileActive ? ProfileStatusDto.Active : ProfileStatusDto.Inactive,
                         AvailabilitySchedule = UpdateDto.AvailabilitySchedule
                     };
 
@@ -129,6 +161,9 @@ namespace ProConnect.Pages
 
                 // Recargar el perfil actualizado
                 Profile = await _profileService.GetMyProfileAsync(userId);
+                // Actualizar los strings auxiliares para mostrar en el formulario
+                SpecialtiesString = string.Join(", ", Profile?.Specialties ?? new List<string>());
+                CredentialsString = string.Join(", ", Profile?.Credentials ?? new List<string>());
                 return Page();
             }
             catch (InvalidOperationException ex)

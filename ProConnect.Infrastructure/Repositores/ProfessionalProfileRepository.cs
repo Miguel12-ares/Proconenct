@@ -6,6 +6,7 @@ using ProConnect.Infrastructure.Database;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using System;
 
 namespace ProConnect.Infrastructure.Repositores
 {
@@ -236,10 +237,15 @@ namespace ProConnect.Infrastructure.Repositores
             // Filtro de consulta de texto y especialidad
             bool hasQuery = !string.IsNullOrWhiteSpace(filters.Query);
             bool hasSpecialties = filters.Specialties != null && filters.Specialties.Count > 0;
+            bool hasLocation = !string.IsNullOrWhiteSpace(filters.Location);
+            bool hasMinHourlyRate = filters.MinHourlyRate.HasValue;
+            bool hasMaxHourlyRate = filters.MaxHourlyRate.HasValue;
+            bool hasMinRating = filters.MinRating.HasValue;
+            bool hasMinExperience = filters.MinExperienceYears.HasValue;
+            bool hasVirtual = filters.VirtualConsultation.HasValue && filters.VirtualConsultation.Value;
 
             if (hasQuery && hasSpecialties)
             {
-                // Si la especialidad seleccionada es igual al texto de búsqueda, solo buscar por texto
                 var query = filters.Query.Trim();
                 var specialtiesLower = filters.Specialties.Select(s => s.Trim().ToLower()).ToList();
                 if (specialtiesLower.Contains(query.ToLower()))
@@ -253,7 +259,6 @@ namespace ProConnect.Infrastructure.Repositores
                 }
                 else
                 {
-                    // Buscar por texto Y filtrar por especialidad
                     var regex = new MongoDB.Bson.BsonRegularExpression(query, "i");
                     filterList.Add(builder.Or(
                         builder.Regex(x => x.Bio, regex),
@@ -278,47 +283,52 @@ namespace ProConnect.Infrastructure.Repositores
                 filterList.Add(builder.AnyIn(x => x.Specialties, filters.Specialties));
             }
 
-            // Filtro de ubicación
-            if (!string.IsNullOrWhiteSpace(filters.Location))
+            if (hasLocation)
             {
                 var locationRegex = new MongoDB.Bson.BsonRegularExpression(filters.Location.Trim(), "i");
                 filterList.Add(builder.Regex(x => x.Location, locationRegex));
             }
-
-            // Filtro de tarifa mínima
-            if (filters.MinHourlyRate.HasValue)
+            if (hasMinHourlyRate)
             {
                 filterList.Add(builder.Gte(x => x.HourlyRate, filters.MinHourlyRate.Value));
             }
-
-            // Filtro de tarifa máxima
-            if (filters.MaxHourlyRate.HasValue)
+            if (hasMaxHourlyRate)
             {
                 filterList.Add(builder.Lte(x => x.HourlyRate, filters.MaxHourlyRate.Value));
             }
-
-            // Filtro de calificación mínima
-            if (filters.MinRating.HasValue)
+            if (hasMinRating)
             {
                 filterList.Add(builder.Gte(x => x.RatingAverage, filters.MinRating.Value));
             }
-
-            // Filtro de años de experiencia mínimos
-            if (filters.MinExperienceYears.HasValue)
+            if (hasMinExperience)
             {
                 filterList.Add(builder.Gte(x => x.ExperienceYears, filters.MinExperienceYears.Value));
             }
-
-            // Filtro de consulta virtual
-            if (filters.VirtualConsultation.HasValue && filters.VirtualConsultation.Value)
+            if (hasVirtual)
             {
-                // Buscar servicios que contengan "virtual" en el nombre usando BSON puro
                 var virtualServiceFilter = new MongoDB.Driver.BsonDocumentFilterDefinition<ProfessionalProfile>(
                     new MongoDB.Bson.BsonDocument("services", 
                         new MongoDB.Bson.BsonDocument("$elemMatch",
                             new MongoDB.Bson.BsonDocument("name", 
                                 new MongoDB.Bson.BsonDocument("$regex", "virtual").Add("$options", "i")))));
                 filterList.Add(virtualServiceFilter);
+            }
+
+            // DEBUG: Imprimir filtros aplicados
+            Console.WriteLine("[DEBUG] Filtros aplicados en búsqueda avanzada:");
+            Console.WriteLine($"Query: {filters.Query}");
+            Console.WriteLine($"Specialties: {(filters.Specialties != null ? string.Join(",", filters.Specialties) : "-")}");
+            Console.WriteLine($"Location: {filters.Location}");
+            Console.WriteLine($"MinHourlyRate: {filters.MinHourlyRate}");
+            Console.WriteLine($"MaxHourlyRate: {filters.MaxHourlyRate}");
+            Console.WriteLine($"MinRating: {filters.MinRating}");
+            Console.WriteLine($"MinExperienceYears: {filters.MinExperienceYears}");
+            Console.WriteLine($"VirtualConsultation: {filters.VirtualConsultation}");
+
+            // Si NO hay ningún filtro relevante, solo filtra por status activo
+            if (!hasQuery && !hasSpecialties && !hasLocation && !hasMinHourlyRate && !hasMaxHourlyRate && !hasMinRating && !hasMinExperience && !hasVirtual)
+            {
+                Console.WriteLine("[DEBUG] No hay filtros relevantes, devolviendo todos los perfiles activos.");
             }
 
             var filter = builder.And(filterList);
@@ -340,11 +350,9 @@ namespace ProConnect.Infrastructure.Repositores
                     sort = Builders<ProfessionalProfile>.Sort.Descending(x => x.ExperienceYears);
                     break;
                 case "relevance":
-                    // Para MongoDB, relevance requiere un índice de texto y $text score, aquí se omite por simplicidad
                     break;
             }
 
-            // Paginación
             int skip = (filters.Page - 1) * filters.PageSize;
             int limit = filters.PageSize;
 

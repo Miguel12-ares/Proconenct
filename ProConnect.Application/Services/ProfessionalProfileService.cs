@@ -54,7 +54,10 @@ namespace ProConnect.Application.Services
                 Credentials = createDto.Credentials,
                 Location = createDto.Location,
                 AvailabilitySchedule = MapAvailabilitySchedule(createDto.AvailabilitySchedule),
-                Status = ProfileStatus.Draft,
+                // Activar automáticamente si cumple requisitos mínimos
+                Status = (!string.IsNullOrWhiteSpace(createDto.Bio) && createDto.Bio.Length >= 100 && createDto.Specialties != null && createDto.Specialties.Count > 0 && !string.IsNullOrWhiteSpace(createDto.Location) && createDto.HourlyRate > 0)
+                    ? ProfileStatus.Active
+                    : ProfileStatus.Draft,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -93,7 +96,10 @@ namespace ProConnect.Application.Services
             profile.Credentials = updateDto.Credentials;
             profile.Location = updateDto.Location;
             profile.AvailabilitySchedule = MapAvailabilitySchedule(updateDto.AvailabilitySchedule);
-            profile.Status = (ProfileStatus)updateDto.Status;
+            // Activar automáticamente si cumple requisitos mínimos
+            profile.Status = (!string.IsNullOrWhiteSpace(updateDto.Bio) && updateDto.Bio.Length >= 100 && updateDto.Specialties != null && updateDto.Specialties.Count > 0 && !string.IsNullOrWhiteSpace(updateDto.Location) && updateDto.HourlyRate > 0)
+                ? ProfileStatus.Active
+                : ProfileStatus.Draft;
             profile.UpdateModificationDate();
 
             var success = await _profileRepository.UpdateAsync(profile);
@@ -445,7 +451,8 @@ namespace ProConnect.Application.Services
                 CreatedAt = profile.CreatedAt,
                 UpdatedAt = profile.UpdatedAt,
                 IsCompleteForPublicView = profile.IsCompleteForPublicView(),
-                IsPublicView = isPublicView
+                IsPublicView = isPublicView,
+                Services = profile.Services?.Select(s => s.Name).ToList() ?? new List<string>()
             };
 
             // En vista pública, filtrar información sensible
