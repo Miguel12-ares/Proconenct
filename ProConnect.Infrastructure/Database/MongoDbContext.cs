@@ -83,14 +83,16 @@ namespace ProConnect.Infrastructure.Database
                 // Índice de texto para búsqueda general
                 var textIndexKeys = Builders<ProfessionalProfile>.IndexKeys
                     .Text(x => x.Bio)
-                    .Text(x => x.Location);
+                    .Text(x => x.Location)
+                    .Text(x => x.FullName); // Agregar FullName
                 var textIndexOptions = new CreateIndexOptions
                 {
                     Name = "text_search_index",
                     Weights = new MongoDB.Bson.BsonDocument
                     {
                         { "bio", 3 },
-                        { "location", 2 }
+                        { "location", 2 },
+                        { "fullName", 4 } // Darle mayor peso al nombre
                     }
                 };
                 await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(textIndexKeys, textIndexOptions));

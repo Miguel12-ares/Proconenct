@@ -26,6 +26,7 @@ body, html {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -44,6 +45,9 @@ body, html {
     flex-direction: column;
     margin: 0;
     padding: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .layout-wrapper {
@@ -51,6 +55,8 @@ body, html {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
 }
 
 .flex-grow-1 {
@@ -59,21 +65,16 @@ body, html {
 
 body {
     margin-bottom: 0 !important;
+    overflow-x: hidden;
 }
 
-/* Nuevo layout con 94% de ancho */
+/* Layout principal corregido */
 .main-content {
-    width: 94%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-@media (max-width: 768px) {
-    .main-content {
-        width: 100%;
-        padding: 0 15px;
-    }
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 
 /* Header mejorado */
@@ -84,11 +85,15 @@ body {
     top: 0;
     z-index: 1000;
     backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 100%;
 }
 
 .navbar {
     padding: 1rem 0;
     transition: all 0.3s ease;
+    width: 100%;
+    max-width: 100%;
 }
 
 .navbar-brand {
@@ -264,37 +269,36 @@ body {
     animation: pulse 2s infinite;
 }
 
-/* Efectos hover para cards */
+/* Cards mejoradas */
 .card {
-    transition: all 0.3s ease;
     border: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
-/* Scroll suave */
+/* Reset global para evitar desbordamiento */
 html {
-    scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
-/* Responsive improvements */
 @media (max-width: 992px) {
     .navbar-nav {
         text-align: center;
-        margin: 1rem 0;
+        margin-top: 1rem;
     }
     
     .nav-link-animated {
-        margin: 0.5rem 0;
-        display: inline-block;
+        margin: 0.25rem 0;
+        display: block;
+        text-align: center;
     }
 }
 
-/* Loading spinner */
 .loading-spinner {
     display: inline-block;
     width: 20px;
@@ -307,4 +311,94 @@ html {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* Asegurar que no haya desbordamiento horizontal */
+body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+}
+
+.layout-wrapper, .main-content {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+    .layout-wrapper, .main-content {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+}
+
+/* Sobrescribir comportamientos problemáticos de Bootstrap */
+.container, .container-fluid {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+.navbar > .container, .navbar > .container-fluid {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+/* Asegurar que las secciones no se desborden */
+section, .hero-section, .how-it-works-section, .categories-section, .testimonials-section, .cta-section {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Asegurar que el contenido dentro de las secciones esté centrado */
+.hero-section .container,
+.how-it-works-section .container,
+.categories-section .container,
+.testimonials-section .container,
+.cta-section .container {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+}
+
+@media (max-width: 991.98px) {
+    .hero-section .container,
+    .how-it-works-section .container,
+    .categories-section .container,
+    .testimonials-section .container,
+    .cta-section .container {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hero-section .container,
+    .how-it-works-section .container,
+    .categories-section .container,
+    .testimonials-section .container,
+    .cta-section .container {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+}
+
+/* Reset global para evitar cualquier desbordamiento */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
 }

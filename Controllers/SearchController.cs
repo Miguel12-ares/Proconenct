@@ -108,8 +108,8 @@ namespace Proconenct.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error durante la búsqueda de profesionales");
-                return StatusCode(500, new { error = "Error interno del servidor durante la búsqueda" });
+                _logger.LogError(ex, "Error durante la busqueda de profesionales");
+                return StatusCode(500, new { error = "No se pudo completar la busqueda en este momento. Intenta de nuevo mas tarde." });
             }
         }
 

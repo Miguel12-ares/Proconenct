@@ -74,6 +74,21 @@
     color: #007bff;
     margin: 2rem 0;
 }
+/* Padding general para el dashboard */
+.main-content.dashboard-container {
+    padding: 32px 8px 32px 8px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dashboard-content {
+    padding: 24px 16px 24px 16px;
+}
+
+.card {
+    margin-bottom: 18px;
+}
+
 @media (max-width: 900px) {
     .dashboard-container {
         flex-direction: column;
@@ -86,5 +101,13 @@
         min-width: unset;
         width: 100%;
         margin-bottom: 1rem;
+    }
+}
+@media (max-width: 768px) {
+    .main-content.dashboard-container {
+        padding: 12px 2px 12px 2px;
+    }
+    .dashboard-content {
+        padding: 8px 2px 8px 2px;
     }
 } 

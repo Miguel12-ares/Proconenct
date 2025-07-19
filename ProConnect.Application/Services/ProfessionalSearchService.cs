@@ -7,25 +7,42 @@ using ProConnect.Core.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System;
+using System.Diagnostics;
 
 namespace ProConnect.Application.Services
 {
+    // NOTA: Este servicio depende de IProfessionalProfileRepository, IUserRepository y IConnectionMultiplexer (Redis). La inyección de dependencias en Program.cs debe registrar IProfessionalSearchService -> ProfessionalSearchService y también IConnectionMultiplexer (ya realizado). Si se agregan nuevas dependencias, actualizar aquí y en el registro DI.
     public class ProfessionalSearchService : IProfessionalSearchService
     {
         private readonly IProfessionalProfileRepository _profileRepository;
         private readonly IUserRepository _userRepository;
+        private readonly ICacheService _cacheService;
 
-        public ProfessionalSearchService(IProfessionalProfileRepository profileRepository, IUserRepository userRepository)
+        public ProfessionalSearchService(IProfessionalProfileRepository profileRepository, IUserRepository userRepository, ICacheService cacheService)
         {
             _profileRepository = profileRepository;
             _userRepository = userRepository;
+            _cacheService = cacheService;
         }
 
         public async Task<PagedResultDto<ProfessionalSearchResultDto>> SearchProfessionalsAsync(ProfessionalSearchFiltersDto filtersDto)
         {
+            var stopwatch = Stopwatch.StartNew();
             // Validar parámetros de entrada
             if (filtersDto.Page < 1) filtersDto.Page = 1;
             if (filtersDto.PageSize < 1 || filtersDto.PageSize > 100) filtersDto.PageSize = 20;
+
+            // Serializar filtros para clave de caché
+            var cacheKey = $"search:{System.Text.Json.JsonSerializer.Serialize(filtersDto)}";
+            var cached = await _cacheService.GetAsync<PagedResultDto<ProfessionalSearchResultDto>>(cacheKey);
+            if (cached != null)
+            {
+                stopwatch.Stop();
+                Console.WriteLine($"[SEARCH] Respuesta desde caché en {stopwatch.ElapsedMilliseconds} ms. Filtros: {cacheKey}");
+                return cached;
+            }
 
             // Mapear DTO a modelo de dominio
             var filters = new ProfessionalSearchFilters
@@ -80,7 +97,7 @@ namespace ProConnect.Application.Services
                 Services = profile.Services?.Select(s => s.Name).ToList() ?? new List<string>()
             }).ToList();
 
-            return new PagedResultDto<ProfessionalSearchResultDto>
+            var result = new PagedResultDto<ProfessionalSearchResultDto>
             {
                 Items = items,
                 TotalCount = pagedResult.TotalCount,
@@ -88,6 +105,12 @@ namespace ProConnect.Application.Services
                 PageSize = pagedResult.PageSize,
                 TotalPages = (int)Math.Ceiling((double)pagedResult.TotalCount / pagedResult.PageSize)
             };
+
+            // Guardar en caché por 2 minutos
+            await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromMinutes(2));
+            stopwatch.Stop();
+            Console.WriteLine($"[SEARCH] Respuesta desde base de datos en {stopwatch.ElapsedMilliseconds} ms. Filtros: {cacheKey}");
+            return result;
         }
     }
 } 
