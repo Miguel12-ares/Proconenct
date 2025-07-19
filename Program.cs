@@ -99,6 +99,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
 builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
 // Registro de dependencias - Servicios
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -107,7 +108,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IProfessionalProfileService, ProfessionalProfileService>();
 builder.Services.AddScoped<IPortfolioService, PortfolioService>();
 builder.Services.AddScoped<IProfessionalSearchService, ProfessionalSearchService>();
-builder.Services.AddScoped<ProConnect.Application.Interfaces.IRecommendationService, RecommendationService>();
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 
 // Configuración de Redis y registro condicional de ICacheService
 var redisAvailable = true;
