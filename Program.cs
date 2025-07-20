@@ -12,6 +12,8 @@ using ProConnect.Infrastructure.Repositores;
 using ProConnect.Infrastructure.Services;
 using System.Text;
 using MongoDB.Driver;
+using StackExchange.Redis;
+using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -97,6 +99,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
 builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
 // Registro de dependencias - Servicios
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -105,7 +108,26 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IProfessionalProfileService, ProfessionalProfileService>();
 builder.Services.AddScoped<IPortfolioService, PortfolioService>();
 builder.Services.AddScoped<IProfessionalSearchService, ProfessionalSearchService>();
-builder.Services.AddScoped<ProConnect.Application.Interfaces.IRecommendationService, RecommendationService>();
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+
+// Configuración de Redis y registro condicional de ICacheService
+var redisAvailable = true;
+IConnectionMultiplexer? redisConn = null;
+var redisConfig = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+try
+{
+    redisConn = ConnectionMultiplexer.Connect(redisConfig);
+    builder.Services.AddSingleton<IConnectionMultiplexer>(redisConn);
+    builder.Services.AddScoped<ProConnect.Core.Interfaces.ICacheService, RedisCacheService>();
+    Console.WriteLine("[Redis] Conexion exitosa a Redis. Cache habilitado.");
+}
+catch (Exception ex)
+{
+    redisAvailable = false;
+    Console.WriteLine($"[Redis] No se pudo conectar a Redis: {ex.Message}. El sistema funcionara sin cache.");
+    builder.Services.AddScoped<ProConnect.Core.Interfaces.ICacheService, NullCacheService>();
+}
 
 // Registro de validadores
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserValidator>();
@@ -123,6 +145,17 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowCredentials();
     });
+});
+
+// Configuración de compresión de respuestas (Gzip)
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
 });
 
 builder.Services.AddRazorPages();
@@ -181,6 +214,9 @@ app.Use(async (context, next) =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Activar compresión de respuestas HTTP (Gzip)
+app.UseResponseCompression();
 
 app.MapControllers();
 app.MapRazorPages();

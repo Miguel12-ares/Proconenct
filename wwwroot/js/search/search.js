@@ -284,6 +284,33 @@ class ProfessionalSearch {
 
         const resultsHTML = items.map(item => this.createProfessionalCard(item)).join('');
         this.resultsList.innerHTML = resultsHTML;
+        this.applyLazyLoadingToImages(); // <-- Nuevo método para lazy loading
+    }
+
+    /**
+     * Aplica lazy loading a las imágenes de perfil usando IntersectionObserver
+     */
+    applyLazyLoadingToImages() {
+        const images = this.resultsList.querySelectorAll('img[data-src]');
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        obs.unobserve(img);
+                    }
+                });
+            }, { rootMargin: '100px' });
+            images.forEach(img => observer.observe(img));
+        } else {
+            // Fallback para navegadores antiguos
+            images.forEach(img => {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            });
+        }
     }
 
     createProfessionalCard(professional) {
@@ -294,13 +321,15 @@ class ProfessionalSearch {
             `<span class="skill-tag">${skill}</span>`
         ).join('');
 
+        // Usar data-src para lazy loading
         return `
             <div class="professional-card ${professional.verified ? 'verified' : ''} ${professional.featured ? 'featured' : ''}">
                 <div class="card-header">
-                    <img src="/img/landing/image.png" 
+                    <img data-src="/img/landing/image.png" 
                          alt="Foto de ${professional.fullName}" 
                          class="professional-avatar"
-                         onerror="this.src='/img/default-avatar.png'">
+                         onerror="this.src='/img/default-avatar.png'"
+                         loading="lazy">
                     <h5 class="professional-name">${professional.fullName || 'Profesional'}</h5>
                     <p class="professional-specialty">${professional.specialties?.join(', ') || 'Especialista'}</p>
                 </div>

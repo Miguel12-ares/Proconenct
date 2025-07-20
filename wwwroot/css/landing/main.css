@@ -1,5 +1,10 @@
 /* Estilos para la página de inicio de ProConnect */
 
+/* Reset y configuración base */
+* {
+    box-sizing: border-box;
+}
+
 /* Hero Section */
 .hero-section {
     position: relative;
@@ -8,6 +13,7 @@
     align-items: center;
     overflow: hidden;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 120px 0 80px 0;
 }
 
 .hero-background {
@@ -76,10 +82,21 @@
     50% { transform: translateY(-20px) rotate(180deg); }
 }
 
-.hero-content {
+/* Contenedor principal con márgenes apropiados */
+.hero-section .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
     position: relative;
     z-index: 4;
+}
+
+.hero-content {
     color: white;
+    padding: 40px 32px;
+    border-radius: 18px;
+    background: transparent;
+    margin-bottom: 32px;
 }
 
 .hero-title {
@@ -87,6 +104,7 @@
     font-weight: 700;
     margin-bottom: 1.5rem;
     line-height: 1.2;
+    color: white;
 }
 
 .text-gradient {
@@ -99,7 +117,7 @@
 .hero-subtitle {
     font-size: 1.25rem;
     margin-bottom: 2rem;
-    opacity: 0.9;
+    color: rgba(255, 255, 255, 0.9);
     line-height: 1.6;
 }
 
@@ -122,7 +140,7 @@
 
 .hero-stats .stat-label {
     font-size: 0.9rem;
-    opacity: 0.8;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .hero-actions {
@@ -140,19 +158,25 @@
 
 .hero-image {
     position: relative;
-    z-index: 4;
     height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
+    gap: 15px;
+    padding-top: 20px;
 }
 
 .floating-card {
-    position: absolute;
     background: rgba(255, 255, 255, 0.95);
     border-radius: 16px;
     padding: 1.5rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
-    animation: floatCard 4s ease-in-out infinite;
     transition: all 0.3s ease;
+    width: 280px;
+    max-width: 100%;
+    animation: floatCard 6s ease-in-out infinite;
 }
 
 .floating-card:hover {
@@ -161,26 +185,25 @@
 }
 
 .card-1 {
-    top: 10%;
-    left: 10%;
     animation-delay: 0s;
+    margin-bottom: 15px;
+    transform: translateX(-20px);
 }
 
 .card-2 {
-    top: 40%;
-    right: 10%;
-    animation-delay: 1.5s;
+    animation-delay: 2s;
+    margin-bottom: 15px;
+    transform: translateX(10px);
 }
 
 .card-3 {
-    bottom: 20%;
-    left: 20%;
-    animation-delay: 3s;
+    animation-delay: 4s;
+    transform: translateX(-10px);
 }
 
 @keyframes floatCard {
     0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
+    50% { transform: translateY(-8px); }
 }
 
 .card-avatar {
@@ -223,11 +246,20 @@
     font-weight: 600;
 }
 
-/* Sections */
+/* Sections con márgenes apropiados */
 .how-it-works-section,
 .categories-section,
 .testimonials-section {
-    padding: 5rem 0;
+    padding: 80px 0;
+    margin: 0;
+}
+
+.how-it-works-section .container,
+.categories-section .container,
+.testimonials-section .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
 }
 
 .how-it-works-section {
@@ -271,6 +303,7 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    margin-bottom: 24px;
 }
 
 .step-card::before {
@@ -338,6 +371,7 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    margin-bottom: 24px;
 }
 
 .category-card::before {
@@ -402,6 +436,7 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
+    margin-bottom: 24px;
 }
 
 .testimonial-card:hover {
@@ -463,8 +498,14 @@
 .cta-section {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
-    padding: 5rem 0;
+    padding: 80px 0;
     text-align: center;
+}
+
+.cta-section .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
 }
 
 .cta-title {
@@ -507,18 +548,33 @@
         justify-content: center;
     }
     
+    .hero-image {
+        height: auto;
+        min-height: 400px;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding-top: 15px;
+    }
+    
     .floating-card {
-        position: relative;
-        margin-bottom: 1rem;
-        animation: none;
+        width: 100%;
+        max-width: 320px;
+        margin-bottom: 12px;
+        transform: none;
     }
     
     .card-1, .card-2, .card-3 {
-        position: relative;
-        top: auto;
-        left: auto;
-        right: auto;
-        bottom: auto;
+        margin-bottom: 12px;
+        transform: none;
+    }
+    
+    .hero-section .container,
+    .how-it-works-section .container,
+    .categories-section .container,
+    .testimonials-section .container,
+    .cta-section .container {
+        padding: 0 16px;
     }
 }
 
@@ -553,6 +609,27 @@
         flex-direction: column;
         align-items: center;
     }
+    
+    .hero-section {
+        padding: 80px 0 60px 0;
+    }
+    
+    .how-it-works-section,
+    .categories-section,
+    .testimonials-section {
+        padding: 60px 0;
+    }
+    
+    .hero-image {
+        min-height: 350px;
+        gap: 10px;
+        padding-top: 10px;
+    }
+    
+    .floating-card {
+        padding: 1.25rem;
+        margin-bottom: 10px;
+    }
 }
 
 @media (max-width: 575.98px) {
@@ -574,6 +651,7 @@
     
     .floating-card {
         padding: 1rem;
+        margin-bottom: 8px;
     }
     
     .card-avatar {
@@ -581,38 +659,22 @@
         height: 40px;
         font-size: 1.2rem;
     }
-} 
-
-
-.hero-section,
-.how-it-works-section,
-.categories-section,
-.testimonials-section,
-.cta-section {
-    margin: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    box-sizing: border-box;
-}
-
-.container, .container-fluid, .main-content {
-    max-width: 100vw !important;
-    width: 100vw !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-}
-
-@media (max-width: 991.98px) {
-    .hero-section, .how-it-works-section, .categories-section, .testimonials-section, .cta-section {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+    
+    .hero-section .container,
+    .how-it-works-section .container,
+    .categories-section .container,
+    .testimonials-section .container,
+    .cta-section .container {
+        padding: 0 12px;
     }
-    .container, .container-fluid, .main-content {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+    
+    .hero-content {
+        padding: 24px 20px;
+    }
+    
+    .hero-image {
+        min-height: 300px;
+        gap: 8px;
+        padding-top: 8px;
     }
 } 

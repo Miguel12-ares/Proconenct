@@ -15,9 +15,9 @@
 </head>
 <body class="layout-flex">
     <div class="layout-wrapper">
-        <header class="main-header">
+        <header class="main-header header-padded">
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow">
-                <div class="container-fluid px-4">
+                <div class="container">
                     <a class="navbar-brand d-flex align-items-center" asp-area="" asp-page="/Index">
                         <div class="brand-icon">
                             <i class="fas fa-briefcase fa-lg text-primary"></i>
@@ -31,29 +31,32 @@
                     <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                         <ul class="navbar-nav flex-grow-1 align-items-center justify-content-center">
                             <li class="nav-item">
-                                <a class="nav-link nav-link-animated" href="#como-funciona">
-                                    <i class="fas fa-play-circle me-1"></i>
-                                    Cómo funciona
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link nav-link-animated" href="#categorias">
-                                    <i class="fas fa-th-large me-1"></i>
-                                    Categorías
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link nav-link-animated" href="#testimonios">
-                                    <i class="fas fa-star me-1"></i>
-                                    Testimonios
+                                <a class="nav-link nav-link-animated" asp-area="" asp-page="/Index">
+                                    <i class="fas fa-home me-1"></i>
+                                    Inicio
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link nav-link-animated" href="/search">
                                     <i class="fas fa-search me-1"></i>
-                                    Buscar
+                                    Buscar Servicios
                                 </a>
                             </li>
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link nav-link-animated" asp-area="" asp-page="/Dashboard">
+                                        <i class="fas fa-tachometer-alt me-1"></i>
+                                        Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link nav-link-animated" asp-area="" asp-page="/auth/Profile">
+                                        <i class="fas fa-user me-1"></i>
+                                        Mi Perfil
+                                    </a>
+                                </li>
+                            }
                         </ul>
                         <div class="d-flex align-items-center gap-3">
                             @if (User.Identity != null && User.Identity.IsAuthenticated)
@@ -68,6 +71,12 @@
                                     <i class="fas fa-user me-2"></i>
                                     <span class="fw-semibold">@userName</span>
                                 </a>
+                                <form method="post" asp-area="" asp-page="/auth/Logout" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger ms-2 btn-animated">
+                                        <i class="fas fa-sign-out-alt me-1"></i>
+                                        Logout
+                                    </button>
+                                </form>
                             }
                             else
                             {

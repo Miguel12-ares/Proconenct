@@ -1,48 +1,137 @@
 .proconnect-footer {
-    background: #fff;
-    border-top: 1px solid #eee;
+    background: #2c3e50;
+    color: white;
+    border-top: 1px solid #34495e;
     margin-top: 2rem;
+    padding: 0;
 }
+
 .footer-content {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 2rem 0;
+    padding: 3rem 0 2rem 0;
     gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
 }
+
 .footer-brand {
-    min-width: 180px;
+    min-width: 200px;
+    flex: 1;
 }
+
 .footer-title {
     font-weight: bold;
-    color: #2a3cff;
-    font-size: 1.1rem;
+    color: #fff;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    display: block;
 }
+
 .footer-desc {
     font-size: 0.95rem;
-    color: #666;
+    color: #bdc3c7;
+    line-height: 1.4;
 }
+
 .footer-col {
-    min-width: 120px;
+    min-width: 140px;
+    flex: 1;
 }
+
 .footer-heading {
     font-weight: bold;
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    display: block;
 }
+
+.footer-col a {
+    color: #bdc3c7;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.footer-col a:hover {
+    color: #fff;
+}
+
 .footer-icon {
-    margin-right: 8px;
-    font-size: 1.2rem;
+    margin-right: 12px;
+    font-size: 1.4rem;
+    display: inline-block;
+    margin-bottom: 0.5rem;
 }
+
 .footer-copy {
     text-align: center;
-    font-size: 0.95rem;
-    color: #888;
-    padding-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #95a5a6;
+    padding: 1.5rem 0;
+    border-top: 1px solid #34495e;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
 }
-@media (max-width: 900px) {
+
+@media (max-width: 991.98px) {
     .footer-content {
         flex-direction: column;
         align-items: flex-start;
-        gap: 1rem;
+        gap: 2rem;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    
+    .footer-copy {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .footer-content {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    
+    .footer-copy {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+/* Padding para el header principal */
+.main-header .navbar {
+    padding-top: 18px;
+    padding-bottom: 18px;
+}
+
+.main-header .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+@media (max-width: 991.98px) {
+    .main-header .container {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .main-header .container {
+        padding-left: 12px;
+        padding-right: 12px;
     }
 } 

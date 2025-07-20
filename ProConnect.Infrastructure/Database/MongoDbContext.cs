@@ -32,6 +32,8 @@ namespace ProConnect.Infrastructure.Database
 
         public IMongoCollection<ProfessionalProfile> ProfessionalProfiles => _database.GetCollection<ProfessionalProfile>("professionalProfiles");
 
+        public IMongoCollection<Booking> Bookings => _database.GetCollection<Booking>("bookings");
+
         public IMongoDatabase Database => _database;
 
         // Método para crear índices
@@ -55,8 +57,8 @@ namespace ProConnect.Infrastructure.Database
                 var userIdIndexOptions = new CreateIndexOptions { Unique = true };
                 await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(userIdIndexKeys, userIdIndexOptions));
 
-                var statusIndexKeys = Builders<ProfessionalProfile>.IndexKeys.Ascending(x => x.Status);
-                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(statusIndexKeys));
+                var professionalStatusIndexKeys = Builders<ProfessionalProfile>.IndexKeys.Ascending(x => x.Status);
+                await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(professionalStatusIndexKeys));
 
                 var specialtiesIndexKeys = Builders<ProfessionalProfile>.IndexKeys.Ascending(x => x.Specialties);
                 await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(specialtiesIndexKeys));
@@ -83,17 +85,53 @@ namespace ProConnect.Infrastructure.Database
                 // Índice de texto para búsqueda general
                 var textIndexKeys = Builders<ProfessionalProfile>.IndexKeys
                     .Text(x => x.Bio)
-                    .Text(x => x.Location);
+                    .Text(x => x.Location)
+                    .Text(x => x.FullName); // Agregar FullName
                 var textIndexOptions = new CreateIndexOptions
                 {
                     Name = "text_search_index",
                     Weights = new MongoDB.Bson.BsonDocument
                     {
                         { "bio", 3 },
-                        { "location", 2 }
+                        { "location", 2 },
+                        { "fullName", 4 } // Darle mayor peso al nombre
                     }
                 };
                 await ProfessionalProfiles.Indexes.CreateOneAsync(new CreateIndexModel<ProfessionalProfile>(textIndexKeys, textIndexOptions));
+
+                // Índices para Bookings
+                var clientIdIndexKeys = Builders<Booking>.IndexKeys.Ascending(x => x.ClientId);
+                await Bookings.Indexes.CreateOneAsync(new CreateIndexModel<Booking>(clientIdIndexKeys));
+
+                var professionalIdIndexKeys = Builders<Booking>.IndexKeys.Ascending(x => x.ProfessionalId);
+                await Bookings.Indexes.CreateOneAsync(new CreateIndexModel<Booking>(professionalIdIndexKeys));
+
+                var appointmentDateIndexKeys = Builders<Booking>.IndexKeys.Ascending(x => x.AppointmentDate);
+                await Bookings.Indexes.CreateOneAsync(new CreateIndexModel<Booking>(appointmentDateIndexKeys));
+
+                var bookingStatusIndexKeys = Builders<Booking>.IndexKeys.Ascending(x => x.Status);
+                await Bookings.Indexes.CreateOneAsync(new CreateIndexModel<Booking>(bookingStatusIndexKeys));
+
+                // Índice compuesto para consultas frecuentes de disponibilidad
+                var availabilityIndexKeys = Builders<Booking>.IndexKeys
+                    .Ascending(x => x.ProfessionalId)
+                    .Ascending(x => x.AppointmentDate)
+                    .Ascending(x => x.Status);
+                await Bookings.Indexes.CreateOneAsync(new CreateIndexModel<Booking>(availabilityIndexKeys));
+
+                // Índice compuesto para consultas de cliente
+                var clientBookingsIndexKeys = Builders<Booking>.IndexKeys
+                    .Ascending(x => x.ClientId)
+                    .Ascending(x => x.AppointmentDate);
+                await Bookings.Indexes.CreateOneAsync(new CreateIndexModel<Booking>(clientBookingsIndexKeys));
+
+                // TTL Index para limpiar reservas expiradas automáticamente (después de 1 año)
+                var ttlIndexKeys = Builders<Booking>.IndexKeys.Ascending(x => x.CreatedAt);
+                var ttlIndexOptions = new CreateIndexOptions
+                {
+                    ExpireAfter = TimeSpan.FromDays(365)
+                };
+                await Bookings.Indexes.CreateOneAsync(new CreateIndexModel<Booking>(ttlIndexKeys, ttlIndexOptions));
                 
                 Console.WriteLine("MongoDB indexes created successfully");
             }

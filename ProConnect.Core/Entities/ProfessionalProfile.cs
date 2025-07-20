@@ -126,6 +126,15 @@ namespace ProConnect.Core.Entities
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         /// <summary>
+        /// Nombre completo del profesional.
+        /// </summary>
+        [BsonElement("fullName")]
+        [Required]
+        [MinLength(3, ErrorMessage = "El nombre completo debe tener al menos 3 caracteres")]
+        [MaxLength(100, ErrorMessage = "El nombre completo no puede exceder 100 caracteres")]
+        public string FullName { get; set; } = string.Empty;
+
+        /// <summary>
         /// Valida si el perfil está completo para ser visible públicamente.
         /// </summary>
         public bool IsCompleteForPublicView()

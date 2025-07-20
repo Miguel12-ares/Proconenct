@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using System;
+using System.Diagnostics;
 
 namespace ProConnect.Infrastructure.Repositores
 {
@@ -228,6 +229,7 @@ namespace ProConnect.Infrastructure.Repositores
 
         public async Task<PagedResult<ProfessionalProfile>> SearchAdvancedAsync(ProfessionalSearchFilters filters)
         {
+            var stopwatch = Stopwatch.StartNew();
             var builder = Builders<ProfessionalProfile>.Filter;
             var filterList = new List<FilterDefinition<ProfessionalProfile>>
             {
@@ -244,45 +246,17 @@ namespace ProConnect.Infrastructure.Repositores
             bool hasMinExperience = filters.MinExperienceYears.HasValue;
             bool hasVirtual = filters.VirtualConsultation.HasValue && filters.VirtualConsultation.Value;
 
-            if (hasQuery && hasSpecialties)
+            // OPTIMIZACIÓN: Usar índice de texto si hay query
+            if (hasQuery)
             {
                 var query = filters.Query.Trim();
-                var specialtiesLower = filters.Specialties.Select(s => s.Trim().ToLower()).ToList();
-                if (specialtiesLower.Contains(query.ToLower()))
-                {
-                    var regex = new MongoDB.Bson.BsonRegularExpression(query, "i");
-                    filterList.Add(builder.Or(
-                        builder.Regex(x => x.Bio, regex),
-                        builder.Regex(x => x.Location, regex),
-                        builder.AnyIn(x => x.Specialties, new[] { query })
-                    ));
-                }
-                else
-                {
-                    var regex = new MongoDB.Bson.BsonRegularExpression(query, "i");
-                    filterList.Add(builder.Or(
-                        builder.Regex(x => x.Bio, regex),
-                        builder.Regex(x => x.Location, regex),
-                        builder.AnyIn(x => x.Specialties, new[] { query })
-                    ));
-                    filterList.Add(builder.AnyIn(x => x.Specialties, filters.Specialties));
-                }
+                var textFilter = builder.Text(query);
+                filterList.Add(textFilter);
             }
-            else if (hasQuery)
-            {
-                var query = filters.Query.Trim();
-                var regex = new MongoDB.Bson.BsonRegularExpression(query, "i");
-                filterList.Add(builder.Or(
-                    builder.Regex(x => x.Bio, regex),
-                    builder.Regex(x => x.Location, regex),
-                    builder.AnyIn(x => x.Specialties, new[] { query })
-                ));
-            }
-            else if (hasSpecialties)
+            if (hasSpecialties)
             {
                 filterList.Add(builder.AnyIn(x => x.Specialties, filters.Specialties));
             }
-
             if (hasLocation)
             {
                 var locationRegex = new MongoDB.Bson.BsonRegularExpression(filters.Location.Trim(), "i");
@@ -314,26 +288,10 @@ namespace ProConnect.Infrastructure.Repositores
                 filterList.Add(virtualServiceFilter);
             }
 
-            // DEBUG: Imprimir filtros aplicados
-            Console.WriteLine("[DEBUG] Filtros aplicados en búsqueda avanzada:");
-            Console.WriteLine($"Query: {filters.Query}");
-            Console.WriteLine($"Specialties: {(filters.Specialties != null ? string.Join(",", filters.Specialties) : "-")}");
-            Console.WriteLine($"Location: {filters.Location}");
-            Console.WriteLine($"MinHourlyRate: {filters.MinHourlyRate}");
-            Console.WriteLine($"MaxHourlyRate: {filters.MaxHourlyRate}");
-            Console.WriteLine($"MinRating: {filters.MinRating}");
-            Console.WriteLine($"MinExperienceYears: {filters.MinExperienceYears}");
-            Console.WriteLine($"VirtualConsultation: {filters.VirtualConsultation}");
-
             // Si NO hay ningún filtro relevante, solo filtra por status activo
-            if (!hasQuery && !hasSpecialties && !hasLocation && !hasMinHourlyRate && !hasMaxHourlyRate && !hasMinRating && !hasMinExperience && !hasVirtual)
-            {
-                Console.WriteLine("[DEBUG] No hay filtros relevantes, devolviendo todos los perfiles activos.");
-            }
-
             var filter = builder.And(filterList);
 
-            // Ordenamiento
+            // OPTIMIZACIÓN: Usar índices compuestos para ordenamiento
             var sort = Builders<ProfessionalProfile>.Sort.Descending(x => x.RatingAverage); // default
             switch (filters.OrderBy?.ToLower())
             {
@@ -350,18 +308,37 @@ namespace ProConnect.Infrastructure.Repositores
                     sort = Builders<ProfessionalProfile>.Sort.Descending(x => x.ExperienceYears);
                     break;
                 case "relevance":
+                    // Si hay query, el índice de texto ya prioriza relevancia
                     break;
             }
 
             int skip = (filters.Page - 1) * filters.PageSize;
             int limit = filters.PageSize;
 
+            // OPTIMIZACIÓN: Proyección mínima (solo campos necesarios)
+            var projection = Builders<ProfessionalProfile>.Projection
+                .Include(x => x.Id)
+                .Include(x => x.UserId)
+                .Include(x => x.Bio)
+                .Include(x => x.ExperienceYears)
+                .Include(x => x.HourlyRate)
+                .Include(x => x.RatingAverage)
+                .Include(x => x.TotalReviews)
+                .Include(x => x.Location)
+                .Include(x => x.Specialties)
+                .Include(x => x.Services)
+                .Include(x => x.Status);
+
             var totalCount = await _profiles.CountDocumentsAsync(filter);
             var items = await _profiles.Find(filter)
+                .Project<ProfessionalProfile>(projection)
                 .Sort(sort)
                 .Skip(skip)
                 .Limit(limit)
                 .ToListAsync();
+
+            stopwatch.Stop();
+            Console.WriteLine($"[SEARCH-REPO] Consulta avanzada ejecutada en {stopwatch.ElapsedMilliseconds} ms. Filtros: {System.Text.Json.JsonSerializer.Serialize(filters)}");
 
             return new PagedResult<ProfessionalProfile>
             {
