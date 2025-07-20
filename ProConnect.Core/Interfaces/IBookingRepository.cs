@@ -19,5 +19,11 @@ namespace ProConnect.Core.Interfaces
         Task<long> GetCountByStatusAsync(BookingStatus status);
         Task<long> GetCountByProfessionalAsync(string professionalId);
         Task<long> GetCountByClientAsync(string clientId);
+        
+        // Nuevos métodos para filtros avanzados
+        Task<List<Booking>> GetByClientIdWithFiltersAsync(string clientId, string? status, DateTime? dateFrom, DateTime? dateTo, string? professionalId, int limit, int offset);
+        Task<List<Booking>> GetByProfessionalIdWithFiltersAsync(string professionalId, string? status, DateTime? dateFrom, DateTime? dateTo, int limit, int offset);
+        Task<long> GetCountByClientIdWithFiltersAsync(string clientId, string? status, DateTime? dateFrom, DateTime? dateTo, string? professionalId);
+        Task<long> GetCountByProfessionalIdWithFiltersAsync(string professionalId, string? status, DateTime? dateFrom, DateTime? dateTo);
     }
 } 

@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ProConnect.Application.DTOs;
+using ProConnect.Application.DTOs.Shared;
 using ProConnect.Application.Interfaces;
 using ProConnect.Core.Entities;
 using System.Security.Claims;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 namespace ProConnect.Controllers
 {
@@ -13,6 +16,7 @@ namespace ProConnect.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    [EnableRateLimiting("fixed")]
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
@@ -108,6 +112,66 @@ namespace ProConnect.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting booking {BookingId}", id);
+                return StatusCode(500, new { error = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Lista reservas del usuario autenticado con filtros y paginación
+        /// </summary>
+        /// <param name="status">Filtrar por estado de reserva</param>
+        /// <param name="dateFrom">Fecha desde (formato: yyyy-MM-dd)</param>
+        /// <param name="dateTo">Fecha hasta (formato: yyyy-MM-dd)</param>
+        /// <param name="professionalId">Filtrar por profesional específico</param>
+        /// <param name="limit">Límite de resultados (default: 20, máximo: 100)</param>
+        /// <param name="offset">Desplazamiento para paginación (default: 0)</param>
+        /// <returns>Lista paginada de reservas</returns>
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResultDto<BookingDto>), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        public async Task<ActionResult<PagedResultDto<BookingDto>>> GetBookings(
+            [FromQuery] string? status = null,
+            [FromQuery] DateTime? dateFrom = null,
+            [FromQuery] DateTime? dateTo = null,
+            [FromQuery] string? professionalId = null,
+            [FromQuery] int limit = 20,
+            [FromQuery] int offset = 0)
+        {
+            try
+            {
+                // Validar parámetros
+                if (limit <= 0 || limit > 100)
+                {
+                    return BadRequest(new { error = "El límite debe estar entre 1 y 100" });
+                }
+
+                if (offset < 0)
+                {
+                    return BadRequest(new { error = "El offset no puede ser negativo" });
+                }
+
+                var userId = GetCurrentUserId();
+                var bookings = await _bookingService.GetBookingsWithFiltersAsync(
+                    userId, status, dateFrom, dateTo, professionalId, limit, offset);
+
+                var totalCount = await _bookingService.GetBookingsCountWithFiltersAsync(
+                    userId, status, dateFrom, dateTo, professionalId);
+
+                var result = new PagedResultDto<BookingDto>
+                {
+                    Items = bookings,
+                    TotalCount = totalCount,
+                    PageSize = limit,
+                    CurrentPage = (offset / limit) + 1,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / limit)
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting bookings for user {UserId}", GetCurrentUserId());
                 return StatusCode(500, new { error = "Error interno del servidor" });
             }
         }
@@ -279,7 +343,7 @@ namespace ProConnect.Controllers
                 
                 if (result)
                 {
-                    _logger.LogInformation("Booking confirmed successfully. ID: {BookingId}, Professional: {ProfessionalId}", 
+                    _logger.LogInformation("Booking confirmed successfully. ID: {BookingId}, ConfirmedBy: {ProfessionalId}", 
                         id, professionalId);
                     return Ok(new { message = "Reserva confirmada exitosamente" });
                 }
@@ -351,10 +415,10 @@ namespace ProConnect.Controllers
         /// Verifica si hay conflictos de horario para un profesional
         /// </summary>
         /// <param name="professionalId">ID del profesional</param>
-        /// <param name="appointmentDate">Fecha de la cita</param>
-        /// <param name="duration">Duración en minutos</param>
+        /// <param name="appointmentDate">Fecha y hora de la cita</param>
+        /// <param name="duration">Duración en minutos (default: 60)</param>
         /// <param name="excludeBookingId">ID de reserva a excluir (para actualizaciones)</param>
-        /// <returns>Resultado de la verificación</returns>
+        /// <returns>Información sobre conflictos</returns>
         [HttpGet("check-conflict")]
         [ProducesResponseType(typeof(object), 200)]
         [ProducesResponseType(400)]
@@ -366,16 +430,34 @@ namespace ProConnect.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(professionalId))
+                {
+                    return BadRequest(new { error = "El ID del profesional es requerido" });
+                }
+
+                if (appointmentDate <= DateTime.UtcNow)
+                {
+                    return BadRequest(new { error = "La fecha de la cita no puede estar en el pasado" });
+                }
+
+                if (duration < 15 || duration > 480)
+                {
+                    return BadRequest(new { error = "La duración debe estar entre 15 y 480 minutos" });
+                }
+
                 var hasConflict = await _bookingService.HasConflictAsync(professionalId, appointmentDate, duration, excludeBookingId);
                 
                 return Ok(new { 
                     hasConflict = hasConflict,
-                    message = hasConflict ? "El horario no está disponible" : "El horario está disponible"
+                    professionalId = professionalId,
+                    appointmentDate = appointmentDate,
+                    duration = duration,
+                    message = hasConflict ? "El horario seleccionado no está disponible" : "El horario está disponible"
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error checking conflict for professional {ProfessionalId}", professionalId);
+                _logger.LogError(ex, "Error checking booking conflicts");
                 return StatusCode(500, new { error = "Error interno del servidor" });
             }
         }
@@ -384,7 +466,7 @@ namespace ProConnect.Controllers
         /// Obtiene las próximas reservas de un profesional
         /// </summary>
         /// <param name="professionalId">ID del profesional</param>
-        /// <param name="fromDate">Fecha desde la cual buscar (default: hoy)</param>
+        /// <param name="fromDate">Fecha desde la cual obtener reservas (default: hoy)</param>
         /// <param name="limit">Límite de resultados (default: 10)</param>
         /// <returns>Lista de próximas reservas</returns>
         [HttpGet("professional/{professionalId}/upcoming")]
@@ -421,8 +503,8 @@ namespace ProConnect.Controllers
         /// <summary>
         /// Obtiene estadísticas de reservas por estado
         /// </summary>
-        /// <param name="status">Estado de las reservas</param>
-        /// <returns>Conteo de reservas</returns>
+        /// <param name="status">Estado de las reservas a contar</param>
+        /// <returns>Estadísticas de reservas</returns>
         [HttpGet("stats")]
         [ProducesResponseType(typeof(object), 200)]
         [ProducesResponseType(401)]
@@ -435,7 +517,8 @@ namespace ProConnect.Controllers
                 
                 return Ok(new { 
                     status = status,
-                    count = count
+                    count = count,
+                    userId = userId
                 });
             }
             catch (Exception ex)
