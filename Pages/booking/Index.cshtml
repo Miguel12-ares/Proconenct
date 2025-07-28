@@ -1,0 +1,288 @@
+@page "/booking/{professionalId}"
+@model ProConnect.Pages.Booking.BookingIndexModel
+@{
+    ViewData["Title"] = $"Reservar cita con {Model.Professional?.Name ?? "Profesional"}";
+    Layout = "_Layout";
+}
+
+<!-- IDs globales para validación JS -->
+<script>
+    window.currentUserId = '@Model.Client?.Id';
+    window.professionalId = '@Model.Professional?.Id';
+</script>
+
+<!-- CSS específico del módulo -->
+<link rel="stylesheet" href="~/css/booking/main.css" />
+<link rel="stylesheet" href="~/css/booking/calendar.css" />
+<link rel="stylesheet" href="~/css/booking/time-slots.css" />
+<link rel="stylesheet" href="~/css/booking/booking-form.css" />
+<link rel="stylesheet" href="~/css/booking/confirmation.css" />
+
+<div class="booking-container">
+    @if (Model.Professional != null)
+    {
+        <!-- Header del Profesional -->
+        <div class="professional-header">
+            <div class="professional-info">
+                <div class="professional-avatar">
+                    <img src="@(Model.Professional.ProfileImageUrl ?? "/images/default-avatar.png")" 
+                         alt="@Model.Professional.Name">
+                </div>
+                <div class="professional-details">
+                    <h1>@Model.Professional.Name</h1>
+                    <p class="specialty">@Model.Professional.Specialty</p>
+                    <div class="rating">
+                        <div class="stars">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="fas fa-star @(i <= Model.Professional.AverageRating ? "" : "text-muted")"></i>
+                            }
+                        </div>
+                        <span class="reviews">(@Model.Professional.ReviewCount reviews)</span>
+                    </div>
+                    <p class="rate">$@Model.Professional.HourlyRate/hora</p>
+                </div>
+            </div>
+            <div class="timezone-info">
+                <i class="fas fa-clock"></i>
+                <span>Zona horaria: @Model.TimeZone</span>
+            </div>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div class="booking-content">
+            <!-- Sección del Calendario -->
+            <div class="main-content">
+                <div class="calendar-section">
+                    <div class="section-header">
+                        <h2>Selecciona una fecha</h2>
+                        <p>Haz clic en una fecha disponible para ver los horarios</p>
+                    </div>
+                    <div id="calendar"></div>
+                    
+                    <!-- Leyenda del calendario -->
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <div class="legend-color available"></div>
+                            <span>Disponible</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color partially-available"></div>
+                            <span>Parcialmente disponible</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color unavailable"></div>
+                            <span>No disponible</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color selected"></div>
+                            <span>Seleccionado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Lateral -->
+            <div class="sidebar-content">
+                <!-- Horarios Disponibles -->
+                <div class="time-slots-section" id="time-slots-section">
+                    <div class="section-header">
+                        <h2>Horarios disponibles</h2>
+                        <p>Para el <span id="selected-date-display">día seleccionado</span></p>
+                    </div>
+                    
+                    <div id="time-slots-grid" class="time-slots-grid">
+                        <div class="no-time-slots">
+                            <i class="fas fa-calendar-check"></i>
+                            <h3>Selecciona una fecha</h3>
+                            <p>Elige una fecha del calendario para ver los horarios disponibles</p>
+                        </div>
+                    </div>
+                    
+                    <div class="duration-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Duración estimada: 60 minutos</span>
+                    </div>
+                </div>
+
+                <!-- Formulario de Reserva -->
+                <div class="booking-form-section" id="booking-form-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Información de la reserva</h2>
+                        <p>Completa los datos para confirmar tu cita</p>
+                    </div>
+                    
+                    <form id="booking-form" class="booking-form" novalidate>
+                        <input type="hidden" id="appointment-date" name="appointment-date">
+                        <input type="hidden" id="appointment-time" name="appointment-time">
+                        
+                        <div class="form-group">
+                            <label for="consultation-type" class="required">Tipo de consulta</label>
+                            <select id="consultation-type" name="consultation-type" required>
+    <option value="">Selecciona un tipo</option>
+    <option value="Presencial">Presencial</option>
+    <option value="Virtual">Virtual</option>
+    <option value="Telefonica">Telefónica</option>
+</select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="client-name" class="required">Nombre completo</label>
+                            <input type="text" id="client-name" name="client-name" 
+                                   value="@Model.Client?.Name" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="client-email" class="required">Email</label>
+                                <input type="email" id="client-email" name="client-email" 
+                                       value="@(Model.Client?.Email ?? "")" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="client-phone">Teléfono</label>
+                                <input type="tel" id="client-phone" name="client-phone" 
+                                       value="@Model.Client?.PhoneNumber">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="special-notes">Notas especiales</label>
+                            <textarea id="special-notes" name="special-notes" 
+                                      maxlength="500" 
+                                      placeholder="Describe brevemente el motivo de la consulta o cualquier información relevante..."></textarea>
+                            <span class="char-counter">0/500</span>
+                        </div>
+
+                        <!-- Resumen de la Reserva -->
+                        <div class="booking-summary">
+                            <h3>Resumen de la reserva</h3>
+                            <div class="summary-item">
+                                <span>Fecha:</span>
+                                <span id="summary-date">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Hora:</span>
+                                <span id="summary-time">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Duración:</span>
+                                <span id="summary-duration">-</span>
+                            </div>
+                            <div class="summary-item total">
+                                <span>Total:</span>
+                                <span>$@Model.Professional.HourlyRate</span>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="history.back()">
+                                <i class="fas fa-arrow-left"></i>
+                                Volver
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-calendar-check"></i>
+                                Reservar Cita
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="error-state">
+            <i class="fas fa-user-times"></i>
+            <h2>Profesional no encontrado</h2>
+            <p>El profesional que buscas no existe o no está disponible para reservas.</p>
+            <a href="/professionals" class="btn-primary">
+                <i class="fas fa-search"></i>
+                Buscar otros profesionales
+            </a>
+        </div>
+    }
+</div>
+
+<!-- Modal de Confirmación -->
+<div id="confirmation-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Confirmar Reserva</h2>
+            <button type="button" class="modal-close" id="cancel-booking-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="confirmation-details">
+                <h3>Detalles de la cita</h3>
+                <div class="detail-item">
+                    <strong>Profesional:</strong>
+                    <span>@Model.Professional?.Name</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Fecha:</strong>
+                    <span id="confirm-date">-</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Hora:</strong>
+                    <span id="confirm-time">-</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Duración:</strong>
+                    <span id="confirm-duration">-</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Tipo:</strong>
+                    <span id="confirm-type">-</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Notas:</strong>
+                    <span id="confirm-notes">-</span>
+                </div>
+                <div class="detail-item total-cost">
+                    <strong>Total:</strong>
+                    <span>$@Model.Professional?.HourlyRate</span>
+                </div>
+            </div>
+            
+            <div class="payment-info">
+                <h3>Información de pago</h3>
+                <p class="payment-note">
+                    <i class="fas fa-info-circle"></i>
+                    El pago se procesará después de confirmar la reserva
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="cancel-booking-btn">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </button>
+            <button type="button" class="btn-primary" id="confirm-booking-btn">
+                <i class="fas fa-check"></i>
+                Confirmar Reserva
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p id="loading-message">Procesando reserva...</p>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- FullCalendar -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales/es.global.min.js"></script>
+    
+    <!-- Axios para peticiones HTTP -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <!-- JavaScript del módulo -->
+    <script src="~/js/booking/main.js"></script>
+    <script src="~/js/booking/preventSelfBooking.js"></script>
+}

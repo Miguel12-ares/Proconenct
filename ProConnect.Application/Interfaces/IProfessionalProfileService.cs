@@ -85,5 +85,10 @@ namespace ProConnect.Application.Interfaces
         /// Obtiene todos los servicios del perfil profesional del usuario.
         /// </summary>
         Task<List<ServiceDto>> GetServicesAsync(string userId);
+
+        /// <summary>
+        /// Consulta la disponibilidad pública de un profesional por su id y rango de fechas.
+        /// </summary>
+        Task<Dictionary<string, List<AvailableSlotDto>>> GetAvailabilityByProfessionalIdAsync(string professionalId, DateTime startDate, DateTime endDate);
     }
 } 

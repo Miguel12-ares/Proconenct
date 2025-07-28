@@ -1,0 +1,227 @@
+@page "/booking/confirmation/{bookingId}"
+@model ProConnect.Pages.Booking.BookingConfirmationModel
+@{
+    ViewData["Title"] = "Confirmación de Reserva";
+    Layout = "_Layout";
+}
+
+<!-- CSS específico del módulo -->
+<link rel="stylesheet" href="~/css/booking/main.css" />
+<link rel="stylesheet" href="~/css/booking/confirmation.css" />
+
+<div class="confirmation-page">
+    @if (Model.Booking != null)
+    {
+        <!-- Header de Confirmación -->
+        <div class="confirmation-header">
+            <i class="fas fa-check-circle"></i>
+            <h1>¡Reserva Confirmada!</h1>
+            <p>Tu cita ha sido programada exitosamente</p>
+        </div>
+
+        <!-- Detalles de la Reserva -->
+        <div class="booking-details">
+            <h2>Detalles de tu cita</h2>
+            
+            <!-- Información del Profesional -->
+            <div class="professional-info-card">
+                <div class="professional-avatar-small">
+                    <img src="@(Model.Professional?.ProfileImageUrl ?? "/images/default-avatar.png")" 
+                         alt="@Model.Professional?.Name">
+                </div>
+                <div class="professional-details-small">
+                    <h3>@Model.Professional?.Name</h3>
+                    <p>@Model.Professional?.Specialty</p>
+                </div>
+            </div>
+
+            <!-- Detalles de la Cita -->
+            <div class="detail-item">
+                <strong>Número de Reserva:</strong>
+                <span>@Model.Booking.Id</span>
+            </div>
+            
+            <div class="detail-item">
+                <strong>Fecha:</strong>
+                <span>@Model.Booking.AppointmentDate.ToString("dddd, dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-ES"))</span>
+            </div>
+            
+            <div class="detail-item">
+                <strong>Hora:</strong>
+                <span>@Model.Booking.AppointmentDate.ToString("HH:mm")</span>
+            </div>
+            
+            <div class="detail-item">
+                <strong>Duración:</strong>
+                <span>@Model.Booking.AppointmentDuration minutos</span>
+            </div>
+            
+            <div class="detail-item">
+                <strong>Tipo de Consulta:</strong>
+                <span>@Model.GetConsultationTypeDisplay()</span>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(Model.Booking.SpecialNotes))
+            {
+                <div class="detail-item">
+                    <strong>Notas Especiales:</strong>
+                    <span>@Model.Booking.SpecialNotes</span>
+                </div>
+            }
+            
+            <div class="detail-item">
+                <strong>Estado:</strong>
+                <span class="badge bg-success">@Model.GetStatusDisplay()</span>
+            </div>
+            
+            <div class="detail-item total-cost">
+                <strong>Total Pagado:</strong>
+                <span>$@Model.Booking.TotalAmount.ToString("N0")</span>
+            </div>
+
+            @if (Model.Booking.MeetingDetails != null)
+            {
+                <div class="meeting-details">
+                    <h3>Detalles de la Reunión</h3>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Booking.MeetingDetails.VirtualMeetingUrl))
+                    {
+                        <div class="detail-item">
+                            <strong>Enlace Virtual:</strong>
+                            <span>
+                                <a href="@Model.Booking.MeetingDetails.VirtualMeetingUrl" 
+                                   target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-video me-1"></i>Unirse a la reunión
+                                </a>
+                            </span>
+                        </div>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(Model.Booking.MeetingDetails.PhysicalAddress))
+                    {
+                        <div class="detail-item">
+                            <strong>Dirección:</strong>
+                            <span>@Model.Booking.MeetingDetails.PhysicalAddress</span>
+                        </div>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(Model.Booking.MeetingDetails.PhoneNumber))
+                    {
+                        <div class="detail-item">
+                            <strong>Teléfono:</strong>
+                            <span>
+                                <a href="tel:@Model.Booking.MeetingDetails.PhoneNumber">
+                                    @Model.Booking.MeetingDetails.PhoneNumber
+                                </a>
+                            </span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Acciones de Calendario -->
+        <div class="calendar-actions">
+            <h3>Agregar a tu calendario</h3>
+            <div class="calendar-buttons">
+                <a href="@Model.GetGoogleCalendarUrl()" target="_blank" class="calendar-btn">
+                    <i class="fab fa-google"></i>
+                    Google Calendar
+                </a>
+                <a href="@Model.GetOutlookCalendarUrl()" target="_blank" class="calendar-btn">
+                    <i class="fab fa-microsoft"></i>
+                    Outlook
+                </a>
+                <a href="@Model.GetICalUrl()" download="cita-@(Model.Booking.Id).ics" class="calendar-btn">
+                    <i class="fas fa-calendar-download"></i>
+                    Descargar .ics
+                </a>
+            </div>
+        </div>
+
+        <!-- Información Adicional -->
+        <div class="booking-details">
+            <h2>Información importante</h2>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Recordatorio:</strong> Te enviaremos un email de confirmación y recordatorios antes de tu cita.
+            </div>
+            
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Política de cancelación:</strong> Puedes cancelar o reprogramar tu cita hasta 24 horas antes sin costo adicional.
+            </div>
+
+            @if (Model.Professional != null)
+            {
+                <div class="contact-info">
+                    <h3>Información de contacto</h3>
+                    <p><strong>Profesional:</strong> @Model.Professional.Name</p>
+                    @if (!string.IsNullOrEmpty(Model.Professional.UserEmail))
+                    {
+                        <p><strong>Email:</strong> <a href="mailto:@Model.Professional.UserEmail">@Model.Professional.UserEmail</a></p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Professional.PhoneNumber))
+                    {
+                        <p><strong>Teléfono:</strong> <a href="tel:@Model.Professional.PhoneNumber">@Model.Professional.PhoneNumber</a></p>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Acciones -->
+        <div class="confirmation-actions">
+            <a href="/dashboard" class="btn-primary">
+                <i class="fas fa-tachometer-alt"></i>
+                Ir al Dashboard
+            </a>
+            <a href="/bookings" class="btn-secondary">
+                <i class="fas fa-calendar-alt"></i>
+                Ver mis citas
+            </a>
+            <button onclick="window.print()" class="btn-secondary">
+                <i class="fas fa-print"></i>
+                Imprimir
+            </button>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <!-- Estado de Error -->
+        <div class="error-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h2>Error al cargar la confirmación</h2>
+            <p>@Model.ErrorMessage</p>
+            <a href="/dashboard" class="btn-primary">
+                <i class="fas fa-home"></i>
+                Volver al inicio
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Estado de Carga -->
+        <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Cargando información de la reserva...</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Funcionalidad adicional para la página de confirmación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-scroll a la información importante si viene de redirect
+            if (window.location.hash === '#important') {
+                document.querySelector('.alert').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Mostrar notificación de éxito
+            if (typeof toastr !== 'undefined') {
+                toastr.success('¡Tu cita ha sido confirmada exitosamente!', 'Reserva Confirmada');
+            }
+        });
+    </script>
+}

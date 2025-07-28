@@ -1,0 +1,279 @@
+/* ===================================
+   BOOKING MODULE - TIME SLOTS STYLES
+   ================================== */
+
+/* Contenedor de horarios */
+.time-slots-container {
+    margin-top: 20px;
+}
+
+.time-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+/* Slot individual */
+.time-slot {
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: var(--border-radius);
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 500;
+    transition: var(--transition);
+    position: relative;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.time-slot:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(0, 123, 255, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+/* Slot disponible */
+.time-slot.available {
+    border-color: var(--success-color);
+    color: var(--success-color);
+    background-color: rgba(40, 167, 69, 0.05);
+}
+
+.time-slot.available:hover {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: #1e7e34;
+    color: #1e7e34;
+}
+
+/* Slot seleccionado */
+.time-slot.selected {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.time-slot.selected:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Slot ocupado */
+.time-slot.occupied {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.time-slot.occupied:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Slot no disponible */
+.time-slot.unavailable {
+    background-color: rgba(108, 117, 125, 0.1);
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.time-slot.unavailable:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Información de duración */
+.duration-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    border-left: 4px solid var(--info-color);
+}
+
+.duration-info i {
+    color: var(--info-color);
+}
+
+/* Estado de carga para horarios */
+.time-slots-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    color: var(--secondary-color);
+}
+
+.time-slots-loading .loading-spinner {
+    margin-right: 15px;
+}
+
+/* Mensaje cuando no hay horarios */
+.no-time-slots {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--secondary-color);
+}
+
+.no-time-slots i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: var(--info-color);
+}
+
+.no-time-slots h3 {
+    margin: 0 0 10px 0;
+    color: var(--dark-color);
+}
+
+.no-time-slots p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Indicador de fecha seleccionada */
+#selected-date-display {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+/* Responsive para time slots */
+@media (max-width: 576px) {
+    .time-slots-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+    }
+    
+    .time-slot {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        min-height: 45px;
+    }
+    
+    .duration-info {
+        padding: 12px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .time-slots-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px;
+    }
+    
+    .time-slot {
+        padding: 15px 20px;
+        min-height: 55px;
+    }
+}
+
+/* Animaciones para time slots */
+.time-slot {
+    animation: timeSlotFadeIn 0.3s ease-in;
+}
+
+@keyframes timeSlotFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.time-slot.pulse {
+    animation: pulse 0.6s ease-in-out;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Tooltip para horarios ocupados */
+.time-slot[data-tooltip] {
+    position: relative;
+}
+
+.time-slot[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--dark-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+.time-slot[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--dark-color);
+    z-index: 1000;
+}
+
+/* Estados especiales */
+.time-slot.premium {
+    border-color: #ffd700;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+}
+
+.time-slot.premium::after {
+    content: '★';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    color: #ffd700;
+    font-size: 0.8rem;
+}
+
+.time-slot.last-minute {
+    border-color: var(--warning-color);
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.time-slot.last-minute::after {
+    content: '⚡';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    color: var(--warning-color);
+    font-size: 0.8rem;
+}

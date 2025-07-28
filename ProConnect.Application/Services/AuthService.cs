@@ -267,6 +267,7 @@ namespace ProConnect.Application.Services
             if (user == null) return null;
             return new UserProfileDto
             {
+                Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Phone = user.PhoneNumber ?? string.Empty,

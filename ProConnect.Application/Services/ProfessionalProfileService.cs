@@ -321,6 +321,52 @@ namespace ProConnect.Application.Services
             };
         }
 
+        /// <summary>
+        /// Consulta la disponibilidad pública de un profesional por su id y rango de fechas.
+        /// </summary>
+        public async Task<Dictionary<string, List<AvailableSlotDto>>> GetAvailabilityByProfessionalIdAsync(string professionalId, DateTime startDate, DateTime endDate)
+        {
+            var profile = await _profileRepository.GetByIdAsync(professionalId);
+            if (profile == null || profile.Status != ProfileStatus.Active)
+                throw new InvalidOperationException("Perfil profesional no encontrado o inactivo");
+
+            var result = new Dictionary<string, List<AvailableSlotDto>>();
+            for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+            {
+                // Verificar si la fecha está bloqueada
+                if (profile.AvailabilityBlocks.Any(b => date >= b.StartDate.Date && date <= b.EndDate.Date))
+                {
+                    result[date.ToString("yyyy-MM-dd")] = new List<AvailableSlotDto>();
+                    continue;
+                }
+
+                var dayOfWeek = date.DayOfWeek;
+                DaySchedule? daySchedule = dayOfWeek switch
+                {
+                    DayOfWeek.Monday => profile.AvailabilitySchedule.Monday,
+                    DayOfWeek.Tuesday => profile.AvailabilitySchedule.Tuesday,
+                    DayOfWeek.Wednesday => profile.AvailabilitySchedule.Wednesday,
+                    DayOfWeek.Thursday => profile.AvailabilitySchedule.Thursday,
+                    DayOfWeek.Friday => profile.AvailabilitySchedule.Friday,
+                    DayOfWeek.Saturday => profile.AvailabilitySchedule.Saturday,
+                    DayOfWeek.Sunday => profile.AvailabilitySchedule.Sunday,
+                    _ => null
+                };
+
+                var slots = new List<AvailableSlotDto>();
+                if (daySchedule != null && daySchedule.IsAvailable)
+                {
+                    slots.Add(new AvailableSlotDto
+                    {
+                        StartTime = daySchedule.StartTime,
+                        EndTime = daySchedule.EndTime
+                    });
+                }
+                result[date.ToString("yyyy-MM-dd")] = slots;
+            }
+            return result;
+        }
+
         public async Task<bool> AddServiceAsync(string userId, CreateServiceDto dto)
         {
             var profile = await _profileRepository.GetByUserIdAsync(userId);

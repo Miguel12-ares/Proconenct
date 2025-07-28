@@ -60,9 +60,9 @@
                             <div class="price-unit">COP / hora</div>
                         </div>
                         <div class="action-buttons">
-                            <button class="btn btn-primary btn-lg w-100 mb-2" onclick="openBookingModal()">
+                            <a class="btn btn-primary btn-lg w-100 mb-2" href="/booking/@Model.Professional.Id">
                                 <i class="fas fa-calendar-plus me-2"></i>Reservar consulta
-                            </button>
+                            </a>
                             <button class="btn btn-outline-primary w-100 mb-2" onclick="contactProfessional('@Model.Professional.Id', '@fullName')">
                                 <i class="fas fa-envelope me-2"></i>Contactar
                             </button>

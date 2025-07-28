@@ -52,6 +52,7 @@ namespace ProConnect.Controllers
             try
             {
                 var clientId = GetCurrentUserId();
+                createDto.ClientId = clientId;
                 var booking = await _bookingService.CreateBookingAsync(createDto, clientId);
                 
                 _logger.LogInformation("Booking created successfully. ID: {BookingId}, Client: {ClientId}", 

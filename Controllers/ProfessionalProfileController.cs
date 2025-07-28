@@ -478,5 +478,36 @@ namespace ProConnect.Controllers
                 return StatusCode(500, new { Message = "Error interno del servidor" });
             }
         }
+
+        /// <summary>
+        /// Obtiene la disponibilidad pública de un profesional por id y rango de fechas.
+        /// </summary>
+        [HttpGet("{id}/availability")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAvailability(string id, [FromQuery] string? startDate, [FromQuery] string? endDate)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest(new { Message = "ID del profesional es requerido" });
+
+                DateTime start, end;
+                if (!DateTime.TryParse(startDate, out start))
+                    start = DateTime.UtcNow.Date;
+                if (!DateTime.TryParse(endDate, out end))
+                    end = start.AddMonths(2).AddDays(-1);
+
+                var availability = await _profileService.GetAvailabilityByProfessionalIdAsync(id, start, end);
+                return Ok(availability);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Error interno del servidor" });
+            }
+        }
     }
 } 

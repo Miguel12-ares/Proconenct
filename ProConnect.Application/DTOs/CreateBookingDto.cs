@@ -8,10 +8,9 @@ namespace ProConnect.Application.DTOs
     public class CreateBookingDto
     {
         /// <summary>
-        /// ID del cliente que realiza la reserva
+        /// ID del cliente que realiza la reserva (se asigna internamente en el backend)
         /// </summary>
-        [Required(ErrorMessage = "El ID del cliente es requerido")]
-        public string ClientId { get; set; } = string.Empty;
+        public string? ClientId { get; set; }
 
         /// <summary>
         /// ID del profesional con quien se realiza la reserva
