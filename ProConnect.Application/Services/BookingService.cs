@@ -463,15 +463,90 @@ namespace ProConnect.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting booking count by status {Status} for user {UserId}", status, userId);
+                _logger.LogError(ex, "Error getting booking count by status for user {UserId}", userId);
+                throw;
+            }
+        }
+
+        public async Task<List<BookingDto>> GetBookingsWithFiltersAsync(string userId, string? status, DateTime? dateFrom, DateTime? dateTo, string? professionalId, int limit, int offset)
+        {
+            try
+            {
+                // Determinar si el usuario es cliente o profesional
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null)
+                {
+                    throw new InvalidOperationException("Usuario no encontrado");
+                }
+
+                List<Booking> bookings;
+                
+                if (user.UserType == UserType.Client)
+                {
+                    // Si es cliente, obtener sus reservas
+                    bookings = await _bookingRepository.GetByClientIdWithFiltersAsync(userId, status, dateFrom, dateTo, professionalId, limit, offset);
+                }
+                else if (user.UserType == UserType.Professional)
+                {
+                    // Si es profesional, obtener sus reservas
+                    bookings = await _bookingRepository.GetByProfessionalIdWithFiltersAsync(userId, status, dateFrom, dateTo, limit, offset);
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("Tipo de usuario no válido para acceder a reservas");
+                }
+
+                var bookingDtos = new List<BookingDto>();
+                foreach (var booking in bookings)
+                {
+                    bookingDtos.Add(await MapToBookingDtoAsync(booking));
+                }
+
+                return bookingDtos;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting bookings with filters for user {UserId}", userId);
+                throw;
+            }
+        }
+
+        public async Task<long> GetBookingsCountWithFiltersAsync(string userId, string? status, DateTime? dateFrom, DateTime? dateTo, string? professionalId)
+        {
+            try
+            {
+                // Determinar si el usuario es cliente o profesional
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null)
+                {
+                    throw new InvalidOperationException("Usuario no encontrado");
+                }
+
+                if (user.UserType == UserType.Client)
+                {
+                    // Si es cliente, contar sus reservas
+                    return await _bookingRepository.GetCountByClientIdWithFiltersAsync(userId, status, dateFrom, dateTo, professionalId);
+                }
+                else if (user.UserType == UserType.Professional)
+                {
+                    // Si es profesional, contar sus reservas
+                    return await _bookingRepository.GetCountByProfessionalIdWithFiltersAsync(userId, status, dateFrom, dateTo);
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("Tipo de usuario no válido para acceder a reservas");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting bookings count with filters for user {UserId}", userId);
                 throw;
             }
         }
 
         private decimal CalculateTotalAmount(decimal hourlyRate, int durationMinutes)
         {
-            var hours = (decimal)durationMinutes / 60;
-            return Math.Round(hourlyRate * hours, 2);
+            return Math.Round(hourlyRate * (durationMinutes / 60.0m), 2);
         }
 
         private async Task<BookingDto> MapToBookingDtoAsync(Booking booking)
@@ -491,13 +566,8 @@ namespace ProConnect.Application.Services
                 UpdatedAt = booking.UpdatedAt,
                 CancelledAt = booking.CancelledAt,
                 CancellationReason = booking.CancellationReason,
-                CancelledBy = booking.CancelledBy
-            };
-
-            // Mapear detalles de la reunión
-            if (booking.MeetingDetails != null)
-            {
-                dto.MeetingDetails = new MeetingDetailsDto
+                CancelledBy = booking.CancelledBy,
+                MeetingDetails = booking.MeetingDetails != null ? new MeetingDetailsDto
                 {
                     VirtualMeetingUrl = booking.MeetingDetails.VirtualMeetingUrl,
                     VirtualMeetingId = booking.MeetingDetails.VirtualMeetingId,
@@ -506,8 +576,8 @@ namespace ProConnect.Application.Services
                     Directions = booking.MeetingDetails.Directions,
                     PhoneNumber = booking.MeetingDetails.PhoneNumber,
                     CountryCode = booking.MeetingDetails.CountryCode
+                } : null
                 };
-            }
 
             // Obtener información adicional del cliente y profesional
             try
@@ -515,14 +585,14 @@ namespace ProConnect.Application.Services
                 var client = await _userRepository.GetByIdAsync(booking.ClientId);
                 if (client != null)
                 {
-                    dto.ClientName = $"{client.FirstName} {client.LastName}";
+                    dto.ClientName = $"{client.FirstName} {client.LastName}".Trim();
                 }
 
                 var professional = await _professionalRepository.GetByIdAsync(booking.ProfessionalId);
                 if (professional != null)
                 {
                     dto.ProfessionalName = professional.FullName;
-                    dto.ProfessionalSpecialty = professional.Specialties.FirstOrDefault();
+                    dto.ProfessionalSpecialty = professional.Specialties?.FirstOrDefault() ?? "Sin especialidad";
                 }
             }
             catch (Exception ex)

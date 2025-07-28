@@ -213,31 +213,31 @@
                         </div>
 
                         <!-- Paginación -->
-                        @if (Model.SearchResults.TotalPages > 1)
+                        @if (Model.SearchResults?.TotalPages > 1)
                         {
                             <div class="pagination-section d-flex justify-content-center mt-4">
                                 <nav aria-label="Navegación de páginas">
                                     <ul class="pagination">
-                                        @if (Model.SearchResults.Page > 1)
+                                        @if (Model.CurrentPage > 1)
                                         {
                                             <li class="page-item">
-                                                <a class="page-link" href="?page=@(Model.SearchResults.Page - 1)&@Model.GetQueryString()">
+                                                <a class="page-link" href="?page=@(Model.CurrentPage - 1)&@Model.GetQueryString()">
                                                     <i class="fas fa-chevron-left"></i> Anterior
                                                 </a>
                                             </li>
                                         }
                                         
-                                        @for (int i = Math.Max(1, Model.SearchResults.Page - 2); i <= Math.Min(Model.SearchResults.TotalPages, Model.SearchResults.Page + 2); i++)
+                                        @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.SearchResults.TotalPages, Model.CurrentPage + 2); i++)
                                         {
-                                            <li class="page-item @(i == Model.SearchResults.Page ? "active" : "")">
+                                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
                                                 <a class="page-link" href="?page=@i&@Model.GetQueryString()">@i</a>
                                             </li>
                                         }
                                         
-                                        @if (Model.SearchResults.Page < Model.SearchResults.TotalPages)
+                                        @if (Model.CurrentPage < Model.SearchResults.TotalPages)
                                         {
                                             <li class="page-item">
-                                                <a class="page-link" href="?page=@(Model.SearchResults.Page + 1)&@Model.GetQueryString()">
+                                                <a class="page-link" href="?page=@(Model.CurrentPage + 1)&@Model.GetQueryString()">
                                                     Siguiente <i class="fas fa-chevron-right"></i>
                                                 </a>
                                             </li>

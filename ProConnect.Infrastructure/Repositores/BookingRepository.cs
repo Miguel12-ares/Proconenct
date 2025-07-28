@@ -313,7 +313,179 @@ namespace ProConnect.Infrastructure.Repositores
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error counting bookings for client: {ClientId}", clientId);
+                _logger.LogError(ex, "Error getting booking count for client: {ClientId}", clientId);
+                throw;
+            }
+        }
+
+        public async Task<List<Booking>> GetByClientIdWithFiltersAsync(string clientId, string? status, DateTime? dateFrom, DateTime? dateTo, string? professionalId, int limit, int offset)
+        {
+            try
+            {
+                var filters = new List<FilterDefinition<Booking>>
+                {
+                    Builders<Booking>.Filter.Eq(x => x.ClientId, clientId)
+                };
+
+                // Aplicar filtro de estado si se proporciona
+                if (!string.IsNullOrEmpty(status) && Enum.TryParse<BookingStatus>(status, true, out var bookingStatus))
+                {
+                    filters.Add(Builders<Booking>.Filter.Eq(x => x.Status, bookingStatus));
+                }
+
+                // Aplicar filtro de fecha desde
+                if (dateFrom.HasValue)
+                {
+                    filters.Add(Builders<Booking>.Filter.Gte(x => x.AppointmentDate, dateFrom.Value));
+                }
+
+                // Aplicar filtro de fecha hasta
+                if (dateTo.HasValue)
+                {
+                    filters.Add(Builders<Booking>.Filter.Lte(x => x.AppointmentDate, dateTo.Value));
+                }
+
+                // Aplicar filtro de profesional si se proporciona
+                if (!string.IsNullOrEmpty(professionalId))
+                {
+                    filters.Add(Builders<Booking>.Filter.Eq(x => x.ProfessionalId, professionalId));
+                }
+
+                var combinedFilter = Builders<Booking>.Filter.And(filters);
+                var sort = Builders<Booking>.Sort.Descending(x => x.AppointmentDate);
+
+                return await _bookings.Find(combinedFilter)
+                    .Sort(sort)
+                    .Skip(offset)
+                    .Limit(limit)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting bookings with filters for client: {ClientId}", clientId);
+                throw;
+            }
+        }
+
+        public async Task<List<Booking>> GetByProfessionalIdWithFiltersAsync(string professionalId, string? status, DateTime? dateFrom, DateTime? dateTo, int limit, int offset)
+        {
+            try
+            {
+                var filters = new List<FilterDefinition<Booking>>
+                {
+                    Builders<Booking>.Filter.Eq(x => x.ProfessionalId, professionalId)
+                };
+
+                // Aplicar filtro de estado si se proporciona
+                if (!string.IsNullOrEmpty(status) && Enum.TryParse<BookingStatus>(status, true, out var bookingStatus))
+                {
+                    filters.Add(Builders<Booking>.Filter.Eq(x => x.Status, bookingStatus));
+                }
+
+                // Aplicar filtro de fecha desde
+                if (dateFrom.HasValue)
+                {
+                    filters.Add(Builders<Booking>.Filter.Gte(x => x.AppointmentDate, dateFrom.Value));
+                }
+
+                // Aplicar filtro de fecha hasta
+                if (dateTo.HasValue)
+                {
+                    filters.Add(Builders<Booking>.Filter.Lte(x => x.AppointmentDate, dateTo.Value));
+                }
+
+                var combinedFilter = Builders<Booking>.Filter.And(filters);
+                var sort = Builders<Booking>.Sort.Descending(x => x.AppointmentDate);
+
+                return await _bookings.Find(combinedFilter)
+                    .Sort(sort)
+                    .Skip(offset)
+                    .Limit(limit)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting bookings with filters for professional: {ProfessionalId}", professionalId);
+                throw;
+            }
+        }
+
+        public async Task<long> GetCountByClientIdWithFiltersAsync(string clientId, string? status, DateTime? dateFrom, DateTime? dateTo, string? professionalId)
+        {
+            try
+            {
+                var filters = new List<FilterDefinition<Booking>>
+                {
+                    Builders<Booking>.Filter.Eq(x => x.ClientId, clientId)
+                };
+
+                // Aplicar filtro de estado si se proporciona
+                if (!string.IsNullOrEmpty(status) && Enum.TryParse<BookingStatus>(status, true, out var bookingStatus))
+                {
+                    filters.Add(Builders<Booking>.Filter.Eq(x => x.Status, bookingStatus));
+                }
+
+                // Aplicar filtro de fecha desde
+                if (dateFrom.HasValue)
+                {
+                    filters.Add(Builders<Booking>.Filter.Gte(x => x.AppointmentDate, dateFrom.Value));
+                }
+
+                // Aplicar filtro de fecha hasta
+                if (dateTo.HasValue)
+                {
+                    filters.Add(Builders<Booking>.Filter.Lte(x => x.AppointmentDate, dateTo.Value));
+                }
+
+                // Aplicar filtro de profesional si se proporciona
+                if (!string.IsNullOrEmpty(professionalId))
+                {
+                    filters.Add(Builders<Booking>.Filter.Eq(x => x.ProfessionalId, professionalId));
+                }
+
+                var combinedFilter = Builders<Booking>.Filter.And(filters);
+                return await _bookings.CountDocumentsAsync(combinedFilter);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting booking count with filters for client: {ClientId}", clientId);
+                throw;
+            }
+        }
+
+        public async Task<long> GetCountByProfessionalIdWithFiltersAsync(string professionalId, string? status, DateTime? dateFrom, DateTime? dateTo)
+        {
+            try
+            {
+                var filters = new List<FilterDefinition<Booking>>
+                {
+                    Builders<Booking>.Filter.Eq(x => x.ProfessionalId, professionalId)
+                };
+
+                // Aplicar filtro de estado si se proporciona
+                if (!string.IsNullOrEmpty(status) && Enum.TryParse<BookingStatus>(status, true, out var bookingStatus))
+                {
+                    filters.Add(Builders<Booking>.Filter.Eq(x => x.Status, bookingStatus));
+                }
+
+                // Aplicar filtro de fecha desde
+                if (dateFrom.HasValue)
+                {
+                    filters.Add(Builders<Booking>.Filter.Gte(x => x.AppointmentDate, dateFrom.Value));
+                }
+
+                // Aplicar filtro de fecha hasta
+                if (dateTo.HasValue)
+                {
+                    filters.Add(Builders<Booking>.Filter.Lte(x => x.AppointmentDate, dateTo.Value));
+                }
+
+                var combinedFilter = Builders<Booking>.Filter.And(filters);
+                return await _bookings.CountDocumentsAsync(combinedFilter);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting booking count with filters for professional: {ProfessionalId}", professionalId);
                 throw;
             }
         }

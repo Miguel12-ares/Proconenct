@@ -72,7 +72,7 @@ namespace Proconenct.Pages.profiles
                 {
                     Items = new List<ProfessionalSearchResultDto>(),
                     TotalCount = 0,
-                    Page = CurrentPage,
+                    CurrentPage = CurrentPage,
                     PageSize = 12
                 };
             }

@@ -33,4 +33,8 @@
     <ProjectReference Include="ProConnect.Infrastructure\ProConnect.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="test/**/*" />
+  </ItemGroup>
+
 </Project>

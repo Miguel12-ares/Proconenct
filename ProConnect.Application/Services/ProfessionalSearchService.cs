@@ -101,7 +101,7 @@ namespace ProConnect.Application.Services
             {
                 Items = items,
                 TotalCount = pagedResult.TotalCount,
-                Page = pagedResult.Page,
+                CurrentPage = pagedResult.Page,
                 PageSize = pagedResult.PageSize,
                 TotalPages = (int)Math.Ceiling((double)pagedResult.TotalCount / pagedResult.PageSize)
             };

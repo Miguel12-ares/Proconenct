@@ -15,5 +15,9 @@ namespace ProConnect.Application.Interfaces
         Task<bool> HasConflictAsync(string professionalId, DateTime appointmentDate, int duration, string? excludeBookingId = null);
         Task<List<BookingDto>> GetUpcomingBookingsAsync(string professionalId, DateTime fromDate, int limit = 10);
         Task<long> GetBookingCountByStatusAsync(string userId, string status);
+        
+        // Nuevos métodos para filtros y paginación
+        Task<List<BookingDto>> GetBookingsWithFiltersAsync(string userId, string? status, DateTime? dateFrom, DateTime? dateTo, string? professionalId, int limit, int offset);
+        Task<long> GetBookingsCountWithFiltersAsync(string userId, string? status, DateTime? dateFrom, DateTime? dateTo, string? professionalId);
     }
 } 

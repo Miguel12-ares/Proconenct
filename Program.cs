@@ -14,6 +14,9 @@ using System.Text;
 using MongoDB.Driver;
 using StackExchange.Redis;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using ProConnect.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +25,26 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+// Configurar Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.User.Identity?.Name ?? context.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                Window = TimeSpan.FromHours(1)
+            }));
+
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        await context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", token);
+    };
+});
 
 // Configurar Swagger con soporte para JWT
 builder.Services.AddSwaggerGen(c =>
@@ -135,6 +158,7 @@ builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserValidator>()
 builder.Services.AddScoped<IValidator<LoginUserDto>, LoginUserValidator>();
 builder.Services.AddScoped<IValidator<CreateProfessionalProfileDto>, CreateProfessionalProfileValidator>();
 builder.Services.AddScoped<IValidator<UpdateProfessionalProfileDto>, UpdateProfessionalProfileValidator>();
+builder.Services.AddScoped<IValidator<CreateBookingDto>, CreateBookingValidator>();
 
 // Configuración de CORS
 builder.Services.AddCors(options =>
@@ -201,6 +225,12 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseCors("AllowSpecificOrigins");
+
+// Activar Rate Limiting
+app.UseRateLimiter();
+
+// Middleware de manejo de excepciones
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Middleware personalizado para propagar el JWT de la cookie al header Authorization
 app.Use(async (context, next) =>
