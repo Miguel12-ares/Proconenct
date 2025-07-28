@@ -10,7 +10,7 @@ namespace ProConnect.Application.DTOs
         public string Email { get; set; } = string.Empty; // Solo lectura, no editable
         
         // Propiedades adicionales para las vistas
-        public string Name => $"{FirstName} {LastName}".Trim();
-        public string PhoneNumber => Phone;
+        public string Name { get { return ($"{FirstName} {LastName}").Trim(); } }
+        public string PhoneNumber { get { return Phone; } }
     }
 }

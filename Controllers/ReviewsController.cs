@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ProConnect.Application.DTOs;
+using ProConnect.Application.DTOs.Shared;
 using ProConnect.Application.Interfaces;
 
 namespace Proconenct.Controllers
@@ -32,6 +33,15 @@ namespace Proconenct.Controllers
             return Ok(reviews);
         }
 
+        [HttpGet("by-professional/{professionalId}/paged")]
+        public async Task<ActionResult<PagedResultDto<ReviewDto>>> GetByProfessionalPaged(string professionalId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+            var paged = await _reviewService.GetByProfessionalIdPagedAsync(professionalId, page, pageSize);
+            return Ok(paged);
+        }
+
         [HttpGet("by-client/{clientId}")]
         public async Task<ActionResult<List<ReviewDto>>> GetByClient(string clientId)
         {
@@ -39,11 +49,36 @@ namespace Proconenct.Controllers
             return Ok(reviews);
         }
 
+        [HttpGet("by-client/{clientId}/paged")]
+        public async Task<ActionResult<PagedResultDto<ReviewDto>>> GetByClientPaged(string clientId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+            var paged = await _reviewService.GetByClientIdPagedAsync(clientId, page, pageSize);
+            return Ok(paged);
+        }
+
         [HttpPost]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         public async Task<ActionResult<ReviewDto>> Create([FromBody] CreateReviewDto dto)
         {
-            var created = await _reviewService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            // Extraer clientId del JWT
+            var clientId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(clientId))
+                return Unauthorized("No se pudo identificar al usuario autenticado.");
+
+            // Sobrescribir clientId para seguridad
+            dto.ClientId = clientId;
+
+            try
+            {
+                var created = await _reviewService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]

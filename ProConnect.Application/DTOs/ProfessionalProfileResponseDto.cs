@@ -33,15 +33,15 @@ namespace ProConnect.Application.DTOs
         public string? UserEmail { get; set; }
 
         // Propiedades adicionales necesarias para el módulo de reservas
-        public string Name => $"{UserFirstName} {UserLastName}".Trim();
-        public string TimeZone => AvailabilitySchedule?.Timezone ?? "UTC";
-        public bool IsAvailableForBooking => Status == ProfileStatusDto.Active && IsCompleteForPublicView;
+        public string Name { get { return ($"{UserFirstName} {UserLastName}").Trim(); } }
+        public string TimeZone { get { return AvailabilitySchedule?.Timezone ?? "UTC"; } }
+        public bool IsAvailableForBooking { get { return Status == ProfileStatusDto.Active && IsCompleteForPublicView; } }
         
         // Propiedades adicionales para las vistas
         public string? ProfileImageUrl { get; set; }
-        public string Specialty => Specialties.FirstOrDefault() ?? "";
-        public double AverageRating => RatingAverage;
-        public int ReviewCount => TotalReviews;
+        public string Specialty { get { return Specialties.FirstOrDefault() ?? ""; } }
+        public double AverageRating { get { return RatingAverage; } }
+        public int ReviewCount { get { return TotalReviews; } }
         public string PhoneNumber { get; set; } = string.Empty;
 
         // Propiedad para indicar si es vista pública
