@@ -75,6 +75,7 @@ namespace ProConnect.Application.DTOs.Shared
     {
         public string StartTime { get; set; } = string.Empty; // formato HH:MM
         public string EndTime { get; set; } = string.Empty;   // formato HH:MM
+        public bool isAvailable { get; set; } = true;
     }
 
     /// <summary>

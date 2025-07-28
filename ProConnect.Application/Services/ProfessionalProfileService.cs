@@ -310,7 +310,8 @@ namespace ProConnect.Application.Services
                 slots.Add(new AvailableSlotDto
                 {
                     StartTime = daySchedule.StartTime,
-                    EndTime = daySchedule.EndTime
+                    EndTime = daySchedule.EndTime,
+                    isAvailable = true
                 });
             }
 
@@ -359,7 +360,8 @@ namespace ProConnect.Application.Services
                     slots.Add(new AvailableSlotDto
                     {
                         StartTime = daySchedule.StartTime,
-                        EndTime = daySchedule.EndTime
+                        EndTime = daySchedule.EndTime,
+                        isAvailable = true
                     });
                 }
                 result[date.ToString("yyyy-MM-dd")] = slots;
@@ -572,3 +574,4 @@ namespace ProConnect.Application.Services
         }
     }
 } 
+
