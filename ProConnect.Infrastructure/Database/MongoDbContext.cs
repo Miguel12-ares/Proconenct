@@ -1,4 +1,4 @@
-﻿using MongoDB.Driver;
+using MongoDB.Driver;
 using Microsoft.Extensions.Configuration;
 using ProConnect.Core.Entities;
 
@@ -34,6 +34,7 @@ namespace ProConnect.Infrastructure.Database
 
         public IMongoCollection<Booking> Bookings => _database.GetCollection<Booking>("bookings");
 
+        public IMongoCollection<Review> Reviews => _database.GetCollection<Review>("reviews");
         public IMongoDatabase Database => _database;
 
         // Método para crear índices
@@ -133,6 +134,16 @@ namespace ProConnect.Infrastructure.Database
                 };
                 await Bookings.Indexes.CreateOneAsync(new CreateIndexModel<Booking>(ttlIndexKeys, ttlIndexOptions));
                 
+                // Índices para Reviews
+                var reviewProfessionalIdIndex = Builders<Review>.IndexKeys.Ascending(x => x.ProfessionalId);
+                await Reviews.Indexes.CreateOneAsync(new CreateIndexModel<Review>(reviewProfessionalIdIndex));
+
+                var reviewClientIdIndex = Builders<Review>.IndexKeys.Ascending(x => x.ClientId);
+                await Reviews.Indexes.CreateOneAsync(new CreateIndexModel<Review>(reviewClientIdIndex));
+
+                var reviewCreatedAtIndex = Builders<Review>.IndexKeys.Descending(x => x.CreatedAt);
+                await Reviews.Indexes.CreateOneAsync(new CreateIndexModel<Review>(reviewCreatedAtIndex));
+
                 Console.WriteLine("MongoDB indexes created successfully");
             }
             catch (Exception ex)

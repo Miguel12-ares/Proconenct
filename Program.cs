@@ -159,6 +159,12 @@ builder.Services.AddScoped<IValidator<LoginUserDto>, LoginUserValidator>();
 builder.Services.AddScoped<IValidator<CreateProfessionalProfileDto>, CreateProfessionalProfileValidator>();
 builder.Services.AddScoped<IValidator<UpdateProfessionalProfileDto>, UpdateProfessionalProfileValidator>();
 builder.Services.AddScoped<IValidator<CreateBookingDto>, CreateBookingValidator>();
+builder.Services.AddScoped<IValidator<CreateReviewDto>, CreateReviewDtoValidator>();
+builder.Services.AddScoped<IValidator<UpdateReviewDto>, UpdateReviewDtoValidator>();
+
+// Registro de repositorio y servicio de reviews
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 
 // Configuración de CORS
 builder.Services.AddCors(options =>
