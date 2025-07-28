@@ -76,6 +76,20 @@ class BookingManager {
             bookingForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
         }
 
+        // Duración de la cita (selección)
+        const durationButtons = document.querySelectorAll('.duration-option');
+        const durationInput = document.getElementById('duration');
+        if (durationButtons && durationInput) {
+            durationButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    durationButtons.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    durationInput.value = btn.dataset.duration;
+                    this.updateBookingSummary();
+                });
+            });
+        }
+
         // Modal de confirmación
         const confirmBtn = document.getElementById('confirm-booking-btn');
         const cancelBtn = document.getElementById('cancel-booking-btn');
@@ -419,6 +433,7 @@ showNoTimeSlots(message = 'No hay horarios disponibles para esta fecha') {
         const summaryDate = document.getElementById('summary-date');
         const summaryTime = document.getElementById('summary-time');
         const summaryDuration = document.getElementById('summary-duration');
+        const durationInput = document.getElementById('duration');
         
         if (summaryDate && this.selectedDate) {
             summaryDate.textContent = this.formatDate(this.selectedDate);
@@ -428,8 +443,8 @@ showNoTimeSlots(message = 'No hay horarios disponibles para esta fecha') {
             summaryTime.textContent = this.formatTime(this.selectedTimeSlot.time);
         }
         
-        if (summaryDuration && this.selectedTimeSlot) {
-            summaryDuration.textContent = `${this.selectedTimeSlot.duration} minutos`;
+        if (summaryDuration && durationInput) {
+            summaryDuration.textContent = `${durationInput.value} minutos`;
         }
     }
 
@@ -506,11 +521,12 @@ showNoTimeSlots(message = 'No hay horarios disponibles para esta fecha') {
         const date = this.selectedDate; // yyyy-MM-dd
         const time = this.selectedTimeSlot.time; // HH:mm
         const appointmentDateTime = new Date(`${date}T${time}`).toISOString();
+        const duration = formData.get('duration') || 60;
 
         return {
             ProfessionalId: this.professionalId,
             AppointmentDate: appointmentDateTime,
-            Duration: this.selectedTimeSlot.duration,
+            Duration: parseInt(duration),
             ConsultationType: formData.get('consultation-type'),
             Notes: formData.get('special-notes'),
             ClientPhone: formData.get('client-phone'),

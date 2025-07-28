@@ -68,15 +68,43 @@ namespace ProConnect.Application.Services
                     throw new InvalidOperationException($"Tipo de consulta no válido. Valores permitidos: {validTypes}");
                 }
 
-                // Calcular el costo total basado en la tarifa del profesional
-                var totalAmount = CalculateTotalAmount(professional.HourlyRate, createDto.Duration);
+                // Calcular el costo total basado en la duración seleccionada y la tarifa del profesional
+                var totalAmount = Math.Round(professional.HourlyRate * ((decimal)createDto.Duration / 60), 2);
+
+                // Convertir la fecha/hora de la cita desde la zona horaria local del profesional a UTC
+                DateTime appointmentUtc = createDto.AppointmentDate;
+                try
+                {
+                    string tzId = professional.AvailabilitySchedule?.Timezone ?? "UTC";
+                    TimeZoneInfo tz;
+                    try
+                    {
+                        tz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
+                    }
+                    catch (TimeZoneNotFoundException)
+                    {
+                        _logger.LogWarning("Zona horaria '{Timezone}' no encontrada. Se usará UTC por defecto.", tzId);
+                        tz = TimeZoneInfo.Utc;
+                    }
+                    catch (InvalidTimeZoneException)
+                    {
+                        _logger.LogWarning("Zona horaria '{Timezone}' inválida. Se usará UTC por defecto.", tzId);
+                        tz = TimeZoneInfo.Utc;
+                    }
+                    // Interpretar la fecha recibida como hora local del profesional y convertir a UTC
+                    appointmentUtc = TimeZoneInfo.ConvertTimeToUtc(createDto.AppointmentDate, tz);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error al convertir la fecha de la cita a UTC. Se usará la fecha original recibida.");
+                }
 
                 // Crear la reserva
                 var booking = new Booking
                 {
                     ClientId = actualClientId,
                     ProfessionalId = createDto.ProfessionalId,
-                    AppointmentDate = createDto.AppointmentDate,
+                    AppointmentDate = appointmentUtc,
                     AppointmentDuration = createDto.Duration,
                     ConsultationType = consultationType,
                     Status = BookingStatus.Pending,

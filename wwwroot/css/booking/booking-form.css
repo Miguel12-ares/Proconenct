@@ -4,6 +4,39 @@
 
 /* Formulario de reserva */
 .booking-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Duración de la cita - grid de opciones */
+.duration-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.duration-option {
+    padding: 14px 0;
+    background: #f8f9fa;
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    color: var(--primary-color);
+    outline: none;
+}
+.duration-option.selected, .duration-option:focus {
+    background: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+.duration-option:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.duration-option:disabled {
     max-width: 100%;
 }
 

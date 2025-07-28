@@ -117,13 +117,23 @@
                         <input type="hidden" id="appointment-time" name="appointment-time">
                         
                         <div class="form-group">
-                            <label for="consultation-type" class="required">Tipo de consulta</label>
-                            <select id="consultation-type" name="consultation-type" required>
+    <label for="consultation-type" class="required">Tipo de consulta</label>
+    <select id="consultation-type" name="consultation-type" required>
     <option value="">Selecciona un tipo</option>
     <option value="Presencial">Presencial</option>
     <option value="Virtual">Virtual</option>
     <option value="Telefonica">Telefónica</option>
 </select>
+                        </div>
+
+                        <div class="form-group" id="duration-group">
+                            <label class="required">Duración de la cita</label>
+                            <div class="duration-grid">
+                                <button type="button" class="duration-option selected" data-duration="30">30 min</button>
+                                <button type="button" class="duration-option" data-duration="60">60 min</button>
+                                <button type="button" class="duration-option" data-duration="90">90 min</button>
+                            </div>
+                            <input type="hidden" id="duration" name="duration" value="60" required />
                         </div>
 
                         <div class="form-group">
