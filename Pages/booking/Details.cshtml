@@ -1,0 +1,198 @@
+@page "/bookings/{bookingId}"
+@model ProConnect.Pages.Bookings.BookingsDetailsModel
+@{
+    ViewData["Title"] = "Detalle de Reserva";
+    Layout = "_Layout";
+}
+
+<div class="container py-4">
+    @if (Model.Booking == null)
+    {
+        <div class="alert alert-danger">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <div>
+                    <h5 class="alert-heading mb-1">Reserva no encontrada</h5>
+                    <p class="mb-0">No se encontró la reserva solicitada o no tienes permisos para verla.</p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex align-items-center mb-4">
+            <a href="/bookings" class="btn btn-outline-secondary btn-sm me-3">
+                <i class="fas fa-arrow-left me-1"></i> Volver
+            </a>
+            <h1 class="h3 mb-0">Detalle de la Reserva</h1>
+        </div>
+
+        <div class="booking-details-container">
+            <div class="booking-details-card">
+                <div class="details-card-header">
+                    <div class="details-avatar">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div>
+                        <div class="details-professional">@Model.Booking.ProfessionalName</div>
+                        <div class="details-specialty">@Model.Booking.ProfessionalSpecialty</div>
+                    </div>
+                    <span class="badge @GetStatusBadgeClass(Model.Booking.Status)">@Model.Booking.Status</span>
+                </div>
+
+                <div class="details-card-body">
+                    <div class="details-info-col">
+                        <div>
+                            <i class="far fa-calendar-alt"></i>
+                            <span><strong>Fecha:</strong> @Model.Booking.AppointmentDate.ToString("dddd, dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-ES"))</span>
+                        </div>
+                        <div>
+                            <i class="far fa-clock"></i>
+                            <span><strong>Hora:</strong> @Model.Booking.AppointmentDate.ToString("HH:mm") hrs</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-hourglass-half"></i>
+                            <span><strong>Duración:</strong> @Model.Booking.AppointmentDuration minutos</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-stethoscope"></i>
+                            <span><strong>Tipo:</strong> @GetConsultationType(Model.Booking.ConsultationType)</span>
+                        </div>
+                    </div>
+
+                    <div class="details-info-col">
+                        <div>
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span><strong>Total:</strong> $@Model.Booking.TotalAmount.ToString("N0")</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Booking.SpecialNotes))
+                        {
+                            <div>
+                                <i class="fas fa-clipboard-list"></i>
+                                <div>
+                                    <strong>Notas:</strong>
+                                    <div class="text-muted mt-1">@Model.Booking.SpecialNotes</div>
+                                </div>
+                            </div>
+                        }
+                        @if (Model.Booking.MeetingDetails != null)
+                        {
+                            if (!string.IsNullOrEmpty(Model.Booking.MeetingDetails.VirtualMeetingUrl))
+                            {
+                                <div>
+                                    <i class="fas fa-video"></i>
+                                    <div>
+                                        <strong>Enlace virtual:</strong>
+                                        <div class="mt-1">
+                                            <a href="@Model.Booking.MeetingDetails.VirtualMeetingUrl" target="_blank" class="text-primary text-decoration-underline">
+                                                @Model.Booking.MeetingDetails.VirtualMeetingUrl
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            if (!string.IsNullOrEmpty(Model.Booking.MeetingDetails.PhysicalAddress))
+                            {
+                                <div>
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div>
+                                        <strong>Dirección:</strong>
+                                        <div class="text-muted mt-1">@Model.Booking.MeetingDetails.PhysicalAddress</div>
+                                    </div>
+                                </div>
+                            }
+                            if (!string.IsNullOrEmpty(Model.Booking.MeetingDetails.PhoneNumber))
+                            {
+                                <div>
+                                    <i class="fas fa-phone"></i>
+                                    <div>
+                                        <strong>Teléfono:</strong>
+                                        <div class="mt-1">
+                                            <a href="tel:@Model.Booking.MeetingDetails.PhoneNumber" class="text-primary text-decoration-none">
+                                                <i class="fas fa-phone-alt me-1"></i> @Model.Booking.MeetingDetails.PhoneNumber
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                @if (Model.CanCancelBooking())
+                {
+                    <div class="details-card-actions">
+                        <form method="post" asp-page-handler="Cancel" asp-route-bookingId="@Model.Booking.Id" class="mb-0">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-1"></i> Cancelar cita
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+
+            @* Mostrar formulario de reseña solo si la reserva está completada *@
+            @if (Model.Booking.Status == "Completed")
+            {
+                <div class="mt-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4">
+                                <i class="fas fa-star text-warning me-2"></i>Deja tu reseña
+                            </h5>
+                            <partial name="/Pages/reviews/ReviewForm.cshtml" 
+                                     model="new ProConnect.Application.DTOs.CreateReviewDto { 
+                                         BookingId = Model.Booking.Id, 
+                                         ProfessionalId = Model.Booking.ProfessionalId 
+                                     }" />
+                        </div>
+                    </div>
+                </div>
+                
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var form = document.getElementById('reviewForm');
+                        if (form) {
+                            form.dataset.bookingId = '@Model.Booking.Id';
+                            form.dataset.professionalId = '@Model.Booking.ProfessionalId';
+                        }
+                    });
+                </script>
+            }
+        </div>
+    }
+</div>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status.ToLower() switch
+        {
+            "pending" => "badge-pending",
+            "confirmed" => "badge-confirmed",
+            "completed" => "badge-completed",
+            "cancelled" => "badge-cancelled",
+            _ => "badge-secondary"
+        };
+    }
+
+    string GetConsultationType(string type)
+    {
+        return type.ToLower() switch
+        {
+            "presencial" => "Consulta Presencial",
+            "virtual" => "Consulta Virtual",
+            "telefonica" => "Consulta Telefónica",
+            _ => type
+        };
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking/bookings-list.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/reviews/reviews.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/reviews/reviewForm.js" asp-append-version="true"></script>
+}

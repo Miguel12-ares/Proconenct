@@ -29,6 +29,7 @@ builder.Services.AddEndpointsApiExplorer();
 // Configurar Rate Limiting
 builder.Services.AddRateLimiter(options =>
 {
+    // Política global (opcional, ya definida)
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: context.User.Identity?.Name ?? context.Request.Headers.Host.ToString(),
@@ -38,6 +39,16 @@ builder.Services.AddRateLimiter(options =>
                 PermitLimit = 100,
                 Window = TimeSpan.FromHours(1)
             }));
+
+    // Política "fixed" para BookingController
+    options.AddFixedWindowLimiter("fixed", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 100;
+        limiterOptions.Window = TimeSpan.FromHours(1);
+        limiterOptions.AutoReplenishment = true;
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 2;
+    });
 
     options.OnRejected = async (context, token) =>
     {

@@ -1,0 +1,28 @@
+@model ProConnect.Application.DTOs.CreateReviewDto
+@{
+    Layout = null;
+}
+<div class="review-form-modal">
+    <form id="reviewForm" class="review-form" autocomplete="off">
+        <h3>Deja tu reseña</h3>
+        <div class="star-rating" id="starRating">
+            @for (int i = 1; i <= 5; i++)
+            {
+                <span class="star" data-value="@i">&#9733;</span>
+            }
+        </div>
+        <input type="hidden" name="rating" id="ratingInput" required />
+        <div class="form-group">
+            <label for="comment">Comentario (opcional):</label>
+            <textarea id="comment" name="comment" maxlength="500" rows="4" class="form-control"></textarea>
+            <small id="charCount">0/500</small>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Enviar reseña</button>
+        </div>
+        <div id="reviewMessage" class="review-message"></div>
+    </form>
+</div>
+@section Scripts {
+    <script src="/js/reviews/reviewForm.js"></script>
+}

@@ -1,0 +1,124 @@
+/* Estilos para la página de reseñas */
+.reviews-page {
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 200px);
+}
+
+.review-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.review-header {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.reviewer-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.reviewer-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.rating-stars {
+    color: #ffc107;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.review-date {
+    font-size: 0.8rem;
+}
+
+.review-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+}
+
+.review-body p {
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.review-footer {
+    padding: 0.75rem 1.5rem 1.25rem;
+    border-top: 1px solid #f5f5f5;
+    background-color: #fafafa;
+}
+
+.review-footer .badge {
+    font-weight: 500;
+    padding: 0.35em 0.8em;
+    border-radius: 50px;
+    font-size: 0.8rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .review-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .review-date {
+        align-self: flex-start;
+    }
+    
+    .reviewer-info {
+        width: 100%;
+    }
+}
+
+/* Animación para las tarjetas */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.review-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.review-card:nth-child(1) { animation-delay: 0.1s; }
+.review-card:nth-child(2) { animation-delay: 0.2s; }
+.review-card:nth-child(3) { animation-delay: 0.3s; }
+.review-card:nth-child(4) { animation-delay: 0.4s; }
+.review-card:nth-child(5) { animation-delay: 0.5s; }

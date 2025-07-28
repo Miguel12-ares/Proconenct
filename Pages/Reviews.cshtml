@@ -1,0 +1,124 @@
+@page
+@model Proconenct.Pages.ReviewsModel
+@{
+    ViewData["Title"] = "Reseñas de Nuestros Clientes";
+    ViewData["ActivePage"] = "Reseñas";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/reviews/reviews-page.css" />
+}
+
+<div class="reviews-page">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold text-primary mb-3">Reseñas de Nuestros Clientes</h1>
+            <p class="lead text-muted">Descubre lo que dicen nuestros clientes sobre los servicios de ProConnect</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Tarjeta de Reseña 1 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar bg-primary text-white">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h5 class="reviewer-name mb-1">María G.</h5>
+                                <div class="rating-stars">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-date text-muted">
+                            <small><i class="far fa-calendar-alt me-1"></i> 15 Jul 2025</small>
+                        </div>
+                    </div>
+                    <div class="review-body">
+                        <p class="mb-0">Excelente servicio de plomería. El profesional llegó puntual y resolvió el problema rápidamente. ¡Altamente recomendado!</p>
+                    </div>
+                    <div class="review-footer">
+                        <span class="badge bg-light text-dark"><i class="fas fa-tools me-1"></i> Plomería</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta de Reseña 2 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar bg-primary text-white">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h5 class="reviewer-name mb-1">Carlos M.</h5>
+                                <div class="rating-stars">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="far fa-star text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-date text-muted">
+                            <small><i class="far fa-calendar-alt me-1"></i> 10 Jul 2025</small>
+                        </div>
+                    </div>
+                    <div class="review-body">
+                        <p class="mb-0">Buen servicio de electricista. El trabajo quedó bien, aunque hubo un pequeño retraso en la llegada.</p>
+                    </div>
+                    <div class="review-footer">
+                        <span class="badge bg-light text-dark"><i class="fas fa-bolt me-1"></i> Electricista</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta de Reseña 3 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar bg-primary text-white">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h5 class="reviewer-name mb-1">Ana L.</h5>
+                                <div class="rating-stars">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-date text-muted">
+                            <small><i class="far fa-calendar-alt me-1"></i> 5 Jul 2025</small>
+                        </div>
+                    </div>
+                    <div class="review-body">
+                        <p class="mb-0">Contraté a un técnico para reparar mi nevera. Muy profesional y el precio fue justo. Volveré a usar el servicio.</p>
+                    </div>
+                    <div class="review-footer">
+                        <span class="badge bg-light text-dark"><i class="fas fa-tools me-1"></i> Electrodomésticos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <h4 class="mb-4">¿Ya has usado nuestros servicios?</h4>
+            <a href="/bookings" class="btn btn-primary btn-lg">
+                <i class="far fa-comment-dots me-2"></i>Deja tu reseña
+            </a>
+        </div>
+    </div>
+</div>

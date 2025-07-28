@@ -1,0 +1,50 @@
+/* Estilos para formulario y lista de reseñas */
+.review-form-modal {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    padding: 2rem;
+    max-width: 400px;
+    margin: 2rem auto;
+}
+.review-form h3 {
+    margin-bottom: 1rem;
+}
+.star-rating {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+}
+.star {
+    font-size: 2rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.star.selected,
+.star:hover,
+.star.selected ~ .star {
+    color: #f5b301;
+}
+.form-group {
+    margin-bottom: 1rem;
+}
+#charCount {
+    float: right;
+    font-size: 0.9em;
+    color: #888;
+}
+.review-message {
+    margin-top: 1rem;
+    font-size: 1em;
+    color: #28a745;
+}
+@media (max-width: 600px) {
+    .review-form-modal {
+        padding: 1rem;
+        max-width: 100%;
+    }
+    .star {
+        font-size: 1.5rem;
+    }
+}

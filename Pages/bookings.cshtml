@@ -1,0 +1,101 @@
+@page "/bookings"
+@model ProConnect.Pages.BookingsModel
+@{
+    ViewData["Title"] = "Mis Citas Agendadas";
+    Layout = "_Layout";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Mis Citas Agendadas</h1>
+        <a href="/search" class="btn btn-outline-primary">
+            <i class="fas fa-plus me-2"></i>Nueva Cita
+        </a>
+    </div>
+
+    <div class="bookings-list-container">
+        @if (Model.Bookings == null || !Model.Bookings.Any())
+        {
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No tienes citas agendadas</h3>
+                <p>Cuando agendes una consulta, aparecerá aquí.</p>
+                <a href="/search" class="btn btn-primary mt-3">
+                    <i class="fas fa-search me-2"></i> Buscar profesionales
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="bookings-cards-grid">
+                @foreach (var booking in Model.Bookings)
+                {
+                    <div class="booking-card">
+                        <div class="booking-card-header">
+                            <div class="booking-avatar">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div>
+                                <div class="booking-professional">@booking.ProfessionalName</div>
+                                <div class="booking-specialty">@booking.ProfessionalSpecialty</div>
+                            </div>
+                            <span class="badge @GetStatusBadgeClass(booking.Status)">@booking.Status</span>
+                        </div>
+                        <div class="booking-card-body">
+                            <div class="booking-info">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>@booking.AppointmentDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div class="booking-info">
+                                <i class="far fa-clock"></i>
+                                <span>@booking.AppointmentDate.ToString("HH:mm") hrs</span>
+                            </div>
+                            <div class="booking-info">
+                                <i class="fas fa-stethoscope"></i>
+                                <span>@GetConsultationType(booking.ConsultationType)</span>
+                            </div>
+                            <div class="booking-info">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>$@booking.TotalAmount.ToString("N0")</span>
+                            </div>
+                        </div>
+                        <div class="booking-card-actions">
+                            <a href="/bookings/@booking.Id" class="btn-view">
+                                <i class="fas fa-eye me-1"></i> Ver detalles
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status.ToLower() switch
+        {
+            "pending" => "badge-pending",
+            "confirmed" => "badge-confirmed",
+            "completed" => "badge-completed",
+            "cancelled" => "badge-cancelled",
+            _ => "badge-secondary"
+        };
+    }
+
+    string GetConsultationType(string type)
+    {
+        return type.ToLower() switch
+        {
+            "presencial" => "Consulta Presencial",
+            "virtual" => "Consulta Virtual",
+            "telefonica" => "Consulta Telefónica",
+            _ => type
+        };
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking/bookings-list.css" asp-append-version="true" />
+}

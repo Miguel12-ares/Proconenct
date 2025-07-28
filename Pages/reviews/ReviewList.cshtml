@@ -1,0 +1,38 @@
+@model IEnumerable<ProConnect.Application.DTOs.ReviewDto>
+@{
+    Layout = null;
+    var avg = Model.Any() ? Model.Average(r => r.Rating) : 0;
+}
+<div class="review-summary">
+    <div class="average-rating">
+        <span class="star-avg">@string.Format("{0:0.0}", avg)</span>
+        <span class="stars">
+            @for (int i = 1; i <= 5; i++)
+            {
+                <span class="star @(i <= Math.Round(avg) ? "selected" : "")">&#9733;</span>
+            }
+        </span>
+        <span class="review-count">(@Model.Count() reseñas)</span>
+    </div>
+</div>
+<ul class="review-list">
+    @foreach (var review in Model)
+    {
+        <li class="review-item">
+            <div class="review-header">
+                <span class="review-rating">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <span class="star @(i <= review.Rating ? "selected" : "")">&#9733;</span>
+                    }
+                </span>
+                <span class="review-date">@review.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</span>
+            </div>
+            @if (!string.IsNullOrEmpty(review.Comment))
+            {
+                <div class="review-comment">@review.Comment</div>
+            }
+        </li>
+    }
+</ul>
+<link rel="stylesheet" href="/css/reviews/reviews.css" />
