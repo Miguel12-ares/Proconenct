@@ -131,7 +131,107 @@
             <div class="profile-edit-actions">
                 <button type="submit" class="profile-edit-btn">Guardar Cambios</button>
             </div>
+            
+            <!-- Sección de eliminación de cuenta -->
+            <div class="profile-delete-account mt-5 pt-4 border-top">
+                <h3 class="text-danger mb-3">Zona de peligro</h3>
+                <p class="text-muted mb-4">
+                    Al eliminar tu cuenta, se borrarán permanentemente todos tus datos, incluyendo reservas y reseñas. 
+                    <!-- Botón para abrir el modal de confirmación -->
+                <button type="button" class="btn btn-danger btn-block mt-4" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                    <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
+                </button>
+
+                <!-- Modal de confirmación de eliminación -->
+                <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="deleteAccountModalLabel">¿Estás seguro de que deseas eliminar tu cuenta?</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-danger">
+                                    <strong>¡Atención!</strong> Esta acción no se puede deshacer. Se eliminarán todos tus datos de forma permanente.
+                                </div>
+                                <p>Al eliminar tu cuenta:</p>
+                                <ul>
+                                    <li>Se eliminará tu perfil y toda tu información personal</li>
+                                    <li>Se cancelarán todas tus citas pendientes</li>
+                                    <li>Perderás el acceso a todas las funcionalidades de la plataforma</li>
+                                </ul>
+                                <div class="mb-3">
+                                    <label for="confirmDeleteText" class="form-label">Escribe <strong>ELIMINAR CUENTA</strong> para confirmar:</label>
+                                    <input type="text" class="form-control" id="confirmDeleteText" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" disabled>Eliminar mi cuenta permanentemente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </form>
+        
+        <!-- Script para manejar la eliminación de cuenta -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const confirmText = document.getElementById('confirmDeleteText');
+                const confirmBtn = document.getElementById('confirmDeleteBtn');
+                
+                confirmText.addEventListener('input', function() {
+                    confirmBtn.disabled = confirmText.value.toUpperCase() !== 'ELIMINAR CUENTA';
+                });
+
+                confirmBtn.addEventListener('click', async function() {
+                    if (confirmText.value.toUpperCase() !== 'ELIMINAR CUENTA') {
+                        return;
+                    }
+
+                    try {
+                        // Mostrar indicador de carga
+                        const originalBtnText = confirmBtn.innerHTML;
+                        confirmBtn.disabled = true;
+                        confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Eliminando...';
+
+                        // Realizar la petición para eliminar la cuenta
+                        const response = await fetch('/api/user/account', {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            },
+                            credentials: 'same-origin'
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            
+                            // Mostrar mensaje de éxito
+                            alert(result.message || 'Tu cuenta ha sido eliminada correctamente. Lamentamos verte ir.');
+                            
+                            // Redirigir a la página de login
+                            window.location.href = result.RedirectTo || '/auth/Login';
+                        } else {
+                            const errorData = await response.json();
+                            throw new Error(errorData.message || 'Error al eliminar la cuenta');
+                        }
+                    } catch (error) {
+                        console.error('Error al eliminar la cuenta:', error);
+                        alert('Error al eliminar la cuenta: ' + (error.message || 'Inténtalo de nuevo más tarde.'));
+                        $('#deleteAccountModal').modal('hide');
+                    } finally {
+                        // Restaurar el botón
+                        if (confirmBtn) {
+                            confirmBtn.disabled = false;
+                            confirmBtn.innerHTML = 'Eliminar mi cuenta permanentemente';
+                        }
+                    }
+                });
+            });
+        </script>
     </div>
 </div>
 

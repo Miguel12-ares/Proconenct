@@ -270,7 +270,7 @@ namespace ProConnect.Application.Services
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Phone = user.PhoneNumber ?? string.Empty,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
                 Bio = user.Bio ?? string.Empty,
                 Email = user.Email
             };
@@ -279,7 +279,7 @@ namespace ProConnect.Application.Services
         public async Task<bool> UpdateProfileAsync(string userId, UpdateUserProfileDto dto)
         {
             // Validar datos de entrada
-            if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName) || string.IsNullOrWhiteSpace(dto.Phone))
+            if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName) || string.IsNullOrWhiteSpace(dto.PhoneNumber))
             {
                 Console.WriteLine($"[AUDITORIA] Fallo al actualizar perfil: campos obligatorios vacios para usuario {userId} ({DateTime.UtcNow})");
                 return false;
@@ -290,13 +290,13 @@ namespace ProConnect.Application.Services
                 return false;
             }
             // Validación de teléfono básica
-            if (dto.Phone.Length > 20)
+            if (dto.PhoneNumber.Length > 20)
             {
                 Console.WriteLine($"[AUDITORIA] Fallo al actualizar perfil: telefono demasiado largo para usuario {userId} ({DateTime.UtcNow})");
                 return false;
             }
             // Actualizar en base de datos
-            var result = await _userRepository.UpdateProfileFieldsAsync(userId, dto.FirstName, dto.LastName, dto.Phone, dto.Bio ?? string.Empty);
+            var result = await _userRepository.UpdateProfileFieldsAsync(userId, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.Bio ?? string.Empty);
             // Logging básico
             if (result)
                 Console.WriteLine($"[AUDITORIA] Usuario {userId} actualizo su perfil correctamente ({DateTime.UtcNow})");

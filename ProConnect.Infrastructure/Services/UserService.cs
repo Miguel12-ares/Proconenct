@@ -7,16 +7,21 @@ using Microsoft.Extensions.Logging;
 namespace ProConnect.Infrastructure.Services
 {
     /// <summary>
-    /// Implementación del servicio de gestión de usuarios
+    /// Servicio para la gestión de usuarios
     /// </summary>
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserDeletionService _userDeletionService;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IUserRepository userRepository, ILogger<UserService> logger)
+        public UserService(
+            IUserRepository userRepository,
+            IUserDeletionService userDeletionService,
+            ILogger<UserService> logger)
         {
             _userRepository = userRepository;
+            _userDeletionService = userDeletionService;
             _logger = logger;
         }
 
@@ -38,7 +43,7 @@ namespace ProConnect.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener perfil de usuario: {UserId}", userId);
-                throw;
+                return null;
             }
         }
 
@@ -55,17 +60,17 @@ namespace ProConnect.Infrastructure.Services
                     throw new InvalidOperationException("Usuario no encontrado");
                 }
 
-                // Actualizar campos usando las propiedades correctas del DTO
-                if (!string.IsNullOrEmpty(updateDto.FirstName))
+                // Actualizar campos permitidos
+                if (!string.IsNullOrWhiteSpace(updateDto.FirstName))
                     user.FirstName = updateDto.FirstName;
 
-                if (!string.IsNullOrEmpty(updateDto.LastName))
+                if (!string.IsNullOrWhiteSpace(updateDto.LastName))
                     user.LastName = updateDto.LastName;
 
-                if (!string.IsNullOrEmpty(updateDto.Phone))
-                    user.PhoneNumber = updateDto.Phone;
+                if (!string.IsNullOrWhiteSpace(updateDto.PhoneNumber))
+                    user.PhoneNumber = updateDto.PhoneNumber;
 
-                if (!string.IsNullOrEmpty(updateDto.Bio))
+                if (!string.IsNullOrWhiteSpace(updateDto.Bio))
                     user.Bio = updateDto.Bio;
 
                 user.UpdatedAt = DateTime.UtcNow;
@@ -117,12 +122,12 @@ namespace ProConnect.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener usuario por email: {Email}", email);
-                throw;
+                return null;
             }
         }
 
         /// <summary>
-        /// Elimina un usuario (soft delete)
+        /// Elimina un usuario (soft delete) - Para uso administrativo
         /// </summary>
         public async Task<bool> DeleteUserAsync(string userId)
         {
@@ -150,21 +155,35 @@ namespace ProConnect.Infrastructure.Services
             }
         }
 
+        /// <summary>
+        /// Elimina un usuario permanentemente junto con todos sus datos relacionados
+        /// </summary>
+        public async Task<bool> DeleteUserPermanentlyAsync(string userId)
+        {
+            return await _userDeletionService.DeleteUserPermanentlyAsync(userId);
+        }
+
         #region Private Methods
 
         /// <summary>
-        /// Mapea una entidad User a UserProfileDto
+        /// Mapea la entidad User a UserProfileDto
         /// </summary>
-        private static UserProfileDto MapToUserProfileDto(User user)
+        private UserProfileDto MapToUserProfileDto(User user)
         {
             return new UserProfileDto
             {
                 Id = user.Id,
-                FirstName = user.FirstName ?? string.Empty,
-                LastName = user.LastName ?? string.Empty,
-                Email = user.Email ?? string.Empty,
-                Phone = user.PhoneNumber ?? string.Empty,
-                Bio = user.Bio ?? string.Empty
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                Bio = user.Bio,
+                UserType = user.UserType,
+                IsActive = user.IsActive,
+                EmailVerified = user.EmailVerified,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt,
+                LastLoginAt = user.LastLoginAt
             };
         }
 

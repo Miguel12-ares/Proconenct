@@ -71,7 +71,7 @@ namespace Proconenct.Pages.auth
                 // Llenar los campos del formulario
                 FirstName = profile.FirstName;
                 LastName = profile.LastName;
-                Phone = profile.Phone;
+                Phone = profile.PhoneNumber;
                 Bio = profile.Bio;
                 Email = profile.Email;
 
@@ -122,7 +122,7 @@ namespace Proconenct.Pages.auth
                 {
                     FirstName = FirstName.Trim(),
                     LastName = LastName.Trim(),
-                    Phone = Phone.Trim(),
+                    PhoneNumber = Phone.Trim(),
                     Bio = Bio?.Trim() ?? string.Empty
                 };
 

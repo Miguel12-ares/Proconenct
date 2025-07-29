@@ -15,7 +15,7 @@ namespace ProConnect.Application.DTOs
         [Required]
         [Phone]
         [MaxLength(20)]
-        public string Phone { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
 
         [MaxLength(500)]
         public string Bio { get; set; } = string.Empty;

@@ -37,10 +37,17 @@ namespace ProConnect.Application.Interfaces
         Task<UserProfileDto?> GetUserByEmailAsync(string email);
 
         /// <summary>
-        /// Elimina un usuario (soft delete)
+        /// Elimina un usuario (soft delete) - Para uso administrativo
         /// </summary>
         /// <param name="userId">ID del usuario</param>
         /// <returns>True si se eliminó correctamente</returns>
         Task<bool> DeleteUserAsync(string userId);
+
+        /// <summary>
+        /// Elimina un usuario permanentemente junto con todos sus datos relacionados
+        /// </summary>
+        /// <param name="userId">ID del usuario</param>
+        /// <returns>True si se eliminó correctamente</returns>
+        Task<bool> DeleteUserPermanentlyAsync(string userId);
     }
 }

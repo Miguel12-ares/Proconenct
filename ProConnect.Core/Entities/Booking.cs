@@ -102,10 +102,9 @@ namespace ProConnect.Core.Entities
         public string? CancellationReason { get; set; }
 
         /// <summary>
-        /// ID del usuario que canceló (cliente o profesional)
+        /// ID del usuario que canceló (cliente o profesional) o "Sistema" para cancelaciones automáticas
         /// </summary>
         [BsonElement("cancelled_by")]
-        [BsonRepresentation(BsonType.ObjectId)]
         public string? CancelledBy { get; set; }
 
         /// <summary>
