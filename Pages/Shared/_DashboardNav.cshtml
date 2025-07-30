@@ -1,18 +1,94 @@
 @* Navegación del dashboard, reutilizable para cliente y profesional *@
 @{
     var userName = ViewData["UserName"] as string ?? Context.User?.Identity?.Name ?? "Usuario";
+    var userType = Context.User?.Claims?.FirstOrDefault(c => c.Type == "user_type")?.Value;
 }
 <nav class="dashboard-nav">
     <div class="dashboard-nav-header">
-        <span class="dashboard-user-icon"><i class="fas fa-user-circle"></i></span>
-        <span class="dashboard-user-name">@userName</span>
+        <div class="user-avatar">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="user-info">
+            <span class="user-name">@userName</span>
+            <span class="user-role">@(userType == "Professional" ? "Profesional" : userType == "Client" ? "Cliente" : "Usuario")</span>
+        </div>
     </div>
+    
     <ul class="dashboard-nav-list">
-        <li><a href="/auth/Profile"><i class="fas fa-user"></i> Mi Perfil</a></li>
-        <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
-        <li>
+        @if (userType == "Professional")
+        {
+            <li class="nav-item">
+                <a href="/dashboard" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/ProfessionalProfile" class="nav-link">
+                    <i class="fas fa-user-edit"></i>
+                    <span>Mi Perfil</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/bookings" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Mis Reservas</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/reviews" class="nav-link">
+                    <i class="fas fa-star"></i>
+                    <span>Mis Reseñas</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/search" class="nav-link">
+                    <i class="fas fa-search"></i>
+                    <span>Buscar Profesionales</span>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item">
+                <a href="/dashboard" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/auth/Profile" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>Mi Perfil</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/bookings" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Mis Reservas</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/search" class="nav-link">
+                    <i class="fas fa-search"></i>
+                    <span>Buscar Profesionales</span>
+                </a>
+            </li>
+        }
+        
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+        </li>
+        
+        <li class="nav-item">
             <form method="post" asp-page="/auth/Logout" style="display:inline;">
-                <button type="submit" class="dashboard-logout-btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</button>
+                <button type="submit" class="nav-link logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
             </form>
         </li>
     </ul>
