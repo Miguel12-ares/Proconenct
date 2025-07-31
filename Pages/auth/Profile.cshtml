@@ -123,6 +123,23 @@
             </div>
             
             <div class="profile-edit-group">
+                <label for="documentType">Tipo de Documento <span class="required">*</span></label>
+                <select id="documentType" name="DocumentType" required>
+                    <option value="1" selected="@(Model.DocumentType == 1)">Cédula de Ciudadanía (CC)</option>
+                    <option value="2" selected="@(Model.DocumentType == 2)">Tarjeta de Identidad</option>
+                    <option value="3" selected="@(Model.DocumentType == 3)">Cédula de Extranjería</option>
+                </select>
+                <span asp-validation-for="DocumentType" class="profile-edit-error"></span>
+            </div>
+            
+            <div class="profile-edit-group">
+                <label for="documentId">Número de Documento <span class="required">*</span></label>
+                <input type="text" id="documentId" name="DocumentId" value="@Model.DocumentId" minlength="5" maxlength="20" pattern="[0-9]+" required />
+                <small class="document-hint">Mínimo 5 dígitos, solo números</small>
+                <span asp-validation-for="DocumentId" class="profile-edit-error"></span>
+            </div>
+            
+            <div class="profile-edit-group">
                 <label for="bio">Biografía</label>
                 <textarea id="bio" name="Bio" rows="4" maxlength="500">@Model.Bio</textarea>
                 <span asp-validation-for="Bio" class="profile-edit-error"></span>

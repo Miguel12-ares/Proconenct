@@ -23,6 +23,12 @@ namespace Proconenct.Pages.auth
         public string PhoneNumber { get; set; } = string.Empty;
 
         [BindProperty]
+        public string DocumentId { get; set; } = string.Empty;
+
+        [BindProperty]
+        public int DocumentType { get; set; }
+
+        [BindProperty]
         public string Password { get; set; } = string.Empty;
 
         [BindProperty]
@@ -64,6 +70,8 @@ namespace Proconenct.Pages.auth
                     LastName = LastName.Trim(),
                     Email = Email.ToLowerInvariant().Trim(),
                     PhoneNumber = PhoneNumber.Trim(),
+                    DocumentId = DocumentId.Trim(),
+                    DocumentType = (DocumentType)DocumentType,
                     Password = Password,
                     ConfirmPassword = ConfirmPassword, // Aseguramos que se envía
                     UserType = (ProConnect.Core.Entities.UserType)UserType

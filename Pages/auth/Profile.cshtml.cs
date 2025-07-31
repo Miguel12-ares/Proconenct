@@ -22,6 +22,12 @@ namespace Proconenct.Pages.auth
         public string Phone { get; set; } = string.Empty;
 
         [BindProperty]
+        public string DocumentId { get; set; } = string.Empty;
+
+        [BindProperty]
+        public int DocumentType { get; set; }
+
+        [BindProperty]
         public string Bio { get; set; } = string.Empty;
 
         public string Email { get; set; } = string.Empty;
@@ -72,6 +78,8 @@ namespace Proconenct.Pages.auth
                 FirstName = profile.FirstName;
                 LastName = profile.LastName;
                 Phone = profile.PhoneNumber;
+                DocumentId = profile.DocumentId;
+                DocumentType = (int)profile.DocumentType;
                 Bio = profile.Bio;
                 Email = profile.Email;
 
@@ -111,9 +119,17 @@ namespace Proconenct.Pages.auth
                 }
 
                 // Validar campos obligatorios
-                if (string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName) || string.IsNullOrWhiteSpace(Phone))
+                if (string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName) || 
+                    string.IsNullOrWhiteSpace(Phone) || string.IsNullOrWhiteSpace(DocumentId))
                 {
-                    ErrorMessage = "Los campos Nombre, Apellido y Teléfono son obligatorios.";
+                    ErrorMessage = "Los campos Nombre, Apellido, Teléfono y Número de Documento son obligatorios.";
+                    return Page();
+                }
+
+                // Validar formato del documento
+                if (DocumentId.Length < 5 || !DocumentId.All(char.IsDigit))
+                {
+                    ErrorMessage = "El número de documento debe tener mínimo 5 dígitos y solo contener números.";
                     return Page();
                 }
 
@@ -123,6 +139,8 @@ namespace Proconenct.Pages.auth
                     FirstName = FirstName.Trim(),
                     LastName = LastName.Trim(),
                     PhoneNumber = Phone.Trim(),
+                    DocumentId = DocumentId.Trim(),
+                    DocumentType = (ProConnect.Core.Entities.DocumentType)DocumentType,
                     Bio = Bio?.Trim() ?? string.Empty
                 };
 

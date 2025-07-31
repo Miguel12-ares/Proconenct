@@ -26,6 +26,11 @@ namespace ProConnect.Infrastructure.Repositores
             return await _users.Find(x => x.Email == email.ToLowerInvariant()).FirstOrDefaultAsync();
         }
 
+        public async Task<User?> GetByDocumentIdAsync(string documentId)
+        {
+            return await _users.Find(x => x.DocumentId == documentId).FirstOrDefaultAsync();
+        }
+
         public async Task<string> CreateAsync(User user)
         {
             user.CreatedAt = DateTime.UtcNow;
@@ -53,6 +58,12 @@ namespace ProConnect.Infrastructure.Repositores
             return count > 0;
         }
 
+        public async Task<bool> DocumentIdExistsAsync(string documentId)
+        {
+            var count = await _users.CountDocumentsAsync(x => x.DocumentId == documentId);
+            return count > 0;
+        }
+
         public async Task<List<User>> GetAllAsync()
         {
             return await _users.Find(_ => true).ToListAsync();
@@ -63,12 +74,14 @@ namespace ProConnect.Infrastructure.Repositores
             return await _users.Find(x => x.UserType == userType).ToListAsync();
         }
 
-        public async Task<bool> UpdateProfileFieldsAsync(string userId, string firstName, string lastName, string phone, string bio)
+        public async Task<bool> UpdateProfileFieldsAsync(string userId, string firstName, string lastName, string phone, string bio, string documentId, DocumentType documentType)
         {
             var update = Builders<User>.Update
                 .Set(u => u.FirstName, firstName)
                 .Set(u => u.LastName, lastName)
                 .Set(u => u.PhoneNumber, phone)
+                .Set(u => u.DocumentId, documentId)
+                .Set(u => u.DocumentType, documentType)
                 .Set(u => u.UpdatedAt, DateTime.UtcNow)
                 .Set(u => u.Bio, bio);
 

@@ -27,6 +27,12 @@ namespace ProConnect.Core.Entities
         [BsonElement("bio")]
         public string? Bio { get; set; }
 
+        [BsonElement("documentId")]
+        public string DocumentId { get; set; } = string.Empty;
+
+        [BsonElement("documentType")]
+        public DocumentType DocumentType { get; set; } = DocumentType.CC;
+
         [BsonElement("userType")]
         public UserType UserType { get; set; } = UserType.Client;
 
@@ -57,6 +63,9 @@ namespace ProConnect.Core.Entities
             return !string.IsNullOrWhiteSpace(Email) &&
                    !string.IsNullOrWhiteSpace(FirstName) &&
                    !string.IsNullOrWhiteSpace(LastName) &&
+                   !string.IsNullOrWhiteSpace(DocumentId) &&
+                   DocumentId.Length >= 5 &&
+                   DocumentId.All(char.IsDigit) &&
                    UserType != UserType.Unknown;
         }
 
@@ -73,5 +82,12 @@ namespace ProConnect.Core.Entities
         Client = 1,
         Professional = 2,
         Administrator = 3
+    }
+
+    public enum DocumentType
+    {
+        CC = 1,
+        TarjetaIdentidad = 2,
+        CedulaExtranjeria = 3
     }
 }

@@ -37,6 +37,19 @@
             <input type="tel" id="PhoneNumber" name="PhoneNumber" required />
         </div>
         <div class="form-group">
+            <label for="DocumentType">Tipo de Documento *</label>
+            <select id="DocumentType" name="DocumentType" required>
+                <option value="1">Cédula de Ciudadanía (CC)</option>
+                <option value="2">Tarjeta de Identidad</option>
+                <option value="3">Cédula de Extranjería</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="DocumentId">Número de Documento *</label>
+            <input type="text" id="DocumentId" name="DocumentId" minlength="5" maxlength="20" pattern="[0-9]+" required />
+            <small class="document-hint">Mínimo 5 dígitos, solo números</small>
+        </div>
+        <div class="form-group">
             <label>Tipo de Usuario *</label>
             <div class="user-type-options">
                 <label><input type="radio" name="UserType" value="1" required /> Cliente</label>

@@ -8,6 +8,8 @@ namespace ProConnect.Application.DTOs
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
+        public string DocumentId { get; set; } = string.Empty;
+        public DocumentType DocumentType { get; set; } = DocumentType.CC;
         public string Bio { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty; // Solo lectura, no editable
         public UserType UserType { get; set; } = UserType.Client;

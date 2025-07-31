@@ -10,6 +10,8 @@ namespace ProConnect.Application.DTOs
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
+        public string DocumentId { get; set; } = string.Empty;
+        public DocumentType DocumentType { get; set; } = DocumentType.CC;
         public UserType UserType { get; set; } = UserType.Client;
         public string? EmailVerificationToken { get; set; }
         public DateTime? EmailVerificationTokenExpiresAt { get; set; }

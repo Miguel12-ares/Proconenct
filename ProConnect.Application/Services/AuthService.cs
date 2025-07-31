@@ -55,6 +55,8 @@ namespace ProConnect.Application.Services
                     FirstName = registerDto.FirstName.Trim(),
                     LastName = registerDto.LastName.Trim(),
                     PhoneNumber = registerDto.PhoneNumber?.Trim(),
+                    DocumentId = registerDto.DocumentId.Trim(),
+                    DocumentType = registerDto.DocumentType,
                     UserType = registerDto.UserType,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -271,32 +273,60 @@ namespace ProConnect.Application.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber ?? string.Empty,
+                DocumentId = user.DocumentId,
+                DocumentType = user.DocumentType,
                 Bio = user.Bio ?? string.Empty,
-                Email = user.Email
+                Email = user.Email,
+                UserType = user.UserType,
+                IsActive = user.IsActive,
+                EmailVerified = user.EmailVerified,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt,
+                LastLoginAt = user.LastLoginAt
             };
         }
 
         public async Task<bool> UpdateProfileAsync(string userId, UpdateUserProfileDto dto)
         {
             // Validar datos de entrada
-            if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName) || string.IsNullOrWhiteSpace(dto.PhoneNumber))
+            if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName) || 
+                string.IsNullOrWhiteSpace(dto.PhoneNumber) || string.IsNullOrWhiteSpace(dto.DocumentId))
             {
                 Console.WriteLine($"[AUDITORIA] Fallo al actualizar perfil: campos obligatorios vacios para usuario {userId} ({DateTime.UtcNow})");
                 return false;
             }
+            
+            // Validar formato del documento
+            if (dto.DocumentId.Length < 5 || !dto.DocumentId.All(char.IsDigit))
+            {
+                Console.WriteLine($"[AUDITORIA] Fallo al actualizar perfil: formato de documento inválido para usuario {userId} ({DateTime.UtcNow})");
+                return false;
+            }
+            
             if (dto.Bio != null && dto.Bio.Length > 500)
             {
                 Console.WriteLine($"[AUDITORIA] Fallo al actualizar perfil: bio demasiado larga para usuario {userId} ({DateTime.UtcNow})");
                 return false;
             }
+            
             // Validación de teléfono básica
             if (dto.PhoneNumber.Length > 20)
             {
                 Console.WriteLine($"[AUDITORIA] Fallo al actualizar perfil: telefono demasiado largo para usuario {userId} ({DateTime.UtcNow})");
                 return false;
             }
+            
+            // Verificar que el documento no esté en uso por otro usuario
+            var existingUser = await _userRepository.GetByDocumentIdAsync(dto.DocumentId);
+            if (existingUser != null && existingUser.Id != userId)
+            {
+                Console.WriteLine($"[AUDITORIA] Fallo al actualizar perfil: documento ya en uso para usuario {userId} ({DateTime.UtcNow})");
+                return false;
+            }
+            
             // Actualizar en base de datos
-            var result = await _userRepository.UpdateProfileFieldsAsync(userId, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.Bio ?? string.Empty);
+            var result = await _userRepository.UpdateProfileFieldsAsync(userId, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.Bio ?? string.Empty, dto.DocumentId, dto.DocumentType);
+            
             // Logging básico
             if (result)
                 Console.WriteLine($"[AUDITORIA] Usuario {userId} actualizo su perfil correctamente ({DateTime.UtcNow})");
